@@ -12,6 +12,7 @@ defmodule Labbookings.Bookings.Person do
     field :upi, :string
     field :password, :string
     field :status, :integer
+    field :details, Ecto.JSON
 
     timestamps()
   end
@@ -20,7 +21,7 @@ defmodule Labbookings.Bookings.Person do
   def changeset(person, attrs) do
     person
     |> Enums.convert(:status)
-    |> cast(attrs |> Enums.convert(:status), [:name, :upi, :password, :status])
-    |> validate_required([:name, :upi, :password, :status])
+    |> cast(attrs |> Enums.convert(:status), [:name, :upi, :password, :status, :details])
+    |> validate_required([:name, :upi, :password, :status, :details])
   end
 end

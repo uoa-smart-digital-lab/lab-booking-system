@@ -7,6 +7,7 @@ defmodule Labbookings.Repo.Migrations.CreatePerson do
       add :upi, :string
       add :password, :string
       add :status, :integer
+      add :details, :map
 
       timestamps()
     end

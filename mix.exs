@@ -7,7 +7,7 @@ defmodule Labbookings.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:gettext] ++ Mix.compilers(),
+      #compilers: [:gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -47,7 +47,9 @@ defmodule Labbookings.MixProject do
       {:absinthe, "~> 1.6"},
       {:absinthe_plug, "~> 1.5"},
       {:uuid, "~> 1.1" },
-      {:bcrypt_elixir, "~> 3.0"}
+      {:bcrypt_elixir, "~> 3.0"},
+      {:poison, "~> 5.0"},
+      {:ecto_json, "~> 0.1.0"}
     ]
   end
 

@@ -19,6 +19,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :upi, non_null(:string)
     field :password, non_null(:string)
     field :status, non_null(:usertype)
+    field :details, non_null(:map)
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -70,6 +71,7 @@ defmodule LabbookingsWeb.Schema.Person do
       arg :name, non_null(:string)
       arg :password, non_null(:string)
       arg :status, non_null(:usertype)
+      arg :details, non_null(:map)
       resolve &PersonResolver.create_person/3
     end
     # ----------------------------------------------------------------------------------------------------
@@ -82,6 +84,7 @@ defmodule LabbookingsWeb.Schema.Person do
       arg :name, :string
       arg :password, :string
       arg :status, :usertype
+      arg :details, non_null(:map)
       resolve &PersonResolver.update_person/3
     end
     # ----------------------------------------------------------------------------------------------------
