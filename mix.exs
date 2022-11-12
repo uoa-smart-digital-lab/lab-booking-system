@@ -42,14 +42,13 @@ defmodule Labbookings.MixProject do
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.18"},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.3"},
       {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.6"},
       {:absinthe_plug, "~> 1.5"},
       {:uuid, "~> 1.1" },
-      {:bcrypt_elixir, "~> 3.0"},
-      {:poison, "~> 5.0"},
-      {:ecto_json, "~> 0.1.0"}
+      {:bcrypt_elixir, "~> 3.0"} #,
+      # {:ecto_json, "~> 0.1.0"}
     ]
   end
 

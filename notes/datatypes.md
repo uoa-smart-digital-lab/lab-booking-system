@@ -29,3 +29,14 @@ ITEM
 /$ITEM/qr        // QR code for this item
 /bookings/$upi
 
+
+
+
+JSON_ELEMENT
+    key: string
+    value: XXXX
+
+JSON
+
+
+

@@ -6,7 +6,6 @@ defmodule LabbookingsWeb.PersonResolver do
   # alias Labbookings.Occupancy
   # alias Labbookings.Participant
 
-
   # ------------------------------------------------------------------------------------------------------
   # Get all people in the database
   # Only admins or powerusers can do this, or if the sessionid upi and user upi match

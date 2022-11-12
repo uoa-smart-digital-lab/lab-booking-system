@@ -6,13 +6,12 @@ defmodule Labbookings.Bookings.Person do
   import Ecto.Changeset
   alias LabbookingsWeb.Schema.Enums
 
-
   schema "person" do
     field :name, :string
     field :upi, :string
     field :password, :string
     field :status, :integer
-    field :details, Ecto.JSON
+    field :details, :map
 
     timestamps()
   end

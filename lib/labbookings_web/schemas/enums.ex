@@ -21,7 +21,7 @@ defmodule LabbookingsWeb.Schema.Enums do
   def convert({:error, error}, _), do: {:error, error}
   def convert(the_list, the_key) when is_list(the_list), do: convert_list(the_list, Map.get(enums(), the_key), the_key)
   def convert(the_map, the_key) when is_map(the_map), do: the_map |> Map.replace(the_key, convert_item(Map.get(the_map, the_key), Map.get(enums(), the_key)))
-  def convert(the_map, _, _), do: the_map
+  def convert(the_map, _), do: the_map
   # ----------------------------------------------------------------------------------------------------
 
 
@@ -30,13 +30,13 @@ defmodule LabbookingsWeb.Schema.Enums do
   # ----------------------------------------------------------------------------------------------------
   # Convert between atom and integer, depending on what is passed in.  Reference determines the specific
   # enum list to use.  If the atom or index doesn't exist, the first of the list is used as default, or 0.
-  defp convert_item(campus_atom, reference) when is_atom(campus_atom), do: get_index(reference, campus_atom, 0, 0)
-  defp convert_item(campus_index, reference) when is_integer(campus_index) do
-    case get_atom(reference, campus_index) do
+  defp convert_item(the_atom, reference) when is_atom(the_atom), do: get_index(reference, the_atom, 0, 0)
+  defp convert_item(the_index, reference) when is_integer(the_index) do
+    case get_atom(reference, the_index) do
       :error ->
         [head | _] = reference
         head
-      campus_atom -> campus_atom
+        the_atom -> the_atom
     end
   end
 

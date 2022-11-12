@@ -15,11 +15,11 @@ defmodule LabbookingsWeb.Schema.Person do
   # Person Schema Definition
   # ------------------------------------------------------------------------------------------------------
   object :person do
-    field :name, non_null(:string)
-    field :upi, non_null(:string)
+    field :name, non_null(:string), description: "The person's name"
+    field :upi, non_null(:string), description: "The University of Auckland Universal Personal Identifier (UPI)"
     field :password, non_null(:string)
-    field :status, non_null(:usertype)
-    field :details, non_null(:map)
+    field :status, non_null(:usertype), description: "The usertype of the person, eg ADMIN, POWERUSER or USER"
+    field :details, :json, description: "Any other details in JSON format"
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ defmodule LabbookingsWeb.Schema.Person do
       arg :name, non_null(:string)
       arg :password, non_null(:string)
       arg :status, non_null(:usertype)
-      arg :details, non_null(:map)
+      arg :details, :json
       resolve &PersonResolver.create_person/3
     end
     # ----------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ defmodule LabbookingsWeb.Schema.Person do
       arg :name, :string
       arg :password, :string
       arg :status, :usertype
-      arg :details, non_null(:map)
+      arg :details, :json
       resolve &PersonResolver.update_person/3
     end
     # ----------------------------------------------------------------------------------------------------
