@@ -21,7 +21,8 @@ defmodule Labbookings.Schema.Types.Custom.JSON do
   defp decode(%Absinthe.Blueprint.Input.String{value: value}) do
     case Jason.decode(value) do
       {:ok, result} -> {:ok, result}
-      _ -> :error
+      _ ->
+        :error
     end
   end
 
@@ -33,5 +34,7 @@ defmodule Labbookings.Schema.Types.Custom.JSON do
     :error
   end
 
-  defp encode(value), do: value
+  defp encode(value) do
+    value
+  end
 end

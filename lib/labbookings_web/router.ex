@@ -28,9 +28,7 @@ defmodule LabbookingsWeb.Router do
     pipe_through :api
 
     forward "/", Absinthe.Plug,
-    init_opts: [schema: LabbookingsWeb.Schema, json_codec: Jason]
-
-    # schema: LabbookingsWeb.Schema
+      init_opts: [schema: LabbookingsWeb.Schema, json_codec: Jason]
   end
 
   # Enables LiveDashboard and graphiql only for development

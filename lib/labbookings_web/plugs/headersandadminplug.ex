@@ -21,6 +21,11 @@ defmodule LabbookingsWeb.HeadersAndAdminContext do
     Absinthe.Plug.put_options(conn, context: context)
   end
 
+  # def parse(conn, opts \\ []) do
+  #   opts = Keyword.put_new(opts, :parsers, [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART])
+  #   Plug.Parsers.call(conn, Plug.Parsers.init(opts))
+  # end
+
   @doc """
   Return the current user context based on the authorization header
   """

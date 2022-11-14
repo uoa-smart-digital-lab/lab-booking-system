@@ -74,7 +74,6 @@ defmodule Labbookings.Person do
   # Update a person record
   # ------------------------------------------------------------------------------------------------------
   def update_person(%Person{} = person, attrs) do
-    :erlang.display(person)
     person
     |> Person.changeset(attrs)
     |> Repo.update()
