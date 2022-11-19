@@ -35,7 +35,10 @@ function View(args)
 	{		
 		login({variables: { upi: state.upi, password: state.password}})
 		.then(result => props.loggedin(result.data.login))
-		.catch(error => props.error(error))
+		.catch(error => {
+			console.debug(error);
+			props.error(error)
+		})
 	};
 
 	// Hand the keypresses and changes in the UI

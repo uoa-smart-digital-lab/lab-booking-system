@@ -51,7 +51,7 @@ const user_details =
             }
         }`,
         create: gql`mutation createPerson ($name: String!, $status: Usertype!, $upi: String!, $password: String!) {
-            createPerson (name: $name, status: $status, upi: $upi, password: $password) {
+            createPerson (name: $name, status: $status, upi: $upi, password: $password, details: "{}") {
                 upi
             }
         }`,

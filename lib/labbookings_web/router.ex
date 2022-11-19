@@ -12,7 +12,7 @@ defmodule LabbookingsWeb.Router do
 
   scope "/", LabbookingsWeb do
     pipe_through :browser
-    get "/", PageController, :index
+    get "/", AdminPageController, :index
     # get "/rooms", PageController, :index
     get "/admin", AdminPageController, :index
     # get "/checkin", CheckInPageController, :index
@@ -28,7 +28,8 @@ defmodule LabbookingsWeb.Router do
     pipe_through :api
 
     forward "/", Absinthe.Plug,
-      init_opts: [schema: LabbookingsWeb.Schema, json_codec: Jason]
+    schema: LabbookingsWeb.Schema,
+    init_opts: [json_codec: Jason]
   end
 
   # Enables LiveDashboard and graphiql only for development

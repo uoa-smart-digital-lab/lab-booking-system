@@ -19,7 +19,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :upi, non_null(:string), description: "The University of Auckland Universal Personal Identifier (UPI)"
     field :password, non_null(:string)
     field :status, non_null(:usertype), description: "The usertype of the person, eg ADMIN, POWERUSER or USER"
-    field :details, :json, description: "Any other details in JSON format"
+    field :details, non_null(:json), description: "Any other details in JSON format"
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ defmodule LabbookingsWeb.Schema.Person do
       arg :name, non_null(:string)
       arg :password, non_null(:string)
       arg :status, non_null(:usertype)
-      arg :details, :json
+      arg :details, non_null(:json)
       resolve &PersonResolver.create_person/3
     end
     # ----------------------------------------------------------------------------------------------------
