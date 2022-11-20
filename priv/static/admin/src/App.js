@@ -67,36 +67,33 @@ const user_details =
 
 
 // ----------------------------------------------------------------------------------------------------
-// Room table details
+// Item table details
 // ----------------------------------------------------------------------------------------------------
-const room_details = 
+const item_details = 
 {
-    title: "All Rooms",
-    description: "View and edit all rooms", 
-
-    location: ["CITY", "NEWMARKET", "GRAFTON", "EPSOM", "TAITOKERAU", "LEIGH", "SOUTHAUCKLAND", "GOLDIEESTATE"],
+    title: "All Items",
+    description: "View and edit all items", 
 
     columns: [
         {title: "Name", width: 3, name: "name", type: "string", editable: false, index: true}, 
-        {title: "Campus", width: 3, name: "campus", type: "enum", enum: "location", editable: true, index: false},
-        {title: "Map URL", width: 3, name: "mapurl", type: "url", editable: true, index: false},
-        {title: "Max Number Students", width: 3, name: "max", type: "number", editable: true, index: false}
+        {title: "Image", width: 3, name: "image", type: "string", editable: true, index: false}, 
+        {title: "URL", width: 3, name: "url", type: "url", editable: true, index: false}
     ],
 
     queries: {
-        main: gql`query allRooms { allRooms { name, campus, mapurl, max } }`,
-        update: gql`mutation updateRoom ($campus: Location, $mapurl: String, $max: Int, $name: String!) {
-            updateRoom (campus: $campus, mapurl: $mapurl, max: $max, name: $name) {
+        main: gql`query allItems { allItems { name,  image, url } }`,
+        update: gql`mutation updateItem ($url: String, $image: String, $name: String!) {
+            updateItem (image: $image, url: $url, name: $name) {
                 name
             }
         }`,
-        create: gql`mutation createRoom ($campus: Location!, $mapurl: String!, $max: Int!, $name: String!) {
-            createRoom (campus: $campus, mapurl: $mapurl, max: $max, name: $name) {
+        create: gql`mutation createItem ($url: String!, $image: String!, $name: String!) {
+            createItem (image: $image, url: $url, name: $name, details: "{}") {
                 name
             }
         }`,
-        delete: gql`mutation deleteRoom ($name: String!) {
-            deleteRoom (name: $name) {
+        delete: gql`mutation deleteItem ($name: String!) {
+            deleteItem (name: $name) {
                 name
             }
         }`
@@ -117,18 +114,18 @@ const course_details =
         {title: "Name", width: 3, name: "name", type: "string", editable: false, index: true}, 
         {title: "Canvas URL", width: 3, name: "canvasurl", type: "url", editable: true, index: false},
         {title: "Max Number Students", width: 3, name: "max", type: "number", editable: true, index: false},
-        {title: "Room Name", width: 3, name: "roomName", type: "table", table: ["room", "name"], editable: true, index: false}
+        {title: "Item Name", width: 3, name: "itemName", type: "table", table: ["item", "name"], editable: true, index: false}
     ],
 
     queries: {
-        main: gql`query allCourses { allCourses { name, canvasurl, max room { name } } }`,
-        update: gql`mutation updateCourse ($canvasurl: String, $max: Int, $name: String!, $roomName: String) {
-            updateCourse (canvasurl: $canvasurl, max: $max, name: $name, roomName: $roomName) {
+        main: gql`query allCourses { allCourses { name, canvasurl, max item { name } } }`,
+        update: gql`mutation updateCourse ($canvasurl: String, $max: Int, $name: String!, $itemName: String) {
+            updateCourse (canvasurl: $canvasurl, max: $max, name: $name, itemName: $itemName) {
                 name
             }
         }`,
-        create: gql`mutation createCourse ($canvasurl: String!, $max: Int!, $name: String!, $roomName: String!) {
-            createCourse (canvasurl: $canvasurl, max: $max, name: $name, roomName: $roomName) {
+        create: gql`mutation createCourse ($canvasurl: String!, $max: Int!, $name: String!, $itemName: String!) {
+            createCourse (canvasurl: $canvasurl, max: $max, name: $name, itemName: $itemName) {
                 name
             }
         }`,
@@ -140,7 +137,7 @@ const course_details =
     },
 
     subqueries: {
-        roomName: gql`query { allRooms { name } }`
+        itemName: gql`query { allItems { name } }`
     }
 };
 // ----------------------------------------------------------------------------------------------------
@@ -152,30 +149,30 @@ const course_details =
 // ----------------------------------------------------------------------------------------------------
 const occupancy_details = 
 {
-    title: "Occupants currently in a room for a course",
+    title: "Occupants currently in a item for a course",
     description: "View and edit all occupants", 
 
     columns: [
         {title: "Occupant Name", width: 3, name: "upi", type: "table", table: ["person", "upi"], editable: true, index: true}, 
-        {title: "Room Name", width: 3, name: "roomName", type: "table", table: ["room", "name"], editable: true, index: true}
+        {title: "Item Name", width: 3, name: "itemName", type: "table", table: ["item", "name"], editable: true, index: true}
     ],
 
     queries: {   
         main: gql`query allOccupants {
-            allOccupants { room { name } person { upi name } } }`,
-        update: gql`mutation scanIn ($roomName: String!, $upi: String!) {
-            scanIn (roomName: $roomName, upi: $upi) {
-                occupants { upi } room { name } } }`,
-        create: gql`mutation scanIn ($roomName: String!, $upi: String!) {
-            scanIn (roomName: $roomName, upi: $upi) {
-                occupants { upi } room { name } } }`,
-        delete: gql`mutation scanOut ($roomName: String!, $upi: String!) {
-            scanOut (roomName: $roomName, upi: $upi) {
-                occupants { upi } room { name } } }`
+            allOccupants { item { name } person { upi name } } }`,
+        update: gql`mutation scanIn ($itemName: String!, $upi: String!) {
+            scanIn (itemName: $itemName, upi: $upi) {
+                occupants { upi } item { name } } }`,
+        create: gql`mutation scanIn ($itemName: String!, $upi: String!) {
+            scanIn (itemName: $itemName, upi: $upi) {
+                occupants { upi } item { name } } }`,
+        delete: gql`mutation scanOut ($itemName: String!, $upi: String!) {
+            scanOut (itemName: $itemName, upi: $upi) {
+                occupants { upi } item { name } } }`
     },
 
     subqueries: {
-        roomName: gql`query { allRooms { name } }`,
+        itemName: gql`query { allItems { name } }`,
         upi: gql`query { allPeople { upi } }`
     }
 };
@@ -231,8 +228,8 @@ export default function App() {
         currentState: 0,
         errorMessage: "",
         currentTitle: "Dashboard",
-        states: {start: 0, main: 1, people: 2, rooms: 3, courses: 4, occupants: 6, participants: 7, checkin: 8, error: 20, done: 21},
-        headings: {start: "Dashboard", main: "Dashboard", people: "People", rooms: "Rooms", courses: "Courses", occupants: "Occupants", participants: "Participants", checkin: "Check In or Out"},
+        states: {start: 0, main: 1, people: 2, items: 3, courses: 4, occupants: 6, participants: 7, checkin: 8, error: 20, done: 21},
+        headings: {start: "Dashboard", main: "Dashboard", people: "People", items: "Items", courses: "Courses", occupants: "Occupants", participants: "Participants", checkin: "Check In or Out"},
 
         set: (name, value) => { setState( previousState => { return { ...previousState, [name]: value }} ); }
 	});
@@ -277,11 +274,11 @@ export default function App() {
             case state.states.start         : return (<Login errorMessage={state.errorMessage} error={() => {state.set("errorMessage","Error logging in");}} loggedin={(result) => {state.set("sessionid", result.sessionid); state.set("currentState", state.states.main)}}/>)
             case state.states.main          : return (<Main />)
             case state.states.people        : return (<GraphQLTable sessionid={state.sessionid} details={user_details}/>)
-            case state.states.rooms         : return (<GraphQLTable sessionid={state.sessionid} details={room_details}/>)
-            case state.states.courses       : return (<GraphQLTable sessionid={state.sessionid} details={course_details}/>)
-            case state.states.occupants     : return (<GraphQLTable sessionid={state.sessionid} details={occupancy_details}/>)
-            case state.states.participants  : return (<GraphQLTable sessionid={state.sessionid} details={participancy_details}/>)
-            case state.states.checkin       : window.location = "/checkin?sessionid=" + state.sessionid;
+            case state.states.items         : return (<GraphQLTable sessionid={state.sessionid} details={item_details}/>)
+            // case state.states.courses       : return (<GraphQLTable sessionid={state.sessionid} details={course_details}/>)
+            // case state.states.occupants     : return (<GraphQLTable sessionid={state.sessionid} details={occupancy_details}/>)
+            // case state.states.participants  : return (<GraphQLTable sessionid={state.sessionid} details={participancy_details}/>)
+            // case state.states.checkin       : window.location = "/checkin?sessionid=" + state.sessionid;
             default                         : return (<Main />)
         }
     }
@@ -299,12 +296,12 @@ export default function App() {
     const menu_options = [
         {key: "main", text: state.headings.start, value: "main"},
         {key: "people", text: state.headings.people, value: "people"},
-        {key: "rooms", text: state.headings.rooms, value: "rooms"},
-        {key: "courses", text: state.headings.courses, value: "courses"},
-        {key: "occupants", text: state.headings.occupants, value: "occupants"},
-        {key: "participants", text: state.headings.participants, value: "participants"},
-        {content: (<Divider fitted />), value: "divider"},
-        {key: "checkin", text: state.headings.checkin, value: "checkin"}
+        {key: "items", text: state.headings.items, value: "items"},
+        // {key: "courses", text: state.headings.courses, value: "courses"},
+        // {key: "occupants", text: state.headings.occupants, value: "occupants"},
+        // {key: "participants", text: state.headings.participants, value: "participants"},
+        // {content: (<Divider fitted />), value: "divider"},
+        // {key: "checkin", text: state.headings.checkin, value: "checkin"}
     ]
     // ------------------------------------------------------------------------------------------------
 

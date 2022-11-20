@@ -1,0 +1,16 @@
+Make a booking:
+
+Get item (only items you are allowed to use are listed)
+
+Get Start time
+Get End time
+
+
+
+
+
+Admin can book and use anything, add and remove items, add and remove people, change other bookings, and change induction levels
+
+Superuser can administer items they are inducted for, and change induction levels for ordinary users.  They can change and book items for other users.
+
+User can only book items they have been inducted for.
