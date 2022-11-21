@@ -41,7 +41,7 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
     @desc "Get all the people"
     # ----------------------------------------------------------------------------------------------------
-    field :all_people, non_null(list_of(:person)) do
+    field :person_all, non_null(list_of(:person)) do
       resolve(&PersonResolver.all_people/3)
     end
     # ----------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
     @desc "Get a person by UPI"
     # ----------------------------------------------------------------------------------------------------
-    field :get_person, :person do
+    field :person_get, :person do
       arg :upi, non_null(:string)
       resolve &PersonResolver.get_person/3
     end
@@ -66,7 +66,7 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
     @desc "Create a new person"
     # ----------------------------------------------------------------------------------------------------
-    field :create_person, :person do
+    field :person_create, :person do
       arg :upi, non_null(:string)
       arg :name, non_null(:string)
       arg :password, non_null(:string)
@@ -79,7 +79,7 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
     @desc "Update a person"
     # ----------------------------------------------------------------------------------------------------
-    field :update_person, :person do
+    field :person_update, :person do
       arg :upi, non_null(:string)
       arg :name, :string
       arg :password, :string
@@ -92,7 +92,7 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
     @desc "Delete a person"
     # ----------------------------------------------------------------------------------------------------
-    field :delete_person, :person do
+    field :person_delete, :person do
       arg :upi, non_null(:string)
       resolve &PersonResolver.delete_person/3
     end

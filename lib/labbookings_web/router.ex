@@ -12,8 +12,8 @@ defmodule LabbookingsWeb.Router do
 
   scope "/", LabbookingsWeb do
     pipe_through :browser
-    get "/", AdminPageController, :index
-    # get "/rooms", PageController, :index
+    get "/", PageController, :index
+    get "/labbookings", PageController, :index
     get "/admin", AdminPageController, :index
     # get "/checkin", CheckInPageController, :index
   end

@@ -25,14 +25,14 @@ defmodule LabbookingsWeb.Schema.Item do
     # ----------------------------------------------------------------------------------------------------
     @desc "Get all the items"
     # ----------------------------------------------------------------------------------------------------
-    field :all_items, non_null(list_of(:item)) do
+    field :item_all, non_null(list_of(:item)) do
       resolve(&ItemResolver.all_items/3)
     end
 
     # ----------------------------------------------------------------------------------------------------
     @desc "Get an item by name"
     # ----------------------------------------------------------------------------------------------------
-    field :get_item, :item do
+    field :item_get, :item do
       arg :name, :string
       resolve &ItemResolver.get_item/3
     end
@@ -48,7 +48,7 @@ defmodule LabbookingsWeb.Schema.Item do
     # ----------------------------------------------------------------------------------------------------
     @desc "Create a new item"
     # ----------------------------------------------------------------------------------------------------
-    field :create_item, :item do
+    field :item_create, :item do
       arg :name, non_null(:string)
       arg :image, non_null(:string)
       arg :url, non_null(:string)
@@ -59,7 +59,7 @@ defmodule LabbookingsWeb.Schema.Item do
     # ----------------------------------------------------------------------------------------------------
     @desc "Update an item"
     # ----------------------------------------------------------------------------------------------------
-    field :update_item, :item do
+    field :item_update, :item do
       arg :name, non_null(:string)
       arg :image, :string
       arg :url, :string
@@ -70,7 +70,7 @@ defmodule LabbookingsWeb.Schema.Item do
     # ----------------------------------------------------------------------------------------------------
     @desc "Delete an item"
     # ----------------------------------------------------------------------------------------------------
-    field :delete_item, :item do
+    field :item_delete, :item do
       arg :name, non_null(:string)
       resolve &ItemResolver.delete_item/3
     end

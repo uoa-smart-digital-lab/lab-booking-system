@@ -44,19 +44,19 @@ const user_details =
     ],
 
     queries: {
-        main: gql`query allPeople { allPeople { upi, name, password, status } }`,
-        update: gql`mutation updatePerson ($name: String, $status: Usertype, $upi: String!, $password: String) {
-            updatePerson (name: $name, status: $status, upi: $upi, password: $password) {
+        main: gql`query personAll { personAll { upi, name, password, status } }`,
+        update: gql`mutation personUpdate ($name: String, $status: Usertype, $upi: String!, $password: String) {
+            personUpdate (name: $name, status: $status, upi: $upi, password: $password) {
                 upi
             }
         }`,
-        create: gql`mutation createPerson ($name: String!, $status: Usertype!, $upi: String!, $password: String!) {
-            createPerson (name: $name, status: $status, upi: $upi, password: $password, details: "{}") {
+        create: gql`mutation personCreate ($name: String!, $status: Usertype!, $upi: String!, $password: String!) {
+            personCreate (name: $name, status: $status, upi: $upi, password: $password, details: "{}") {
                 upi
             }
         }`,
-        delete: gql`mutation deletePerson ($upi: String!) {
-            deletePerson (upi: $upi) {
+        delete: gql`mutation personDelete ($upi: String!) {
+            personDelete (upi: $upi) {
                 upi
             }
         }`
@@ -81,19 +81,19 @@ const item_details =
     ],
 
     queries: {
-        main: gql`query allItems { allItems { name,  image, url } }`,
-        update: gql`mutation updateItem ($url: String, $image: String, $name: String!) {
-            updateItem (image: $image, url: $url, name: $name) {
+        main: gql`query itemAll { itemAll { name,  image, url } }`,
+        update: gql`mutation itemUpdate ($url: String, $image: String, $name: String!) {
+            itemUpdate (image: $image, url: $url, name: $name) {
                 name
             }
         }`,
-        create: gql`mutation createItem ($url: String!, $image: String!, $name: String!) {
-            createItem (image: $image, url: $url, name: $name, details: "{}") {
+        create: gql`mutation itemCreate ($url: String!, $image: String!, $name: String!) {
+            itemCreate (image: $image, url: $url, name: $name, details: "{}") {
                 name
             }
         }`,
-        delete: gql`mutation deleteItem ($name: String!) {
-            deleteItem (name: $name) {
+        delete: gql`mutation itemDelete ($name: String!) {
+            itemDelete (name: $name) {
                 name
             }
         }`
