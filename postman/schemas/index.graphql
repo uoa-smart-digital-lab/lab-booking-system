@@ -16,7 +16,9 @@ enum Status {
 # Used to represent JSON data.  Sent in as stringified JSON, but returned as actual JSON.
 scalar Json
 
+# ******************************************************************************************************************************************************
 # A person who can use the lab and book items
+# ******************************************************************************************************************************************************
 type Person {
   upi: String!            # The unique University Personal ID
   name: String!           # The person's name
@@ -25,13 +27,17 @@ type Person {
   details: Json!          # Any other relevant details (for future expansion)
 }
 
+# ******************************************************************************************************************************************************
 # A persistant session ID.
+# ******************************************************************************************************************************************************
 type Session {
   sessionid: String!      # A GUID representing a sessionid
   upi: String!            # The UPI of the person logged in
 }
 
+# ******************************************************************************************************************************************************
 # A bookable item
+# ******************************************************************************************************************************************************
 type Item {
   name: String!           # The unique name of the item
   image: String!          # A link to an image - can be to the images folder, eg /images/hololens2.jpg
@@ -40,13 +46,27 @@ type Item {
 }
 
 type Query {
+  # ******************************************************************************************************************************************************
+  # Person
+  # ******************************************************************************************************************************************************
   # Get the specified person's details.  Admin and Poweruser can get anyone, but ordinary user can only get self.
   personGet (upi: String!): Person
   # Get all the people.  Admin and Poweruser can get anyone, but ordinary user can only get self.
   personAll: [Person]
+
+  # ******************************************************************************************************************************************************
+  # Item
+  # ******************************************************************************************************************************************************
+  # Get the specified item's details.
+  itemGet (name: String!): Item
+  # Get a list of all the items.
+  itemAll: [Item]
 }
 
 type Mutation {
+  # ******************************************************************************************************************************************************
+  # Person
+  # ******************************************************************************************************************************************************
   # Create a new person.  Can only be done by Admin users.  Send sessionid by header.
   personCreate (upi: String!, name: String!, password: String!, status: Status!, details: Json!): Person
   # Update a person.  Can only be done by Admin users.  Send sessionid by header.
@@ -54,8 +74,21 @@ type Mutation {
   # Delete a person.  Can only be done by Admin users.  Send sessionid by header.
   personDelete (upi: String!): Person
 
+  # ******************************************************************************************************************************************************
+  # Session
+  # ******************************************************************************************************************************************************
   # Log in.  Set sessionid returned as a header for subsequent API calls.
   login (upi: String!, password: String!): Session
   # Log out.  Uses sessionid in the header to know which person to log out.
   logout: Session
+
+  # ******************************************************************************************************************************************************
+  # Item
+  # ******************************************************************************************************************************************************
+  # Create a new item.  Can only be done by admins.
+  itemCreate (name: String!, image: String!, url: String!, details: Json!): Item
+  # Update an item.  Can only be done by admins.
+  itemUpdate (name: String!, image: String, url: String, details: Json): Item
+  # Delete an item.  Can only be done by admins.
+  itemDelete (name: String!): Item
 }
