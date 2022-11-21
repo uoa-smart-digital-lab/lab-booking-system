@@ -1,0 +1,61 @@
+# ******************************************************************************************************************************************************
+# This schema is for a lab bookings system with people and items.  Items can only be booked if a person has the rights to do so as determined by their
+# status and induction level for a specific item.  The Administrators have complete power, whereas some capabilities are delegated to powerusers.
+# ******************************************************************************************************************************************************
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Persons can have different access levels.
+enum Status {
+  USER, POWERUSER, ADMIN
+}
+
+# Used to represent JSON data.  Sent in as stringified JSON, but returned as actual JSON.
+scalar Json
+
+# A person who can use the lab and book items
+type Person {
+  upi: String!            # The unique University Personal ID
+  name: String!           # The person's name
+  password: String!       # The password (stored encrypted)
+  status: Status!         # The person's status
+  details: Json!          # Any other relevant details (for future expansion)
+}
+
+# A persistant session ID.
+type Session {
+  sessionid: String!      # A GUID representing a sessionid
+  upi: String!            # The UPI of the person logged in
+}
+
+# A bookable item
+type Item {
+  name: String!           # The unique name of the item
+  image: String!          # A link to an image - can be to the images folder, eg /images/hololens2.jpg
+  url: String!            # A link to further information about the item (on another webserver, eg canvas)
+  details: Json!          # Any other relevant details (for future expansion)
+}
+
+type Query {
+  # Get the specified person's details.  Admin and Poweruser can get anyone, but ordinary user can only get self.
+  personGet (upi: String!): Person
+  # Get all the people.  Admin and Poweruser can get anyone, but ordinary user can only get self.
+  personAll: [Person]
+}
+
+type Mutation {
+  # Create a new person.  Can only be done by Admin users.  Send sessionid by header.
+  personCreate (upi: String!, name: String!, password: String!, status: Status!, details: Json!): Person
+  # Update a person.  Can only be done by Admin users.  Send sessionid by header.
+  personUpdate (upi: String!, name: String, password: String, status: Status, details: Json): Person
+  # Delete a person.  Can only be done by Admin users.  Send sessionid by header.
+  personDelete (upi: String!): Person
+
+  # Log in.  Set sessionid returned as a header for subsequent API calls.
+  login (upi: String!, password: String!): Session
+  # Log out.  Uses sessionid in the header to know which person to log out.
+  logout: Session
+}
