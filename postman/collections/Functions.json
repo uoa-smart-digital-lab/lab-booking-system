@@ -1,0 +1,544 @@
+{
+	"info": {
+		"_postman_id": "00e916bb-ec04-462b-b560-d3f041bb896f",
+		"name": "Functions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "4262522-00e916bb-ec04-462b-b560-d3f041bb896f"
+	},
+	"item": [
+		{
+			"name": "Item",
+			"item": [
+				{
+					"name": "item_get",
+					"id": "ca9d8c56-c79d-4d89-b570-dc0f1172d829",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "item_all",
+					"id": "4e8d2361-ad6d-4dd8-b376-cc17d98d19fe",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "item_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "c1c86359-a569-4c47-ade7-2d8a143526d3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "item_update",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "feaa18f8-ff76-4dd3-a6d1-f745c5bfc64a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "item_delete",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "2a6cec25-5b85-4ff2-9e35-329cc4abf735",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "86579e85-1b31-44aa-a06a-67099c45e064"
+		},
+		{
+			"name": "Person",
+			"item": [
+				{
+					"name": "person_get",
+					"id": "2bfab823-b0e0-41a1-921d-b5ed7dfebe9b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "person_all",
+					"id": "01489a3f-f314-4a61-befb-569dc2141e7d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "person_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "bccd5325-0fff-4aca-93d5-a5c33f0dd1ed",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "person_update",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "f89021d8-4590-4e1f-a516-33628a6f69ff",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "person_delete",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "c8c8581b-6350-422f-a53c-c1e1bd3d1ae3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "b38614a7-781e-4c40-a4dc-c7da02045e99"
+		},
+		{
+			"name": "Session",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "43690547-2776-4ba6-b01c-41f6161001b4",
+								"exec": [
+									"const jsonResponse = pm.response.json();",
+									"pm.environment.set(\"sessionid\", jsonResponse.data.login.sessionid);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "d2cb0838-4512-46b1-aa0d-73fddc5a8b1a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "43690547-2776-4ba6-b01c-41f6161001b4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "a38a659d-9337-43f4-9d38-88b68dba8044",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "e2c05afb-6f96-46ac-8e00-7fd04758b811"
+		},
+		{
+			"name": "Schema Request",
+			"id": "d7c7576f-b362-4be2-b368-95506a717c11",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql"
+				},
+				"url": {
+					"raw": "localhost:4000/api",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "306e5096-051e-4db8-9179-5e258b449688",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "26c4ea45-7562-42d4-9bb7-f5cd86d81819",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
