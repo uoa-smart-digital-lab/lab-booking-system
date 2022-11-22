@@ -32,7 +32,7 @@ defmodule LabbookingsWeb.ItemResolver do
   # Anyone can do this, so no need to check sessionid
   # ------------------------------------------------------------------------------------------------------
   def get_item_by_id_or_name(nil, nil) do
-    {:error, "noparam"}
+    {:error, :noname}
   end
   def get_item_by_id_or_name(nil, name) do
     case Item.get_item_by_name(name |> String.downcase()) do
@@ -56,7 +56,7 @@ defmodule LabbookingsWeb.ItemResolver do
   # ------------------------------------------------------------------------------------------------------
   def create_item(_root, args, info) do
     case Map.get(info.context, :user) do
-      nil -> {:error, :notadmin}
+      nil -> {:error, :nosession}
       user ->
         case Map.get(user, :status) do
           :admin -> do_create_item(args)
@@ -70,7 +70,7 @@ defmodule LabbookingsWeb.ItemResolver do
       nil ->
         case Item.create_item( args |> Map.replace(:name, args.name |> String.downcase()) ) do
           {:ok, newItem} -> {:ok, newItem}
-          error -> error
+          _ -> {:error, :internalerror}
         end
       _ -> {:error, :itemexists}
     end
@@ -85,7 +85,7 @@ defmodule LabbookingsWeb.ItemResolver do
   # ------------------------------------------------------------------------------------------------------
   def update_item(_root, args, info) do
     case Map.get(info.context, :user) do
-      nil -> {:error, :notadmin}
+      nil -> {:error, :nosession}
       user ->
         case Map.get(user, :status) do
           :admin -> do_update_item(args)
@@ -97,7 +97,11 @@ defmodule LabbookingsWeb.ItemResolver do
   defp do_update_item(args) do
     case Item.get_item_by_name(args.name |> String.downcase()) do
       nil -> {:error, :noitem}
-      answer -> Item.update_item(answer, args |> Map.replace(:name, args.name |> String.downcase()))
+      answer -> 
+        case Item.update_item(answer, args |> Map.replace(:name, args.name |> String.downcase())) do
+          {:ok, item} -> {:ok, item}
+          _ -> {:error, :internalerror}
+        end
     end
   end
   # ------------------------------------------------------------------------------------------------------
@@ -109,7 +113,7 @@ defmodule LabbookingsWeb.ItemResolver do
   # ------------------------------------------------------------------------------------------------------
   def delete_item(_root, args, info) do
     case Map.get(info.context, :user) do
-      nil -> {:error, :notadmin}
+      nil -> {:error, :nosession}
       user ->
         case Map.get(user, :status) do
           :admin -> do_delete_item(args)
@@ -130,7 +134,7 @@ defmodule LabbookingsWeb.ItemResolver do
             
             {:ok, result}
           _ ->
-            {:error, :problemdeletingitem}
+            {:error, :internalerror}
         end
     end
   end

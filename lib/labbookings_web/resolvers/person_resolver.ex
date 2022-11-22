@@ -12,7 +12,7 @@ defmodule LabbookingsWeb.PersonResolver do
   # ------------------------------------------------------------------------------------------------------
   def all_people(_root, _args, info) do
     case Map.get(info.context, :user) do
-      nil -> {:error, :notadmin}
+      nil -> {:error, :nosession}
       user ->
         case Map.get(user, :status) do
           :admin -> {:ok, Person.list_people() |> remove_passwords()}
@@ -43,7 +43,7 @@ defmodule LabbookingsWeb.PersonResolver do
           nil -> {:error, :noperson}
           person ->
             case Map.get(info.context, :user) do
-              nil -> {:error, :notadmin}
+              nil -> {:error, :nosession}
               user -> send_person_if_allowed(user, person)
             end
         end
@@ -83,11 +83,11 @@ defmodule LabbookingsWeb.PersonResolver do
           |> Map.replace(:password, encrypted_password)
         ) do
           {:ok, newperson} -> {:ok, newperson |> Map.replace(:password, "")}
-          error -> error
+          _ -> {:error, :internalerror}
         end
       _ ->
         case Map.get(info.context, :user) do
-          nil -> {:error, :notadmin}
+          nil -> {:error, :nosession}
           user ->
             case Map.get(user, :status) do
               :admin ->
@@ -98,7 +98,7 @@ defmodule LabbookingsWeb.PersonResolver do
                       |> Map.replace(:password, encrypted_password)
                     ) do
                       {:ok, newperson} -> {:ok, newperson |> Map.replace(:password, "")}
-                      error -> error
+                      _ -> {:error, :internalerror}
                     end
                   _ -> {:error, :personexists}
                 end
@@ -118,7 +118,7 @@ defmodule LabbookingsWeb.PersonResolver do
   def update_person(_root, args_in, info) do
     args = Map.replace(args_in, :upi, String.downcase(args_in.upi))
     case Map.get(info.context, :user) do
-      nil -> {:error, :notadmin}
+      nil -> {:error, :nosession}
       user ->
         case Map.get(user, :status) do
           :admin ->
@@ -127,7 +127,7 @@ defmodule LabbookingsWeb.PersonResolver do
               answer ->
                 case Person.update_person(answer, args |> replace_password(Map.get(args, :password))) do
                   {:ok, updated_person} -> {:ok, updated_person |> Map.replace(:password, "")}
-                  error -> error
+                  _ -> {:error, :internalerror}
                 end
             end
           _ -> {:error, :notadmin}
@@ -147,7 +147,7 @@ defmodule LabbookingsWeb.PersonResolver do
   # ------------------------------------------------------------------------------------------------------
   def delete_person(_root, args, info) do
     case Map.get(info.context, :user) do
-      nil -> {:error, :notadmin}
+      nil -> {:error, :nosession}
       user ->
         case Map.get(user, :status) do
           :admin ->
@@ -161,7 +161,7 @@ defmodule LabbookingsWeb.PersonResolver do
                     # Participant.delete_participants_by_upi(args.upi)
                     {:ok, result |> Map.replace(:password, "")}
                   _ ->
-                    {:error, :problemdeletingperson}
+                    {:error, :internalerror}
                 end
             end
           _ -> {:error, :notadmin}

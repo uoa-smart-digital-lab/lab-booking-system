@@ -30,7 +30,7 @@ defmodule LabbookingsWeb.SessionResolver do
   # Get a session by sessionid or upi if it exists
   # ------------------------------------------------------------------------------------------------------
   def get_session_by_id_or_upi(nil, nil) do
-    {:error, "noparam"}
+    {:error, :noparam}
   end
   def get_session_by_id_or_upi(upi, nil) do
     case Session.get_session_by_upi(upi |> String.downcase()) do
@@ -58,9 +58,19 @@ defmodule LabbookingsWeb.SessionResolver do
         if Bcrypt.verify_pass(args.password, person.password) do
           case Session.get_session_by_upi(args.upi |> String.downcase()) do
             nil ->
-              args |> Map.put(:sessionid, UUID.uuid4()) |> Map.replace(:upi, args.upi |> String.downcase()) |> Session.create_session()
+              case args |> Map.put(:sessionid, UUID.uuid4()) |> Map.replace(:upi, args.upi |> String.downcase()) |> Session.create_session() do
+                {:ok, result} ->
+                  {:ok, result}
+                _ ->
+                  {:error, :internalerror}                
+              end
             session ->
-              Session.update_session(session, args |> Map.put(:sessionid, UUID.uuid4()) |> Map.replace(:upi, args.upi |> String.downcase()))
+              case Session.update_session(session, args |> Map.put(:sessionid, UUID.uuid4()) |> Map.replace(:upi, args.upi |> String.downcase())) do
+                {:ok, result} ->
+                  {:ok, result}
+                _ ->
+                  {:error, :internalerror}
+              end
           end
         else
           {:error, :badpassword}
@@ -83,7 +93,7 @@ defmodule LabbookingsWeb.SessionResolver do
           {:ok, result} ->
             {:ok, result}
           _ ->
-            {:error, :problemdeletingsession}
+            {:error, :internalerror}
         end
     end
   end
