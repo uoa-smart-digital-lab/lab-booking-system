@@ -11,6 +11,7 @@ files[] = {"id":"4262522-00e916bb-ec04-462b-b560-d3f041bb896f","path":"Functions
 
 [relations.apiDefinition]
 rootDirectory = postman/schemas
+files[] = {"path":"index.graphql","metaData":{}}
 
 [relations.apiDefinition.metaData]
 type = graphql

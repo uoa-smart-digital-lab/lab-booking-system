@@ -9,22 +9,40 @@ schema {
 }
 
 # Persons can have different access levels.
-enum Status {
-  USER, POWERUSER, ADMIN
+enum UserType {
+  USER,                   # An ordinary person
+  POWERUSER,              # A person with some delegated responsibility
+  ADMIN                   # Overall administrator who can do anything
+}
+
+enum ItemType {
+  FREE,                   # Anybody can book, no induction required
+  INDUCTION,              # Must be inducted to book and use
+  SUPERVISED              # Requires a supervisor for use (eg Lab Technician)
 }
 
 # Used to represent JSON data.  Sent in as stringified JSON, but returned as actual JSON.
 scalar Json
 
+# A Date time in ISO 8601 format
+scalar DateTime
+
 # ******************************************************************************************************************************************************
-# A person who can use the lab and book items
+# A person who can use the lab and book items.
+# Note that a person who is a poweruser can alter the inductions of persons for items they themselves are inducted for, and alter the bookings for any
+# person.
 # ******************************************************************************************************************************************************
 type Person {
   upi: String!            # The unique University Personal ID
   name: String!           # The person's name
   password: String!       # The password (stored encrypted)
-  status: Status!         # The person's status
+  status: UserType!       # The person's level of access
   details: Json!          # Any other relevant details (for future expansion)
+
+  tokens: Int!            # Number of tokens in the account
+
+  inductions: [Induction] # A list of inductions for this person (ie items they are allowed to use)
+  bookings: [Booking]     # A list of current bookings for this person
 }
 
 # ******************************************************************************************************************************************************
@@ -36,13 +54,39 @@ type Session {
 }
 
 # ******************************************************************************************************************************************************
-# A bookable item
+# A bookable item.
 # ******************************************************************************************************************************************************
 type Item {
   name: String!           # The unique name of the item
   image: String!          # A link to an image - can be to the images folder, eg /images/hololens2.jpg
   url: String!            # A link to further information about the item (on another webserver, eg canvas)
   details: Json!          # Any other relevant details (for future expansion)
+
+  cost: Int!              # Cost in tokens per time period
+
+  bookable: Boolean!      # Whether bookable at all
+  status: ItemType!       # Level of access use
+
+  inductions: [Induction] # A list of inductions for this item (ie who is allowed to use it).  List will be empty of induction not required (status).
+  bookings: [Booking]     # A list of bookings for this item
+}
+
+# ******************************************************************************************************************************************************
+# A record that a person has been inducted to use a specific item
+# ******************************************************************************************************************************************************
+type Induction {
+  person: Person!
+  item: Item!
+}
+
+# ******************************************************************************************************************************************************
+# A bookable item.  Local time is assumed.
+# ******************************************************************************************************************************************************
+type Booking {
+  person: Person!
+  item: Item!
+  start: DateTime!
+  end: DateTime!
 }
 
 type Query {
@@ -50,16 +94,20 @@ type Query {
   # Person
   # ******************************************************************************************************************************************************
   # Get the specified person's details.  Admin and Poweruser can get anyone, but ordinary user can only get self.
+  # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header)
   personGet (upi: String!): Person
   # Get all the people.  Admin and Poweruser can get anyone, but ordinary user can only get self.
+  # Errors: notadmin (You are not admin), nosession (No session ID sent in header)
   personAll: [Person]
 
   # ******************************************************************************************************************************************************
   # Item
   # ******************************************************************************************************************************************************
   # Get the specified item's details.
+  # Errors: noname (No item name given), noitem (Item with given name doesn't exist)
   itemGet (name: String!): Item
   # Get a list of all the items.
+  # Errors:
   itemAll: [Item]
 }
 
@@ -68,27 +116,42 @@ type Mutation {
   # Person
   # ******************************************************************************************************************************************************
   # Create a new person.  Can only be done by Admin users.  Send sessionid by header.
-  personCreate (upi: String!, name: String!, password: String!, status: Status!, details: Json!): Person
+  # Errors: personexists (Person already exists), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
+  personCreate (upi: String!, name: String!, password: String!, status: UserType!, details: Json!): Person
   # Update a person.  Can only be done by Admin users.  Send sessionid by header.
-  personUpdate (upi: String!, name: String, password: String, status: Status, details: Json): Person
+  # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
+  personUpdate (upi: String!, name: String, password: String, status: UserType, details: Json): Person
   # Delete a person.  Can only be done by Admin users.  Send sessionid by header.
+  # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
   personDelete (upi: String!): Person
 
   # ******************************************************************************************************************************************************
   # Session
   # ******************************************************************************************************************************************************
   # Log in.  Set sessionid returned as a header for subsequent API calls.
+  # Errors: badpassword (Password incorrect), nosession (upi not given), noparam (noupi or password given)
   login (upi: String!, password: String!): Session
   # Log out.  Uses sessionid in the header to know which person to log out.
+  # Errors: nosession (No session ID sent in header), internalerror (Internal error)
   logout: Session
 
   # ******************************************************************************************************************************************************
   # Item
   # ******************************************************************************************************************************************************
-  # Create a new item.  Can only be done by admins.
+  # Create a new item.  Can only be done by admins and powerusers.
+  # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), itemexists (Item already exists), internalerror (Internal error)
   itemCreate (name: String!, image: String!, url: String!, details: Json!): Item
   # Update an item.  Can only be done by admins.
+  # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), noitem (Item doesn't exists), internalerror (Internal error)
   itemUpdate (name: String!, image: String, url: String, details: Json): Item
   # Delete an item.  Can only be done by admins.
+  # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), noitem (Item doesn't exists), internalerror (Internal error)
   itemDelete (name: String!): Item
+
+  # ******************************************************************************************************************************************************
+  # Bookings
+  # ******************************************************************************************************************************************************
+  # Make a booking for an item.  Anyone can book an item they are inducted for.  Users can only book for themselves.  Superusers can book for themselves
+  # and for others for items they are inducted for, and that the user is inducted for. Items cannot be booked for a specific time of day if already booked.
+  bookingCreate (upi: String!, itemName: String!, start: DateTime!, end: DateTime!): Booking
 }

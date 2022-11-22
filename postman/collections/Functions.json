@@ -429,7 +429,11 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation login ($upi:String!, $password:String!){\n  login(upi:$upi, password:$password) {\n    sessionid\n    upi\n  }\n}",
+								"variables": "{\"upi\": \"rdav031\", \"password\": \"1gelk0tt\"}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -472,7 +476,10 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation logout{\n  logout {\n    sessionid\n    upi\n  }\n}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -489,31 +496,6 @@
 				}
 			],
 			"id": "e2c05afb-6f96-46ac-8e00-7fd04758b811"
-		},
-		{
-			"name": "Schema Request",
-			"id": "d7c7576f-b362-4be2-b368-95506a717c11",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "graphql"
-				},
-				"url": {
-					"raw": "localhost:4000/api",
-					"host": [
-						"localhost"
-					],
-					"port": "4000",
-					"path": [
-						"api"
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"auth": {
