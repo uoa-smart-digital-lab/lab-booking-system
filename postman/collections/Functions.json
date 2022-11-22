@@ -25,7 +25,11 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "query itemGet ($name: String!) {\n    itemGet(name: $name) {\n        name\n    }\n}",
+								"variables": "{\"name\":\"hololens2_1\"}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
