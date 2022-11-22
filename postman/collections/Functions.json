@@ -153,7 +153,11 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation itemUpdate ($name:String!, $url:String, $image:String, $details:Json)\r\n{\r\n  itemUpdate(name:$name, url:$url, image:$image, details:$details) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
+								"variables": "{\r\n    \"name\":\"hololens2_1\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/hololens2.jpg\",\r\n    \"details\":\"{}\"\r\n}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -196,7 +200,11 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation itemDelete ($name:String!)\r\n{\r\n  itemDelete(name:$name) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
+								"variables": "{\r\n    \"name\":\"hololens2_1\"\r\n}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -233,7 +241,11 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "query personGet ($upi: String!) {\r\n    personGet(upi: $upi) {\r\n        name\r\n    }\r\n}",
+								"variables": "{\r\n    \"upi\":\"rdav031\"\r\n}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -267,7 +279,10 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "query personAll {\r\n    personAll {\r\n        name\r\n    }\r\n}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -357,7 +372,11 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation personUpdate ($upi:String!, $name:String, $password:String, $details:Json, $status:Usertype)\r\n{\r\n  personUpdate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {\r\n    upi\r\n    name\r\n  }\r\n}",
+								"variables": "{\r\n    \"upi\":\"rdav031\",\r\n    \"password\":\"1gelk0tt\",\r\n    \"name\":\"Roy Davies\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"ADMIN\"\r\n}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
