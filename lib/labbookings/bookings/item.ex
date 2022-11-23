@@ -11,13 +11,17 @@ defmodule Labbookings.Bookings.Item do
     field :url, :string
     field :details, :map
 
+    field :cost, :int
+    field :bookable, :boolean
+    field :access, :int
+
     timestamps()
   end
 
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:name, :image, :url, :details])
-    |> validate_required([:name, :image, :url, :details])
+    |> cast(attrs|> Enums.convert(:access), [:name, :image, :url, :details, :cost, :bookable, :access])
+    |> validate_required([:name, :image, :url, :details, :cost, :bookable, :access])
   end
 end

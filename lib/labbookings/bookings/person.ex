@@ -13,6 +13,8 @@ defmodule Labbookings.Bookings.Person do
     field :status, :integer
     field :details, :map
 
+    field :tokens, :int
+
     timestamps()
   end
 
@@ -20,7 +22,7 @@ defmodule Labbookings.Bookings.Person do
   def changeset(person, attrs) do
     person
     |> Enums.convert(:status)
-    |> cast(attrs |> Enums.convert(:status), [:name, :upi, :password, :status, :details])
-    |> validate_required([:name, :upi, :password, :status, :details])
+    |> cast(attrs |> Enums.convert(:status), [:name, :upi, :password, :status, :details, :tokens])
+    |> validate_required([:name, :upi, :password, :status, :details, :tokens])
   end
 end

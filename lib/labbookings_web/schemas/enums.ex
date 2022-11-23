@@ -8,7 +8,7 @@ defmodule LabbookingsWeb.Schema.Enums do
   # ----------------------------------------------------------------------------------------------------
   defp enums() do
     %{
-      campus: [:city, :newmarket, :grafton, :epsom, :taitokerau, :leigh, :southauckland, :goldieestate],
+      access: [:free, :induction, :supervised],
       status: [:user, :poweruser, :admin]
     }
   end

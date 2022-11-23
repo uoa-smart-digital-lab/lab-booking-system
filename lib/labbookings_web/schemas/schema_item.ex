@@ -4,15 +4,25 @@ defmodule LabbookingsWeb.Schema.Item do
 
   alias LabbookingsWeb.ItemResolver
 
+  @desc "Item Type"
+  enum :itemtype do
+    value :free, description: "No induction required, free to use."
+    value :induction, description: "Must be inducted to use item."
+    value :supervised, description: "Can only be used under supervision."
+  end
 
   # ------------------------------------------------------------------------------------------------------
   # item Schema definition
   # ------------------------------------------------------------------------------------------------------
   object :item do
-    field :name, non_null(:string)
-    field :image, non_null(:string)
-    field :url, non_null(:string)
-    field :details, non_null(:json)
+    field :name, non_null(:string), description: "The unique item name."
+    field :image, non_null(:string), description: "An image for the item /images/......"
+    field :url, non_null(:string), description: "A link to somewhere with more info, eg in Canvas."
+    field :details, non_null(:json), description: "Any other details in JSON format."
+
+    field :cost, non_null(:int), description: "Cost of using item per time period."
+    field :bookable, non_null(:boolean), description: "Whether bookable or not (eg might be being repared)."
+    field :access, non_null(:itemtype), description: "The status of the item (FREE, INDUCTION, SUPERVISED)"
   end
   # ------------------------------------------------------------------------------------------------------
 
