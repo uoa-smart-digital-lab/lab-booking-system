@@ -9,7 +9,7 @@ defmodule Labbookings.Repo.Migrations.CreatePerson do
       add :status, :integer
       add :details, :json
 
-      add :tokens, :int
+      add :tokens, :integer
 
       timestamps()
     end

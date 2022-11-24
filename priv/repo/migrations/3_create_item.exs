@@ -8,9 +8,9 @@ defmodule Labbookings.Repo.Migrations.CreateItem do
       add :url, :string
       add :details, :json
 
-      add :cost, :int
+      add :cost, :integer
       add :bookable, :boolean
-      add :access, :int
+      add :access, :integer
 
       timestamps()
     end

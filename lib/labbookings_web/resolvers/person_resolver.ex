@@ -81,6 +81,7 @@ defmodule LabbookingsWeb.PersonResolver do
           args
           |> Map.replace(:status, :admin)
           |> Map.replace(:password, encrypted_password)
+          |> Map.put(:tokens, 0)
         ) do
           {:ok, newperson} -> {:ok, newperson |> Map.replace(:password, "")}
           _ -> {:error, :internalerror}

@@ -20,7 +20,7 @@ defmodule LabbookingsWeb.Schema.Item do
     field :url, non_null(:string), description: "A link to somewhere with more info, eg in Canvas."
     field :details, non_null(:json), description: "Any other details in JSON format."
 
-    field :cost, non_null(:int), description: "Cost of using item per time period."
+    field :cost, non_null(:integer), description: "Cost of using item per time period."
     field :bookable, non_null(:boolean), description: "Whether bookable or not (eg might be being repared)."
     field :access, non_null(:itemtype), description: "The status of the item (FREE, INDUCTION, SUPERVISED)"
   end
@@ -63,6 +63,9 @@ defmodule LabbookingsWeb.Schema.Item do
       arg :image, non_null(:string)
       arg :url, non_null(:string)
       arg :details, non_null(:json)
+      arg :cost, non_null(:integer)
+      arg :bookable, non_null(:boolean)
+      arg :access, non_null(:itemtype)
       resolve &ItemResolver.create_item/3
     end
 
@@ -74,6 +77,9 @@ defmodule LabbookingsWeb.Schema.Item do
       arg :image, :string
       arg :url, :string
       arg :details, :json
+      arg :cost, :integer
+      arg :bookable, :boolean
+      arg :access, :itemtype
       resolve &ItemResolver.update_item/3
     end
 

@@ -4,6 +4,7 @@
 defmodule Labbookings.Bookings.Item do
   use Ecto.Schema
   import Ecto.Changeset
+  alias LabbookingsWeb.Schema.Enums
 
   schema "item" do
     field :name, :string
@@ -11,9 +12,9 @@ defmodule Labbookings.Bookings.Item do
     field :url, :string
     field :details, :map
 
-    field :cost, :int
+    field :cost, :integer
     field :bookable, :boolean
-    field :access, :int
+    field :access, :integer
 
     timestamps()
   end
@@ -21,6 +22,7 @@ defmodule Labbookings.Bookings.Item do
   @doc false
   def changeset(item, attrs) do
     item
+    |> Enums.convert(:access)
     |> cast(attrs|> Enums.convert(:access), [:name, :image, :url, :details, :cost, :bookable, :access])
     |> validate_required([:name, :image, :url, :details, :cost, :bookable, :access])
   end

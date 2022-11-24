@@ -6,6 +6,7 @@ defmodule Labbookings.Item do
 
   alias Labbookings.Repo
   alias Labbookings.Bookings.Item
+  alias LabbookingsWeb.Schema.Enums
 
   # ------------------------------------------------------------------------------------------------------
   # List all the items in the database
@@ -14,7 +15,7 @@ defmodule Labbookings.Item do
     query = from p in Item,
     order_by: [asc: :name]
 
-    Repo.all(query)
+    Repo.all(query) |> Enums.convert(:access)
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ defmodule Labbookings.Item do
     # Return either nil if none exist, or the first of the list (in case there was more than one)
     case Repo.all(query) do
       [] -> nil
-      [answer | _] -> answer
+      [answer | _] -> answer |> Enums.convert(:access)
     end
   end
   # ------------------------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ defmodule Labbookings.Item do
     # Return either nil if none exist, or the first of the list (in case there was more than one)
     case Repo.all(query) do
       [] -> nil
-      [answer | _] -> answer
+      [answer | _] -> answer |> Enums.convert(:access)
     end
   end
   # ------------------------------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ defmodule Labbookings.Item do
     %Item{}
     |> Item.changeset(attrs)
     |> Repo.insert()
+    |> Enums.convert(:access)
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -75,6 +77,7 @@ defmodule Labbookings.Item do
     item
     |> Item.changeset(attrs)
     |> Repo.update()
+    |> Enums.convert(:access)
   end
   # ------------------------------------------------------------------------------------------------------
 

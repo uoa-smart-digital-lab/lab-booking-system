@@ -70,7 +70,7 @@ defmodule LabbookingsWeb.ItemResolver do
       nil ->
         case Item.create_item( args |> Map.replace(:name, args.name |> String.downcase()) ) do
           {:ok, newItem} -> {:ok, newItem}
-          _ -> {:error, :internalerror}
+          {:error, error} -> {:error, error}
         end
       _ -> {:error, :itemexists}
     end
@@ -97,7 +97,7 @@ defmodule LabbookingsWeb.ItemResolver do
   defp do_update_item(args) do
     case Item.get_item_by_name(args.name |> String.downcase()) do
       nil -> {:error, :noitem}
-      answer -> 
+      answer ->
         case Item.update_item(answer, args |> Map.replace(:name, args.name |> String.downcase())) do
           {:ok, item} -> {:ok, item}
           _ -> {:error, :internalerror}
@@ -131,7 +131,7 @@ defmodule LabbookingsWeb.ItemResolver do
             # Delete all references to the item from elsewhere.
             # Occupancy.delete_occupancy_by_item(args.name)
             # Do something about the course reference
-            
+
             {:ok, result}
           _ ->
             {:error, :internalerror}

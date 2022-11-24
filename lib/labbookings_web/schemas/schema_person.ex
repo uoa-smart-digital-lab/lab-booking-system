@@ -20,6 +20,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :password, non_null(:string)
     field :status, non_null(:usertype), description: "The usertype of the person, eg ADMIN, POWERUSER or USER"
     field :details, non_null(:json), description: "Any other details in JSON format"
+    field :tokens, non_null(:integer), description: "Number of tokens in the account"
   end
   # ------------------------------------------------------------------------------------------------------
 

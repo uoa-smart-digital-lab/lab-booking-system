@@ -13,7 +13,7 @@ defmodule Labbookings.Bookings.Person do
     field :status, :integer
     field :details, :map
 
-    field :tokens, :int
+    field :tokens, :integer
 
     timestamps()
   end
