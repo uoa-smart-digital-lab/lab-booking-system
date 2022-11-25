@@ -3,8 +3,7 @@
 # ****************************************************************************************************
 defmodule LabbookingsWeb.PersonResolver do
   alias Labbookings.Person
-  # alias Labbookings.Occupancy
-  # alias Labbookings.Participant
+  alias Labbookings.Induction
 
   # ------------------------------------------------------------------------------------------------------
   # Get all people in the database

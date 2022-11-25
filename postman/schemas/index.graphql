@@ -41,7 +41,7 @@ type Person {
 
   tokens: Int!            # Number of tokens in the account
 
-  inductions: [Induction] # A list of inductions for this person (ie items they are allowed to use)
+  inductions: [Item]!     # A list of items this person is inducted for
   bookings: [Booking]     # A list of current bookings for this person
 }
 
@@ -67,16 +67,8 @@ type Item {
   bookable: Boolean!      # Whether bookable at all
   access: Access!         # Level of access use
 
-  inductions: [Induction] # A list of inductions for this item (ie who is allowed to use it).  List will be empty of induction not required (status).
+  inductions: [Person]!   # A list of people for whom this item is inducted.  List will be empty of induction not required (status).
   bookings: [Booking]     # A list of bookings for this item
-}
-
-# ******************************************************************************************************************************************************
-# A record that a person has been inducted to use a specific item
-# ******************************************************************************************************************************************************
-type Induction {
-  person: Person!
-  item: Item!
 }
 
 # ******************************************************************************************************************************************************
@@ -131,6 +123,11 @@ type Mutation {
   # Delete a person.  Can only be done by Admin users.  Send sessionid by header.
   # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
   personDelete (upi: String!): Person
+
+  # Add or remove an item to or from a person's list of inducted items.  Can only be done by admins and powerusers who are themselves inducted to the
+  # item they are inducting someone else to.  So, powerusers can only be inducted by admins (for any item) or other powerusers who are inducted to the item.
+  personInduct (upi: String!, itemName: String!): Person
+  personUninduct (upi: String!, itemName: String!): Person
 
   # ******************************************************************************************************************************************************
   # Session

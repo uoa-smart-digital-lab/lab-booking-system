@@ -23,6 +23,8 @@ defmodule LabbookingsWeb.Schema.Item do
     field :cost, non_null(:integer), description: "Cost of using item per time period."
     field :bookable, non_null(:boolean), description: "Whether bookable or not (eg might be being repared)."
     field :access, non_null(:itemtype), description: "The status of the item (FREE, INDUCTION, SUPERVISED)"
+
+    field :inductions, non_null(list_of(:person)), description: "List of the people the item has been inducted for"
   end
   # ------------------------------------------------------------------------------------------------------
 
