@@ -129,6 +129,9 @@ type Mutation {
   personInduct (upi: String!, itemName: String!): Person
   personUninduct (upi: String!, itemName: String!): Person
 
+  # Change the number of tokens for a specific person.  Can only be done by administrator.
+  personAdjustTokens (upi: String!, tokens: Int!): Person
+
   # ******************************************************************************************************************************************************
   # Session
   # ******************************************************************************************************************************************************

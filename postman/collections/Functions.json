@@ -27,18 +27,14 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query itemGet ($name: String!) {\n    itemGet(name: $name) {\n        name\n    }\n}",
+								"query": "query itemGet ($name: String!) {\n    itemGet(name: $name) {\n        name\n        cost\n        access\n        bookable\n    }\n}",
 								"variables": "{\"name\":\"hololens2_1\"}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}",
 							"host": [
-								"localhost"
-							],
-							"port": "4000",
-							"path": [
-								"api"
+								"{{url}}"
 							]
 						}
 					},
@@ -108,8 +104,8 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation itemCreate ($name:String!, $url:String!, $image:String!, $details:Json!)\r\n{\r\n  itemCreate(name:$name, url:$url, image:$image, details:$details) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"hololens2_1\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/hololens2.jpg\",\r\n    \"details\":\"{}\"\r\n}"
+								"query": "mutation itemCreate ($name:String!, $url:String!, $image:String!, $details:Json!, $cost:Int!, $bookable:Boolean!, $access:Itemtype!)\r\n{\r\n  itemCreate(name:$name, url:$url, image:$image, details:$details, cost:$cost, bookable:$bookable, access:$access) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
+								"variables": "{\r\n    \"name\":\"hololens2_2\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/hololens2.jpg\",\r\n    \"details\":\"{}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"INDUCTION\"\r\n}"
 							}
 						},
 						"url": {
@@ -243,7 +239,7 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query personGet ($upi: String!) {\r\n    personGet(upi: $upi) {\r\n        name\r\n    }\r\n}",
+								"query": "query personGet ($upi: String!) {\r\n    personGet(upi: $upi) {\r\n        name\r\n        tokens\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n}",
 								"variables": "{\r\n    \"upi\":\"rdav031\"\r\n}"
 							}
 						},
@@ -281,7 +277,8 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query personAll {\r\n    personAll {\r\n        name\r\n        tokens\r\n    }\r\n}"
+								"query": "query personAll {\r\n    personAll {\r\n        name\r\n        tokens\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n}",
+								"variables": ""
 							}
 						},
 						"url": {
@@ -327,8 +324,8 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation personCreate ($upi:String!, $name:String!, $password:String!, $details:Json!, $status:Usertype!)\r\n{\r\n  personCreate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {\r\n    upi\r\n    name\r\n  }\r\n}\r\n",
-								"variables": "{\r\n    \"upi\":\"fdag123\",\r\n    \"password\":\"12345\",\r\n    \"name\":\"Fred Dagg\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"USER\"\r\n}"
+								"query": "mutation personCreate ($upi:String!, $name:String!, $password:String!, $details:Json!, $status:Usertype!, )\r\n{\r\n  personCreate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {\r\n    upi\r\n    name\r\n  }\r\n}\r\n",
+								"variables": "{\r\n    \"upi\":\"fdag123\",\r\n    \"password\":\"12345\",\r\n    \"name\":\"Fred Dagg\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"POWERUSER\"\r\n}"
 							}
 						},
 						"url": {
@@ -433,6 +430,49 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "person_induct",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "82134057-f2b2-45a2-8c29-f86f7eea2f13",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"id": "b38614a7-781e-4c40-a4dc-c7da02045e99"
@@ -466,7 +506,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation login ($upi:String!, $password:String!){\n  login(upi:$upi, password:$password) {\n    sessionid\n    upi\n  }\n}",
-								"variables": "{\"upi\": \"fdag123\", \"password\": \"12345\"}"
+								"variables": "{\"upi\": \"rdav031\", \"password\": \"1gelk0tt\"}"
 							}
 						},
 						"url": {
