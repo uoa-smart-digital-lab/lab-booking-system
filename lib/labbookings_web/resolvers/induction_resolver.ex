@@ -44,66 +44,41 @@ defmodule LabbookingsWeb.InductionResolver do
   def get_inductions_by_upi_and_itemname(_root, args, _info) do
     upi = Map.get(args, :upi) |> String.downcase()
     itemname = Map.get(args, :itemname) |> String.downcase()
-    Induction.get_inductions_by_upi_and_itemname(itemname)
+    Induction.get_inductions_by_upi_and_itemname(upi, itemname)
   end
   # ------------------------------------------------------------------------------------------------------
 
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Create a new induction, testing the password, and replacing an existing one for the user if it exists.
+  # Create a new induction
   # ------------------------------------------------------------------------------------------------------
-  def create_induction(_root, args, _info) do
-    upi = Map.get(args, :upi) |> String.downcase()
-    itemname = Map.get(args, :itemname) |> String.downcase()
+  def create_induction(_root, args_in, _info) do
+    args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
-    case Person.get_person_by_upi(upi) do
+    case Person.get_person_by_upi(args.upi) do
       nil -> {:error, :upi}
-      person ->
-        case Item.get_item_by_name(itemname) do
+      _person ->
+        case Item.get_item_by_name(args.itemname) do
           nil -> {:error, :item}
-          item ->
-            Induction.create_induction(person, item)
+          _item ->
+            Induction.create_induction(args)
+            {:ok, Person.get_person_by_upi(args.upi) |> Map.put(:inductions, Induction.get_inductions_by_upi(args.upi))}
         end
     end
-
-    # case  do
-    #   nil -> {:error, :noinduction}
-    #   person ->
-    #     if Bcrypt.verify_pass(args.password, person.password) do
-    #       case Induction.get_induction_by_upi(args.upi |> String.downcase()) do
-    #         nil ->
-    #           case args |> Map.put(:inductionid, UUID.uuid4()) |> Map.replace(:upi, args.upi |> String.downcase()) |> Induction.create_induction() do
-    #             {:ok, result} ->
-    #               {:ok, result}
-    #             _ ->
-    #               {:error, :internalerror}
-    #           end
-    #         induction ->
-    #           case Induction.update_induction(induction, args |> Map.put(:inductionid, UUID.uuid4()) |> Map.replace(:upi, args.upi |> String.downcase())) do
-    #             {:ok, result} ->
-    #               {:ok, result}
-    #             _ ->
-    #               {:error, :internalerror}
-    #           end
-    #       end
-    #     else
-    #       {:error, :badpassword}
-    #     end
-    # end
   end
   # ------------------------------------------------------------------------------------------------------
 
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Delete a induction if it exists
+  # Delete inductions if they exist
   # ------------------------------------------------------------------------------------------------------
-  def delete_induction(_root, _args, info) do
+  def delete_inductions(_root, args, _info) do
     upi = Map.get(args, :upi) |> String.downcase()
     itemname = Map.get(args, :itemname) |> String.downcase()
 
-    case Induction.get_inductions_by_upi_and_itemname(upi, inductionid) do
+    case Induction.get_inductions_by_upi_and_itemname(upi, itemname) do
       inductions ->
         delete_all_inductions(inductions)
         {:ok, inductions}

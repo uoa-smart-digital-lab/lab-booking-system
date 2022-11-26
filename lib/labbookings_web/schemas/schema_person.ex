@@ -3,7 +3,7 @@ defmodule LabbookingsWeb.Schema.Person do
 
   alias LabbookingsWeb.PersonResolver
   alias LabbookingsWeb.SessionResolver
-  # alias LabbookingsWeb.ItemResolver
+  alias LabbookingsWeb.ItemResolver
   alias LabbookingsWeb.InductionResolver
 
   @desc "User Type"
@@ -24,7 +24,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :details, non_null(:json), description: "Any other details in JSON format"
     field :tokens, non_null(:integer), description: "Number of tokens in the account"
 
-    field :inductions, non_null(list_of(:item)), description: "List of items the person is inducted for"
+    field :inductions, list_of(:item), description: "List of items the person is inducted for"
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :person_induct, :person do
       arg :upi, non_null(:string)
       arg :itemname, non_null(:string)
-      resolve &InductionResolver.induct_person/3
+      resolve &InductionResolver.create_induction/3
     end
     # ----------------------------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :person_uninduct, :person do
       arg :upi, non_null(:string)
       arg :itemname, non_null(:string)
-      resolve &InductionResolver.uninduct_person/3
+      resolve &InductionResolver.delete_inductions/3
     end
     # ----------------------------------------------------------------------------------------------------
   end

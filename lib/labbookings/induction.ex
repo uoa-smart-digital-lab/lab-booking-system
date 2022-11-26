@@ -26,7 +26,10 @@ defmodule Labbookings.Induction do
       where: p.upi == ^upi
 
     # Return the list of inductions for this person
-    Repo.all(query)
+    case Repo.all(query) do
+      nil -> []
+      inductions -> inductions
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -41,7 +44,10 @@ defmodule Labbookings.Induction do
       where: p.itemname == ^itemname
 
     # Return the list of inductions for this item
-    Repo.all(query)
+    case Repo.all(query) do
+      nil -> []
+      inductions -> inductions
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -56,7 +62,10 @@ defmodule Labbookings.Induction do
       where: (p.itemname == ^itemname) and (p.upi == ^upi)
 
     # Return the list of inductions for this person and item
-    Repo.all(query)
+    case Repo.all(query) do
+      nil -> []
+      inductions -> inductions
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 
