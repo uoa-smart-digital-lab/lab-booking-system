@@ -58,7 +58,7 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query itemAll {\r\n    itemAll {\r\n        name\r\n        access\r\n        bookable\r\n    }\r\n}"
+								"query": "query itemAll {\r\n    itemAll {\r\n        name\r\n        access\r\n        bookable\r\n        inductions {\r\n            upi\r\n        }\r\n    }\r\n}"
 							}
 						},
 						"url": {
@@ -325,7 +325,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation personCreate ($upi:String!, $name:String!, $password:String!, $details:Json!, $status:Usertype! )\r\n{\r\n  personCreate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {\r\n    upi\r\n    name\r\n  }\r\n}\r\n",
-								"variables": "{\r\n    \"upi\":\"rdav031\",\r\n    \"password\":\"12345\",\r\n    \"name\":\"Roy Davies\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"POWERUSER\"\r\n}"
+								"variables": "{\r\n    \"upi\":\"jblg123\",\r\n    \"password\":\"12345\",\r\n    \"name\":\"Joe Bloggs\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"USER\"\r\n}"
 							}
 						},
 						"url": {
@@ -462,7 +462,54 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation personInduct ($upi:String!, $itemname:String! )\n{\n  personInduct(upi:$upi, itemname:$itemname) {\n    upi\n    name\n    inductions {\n        name\n    }\n  }\n}",
-								"variables": "{\n    \"upi\":\"rdav031\",\n    \"itemname\":\"hololens2_2\"\n}"
+								"variables": "{\n    \"upi\":\"jblg123\",\n    \"itemname\":\"hololens2_2\"\n}"
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "person_uninduct",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "97e8b038-c2a7-42da-a835-a2b7129d414c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation personUninduct ($upi:String!, $itemname:String! )\n{\n  personUninduct(upi:$upi, itemname:$itemname) {\n    upi\n    name\n    inductions {\n        name\n    }\n  }\n}",
+								"variables": "{\n    \"upi\":\"jblg123\",\n    \"itemname\":\"hololens2_2\"\n}"
 							}
 						},
 						"url": {
@@ -510,7 +557,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation login ($upi:String!, $password:String!){\n  login(upi:$upi, password:$password) {\n    sessionid\n    upi\n  }\n}",
-								"variables": "{\"upi\": \"fdag123\", \"password\": \"12345\"}"
+								"variables": "{\"upi\": \"rdav031\", \"password\": \"12345\"}"
 							}
 						},
 						"url": {
