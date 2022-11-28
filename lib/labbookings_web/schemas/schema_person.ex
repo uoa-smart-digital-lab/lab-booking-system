@@ -160,7 +160,7 @@ defmodule LabbookingsWeb.Schema.Person do
     field :person_uninduct, :person do
       arg :upi, non_null(:string)
       arg :itemname, non_null(:string)
-      resolve &InductionResolver.delete_inductions/3
+      resolve &InductionResolver.delete_induction/3
     end
     # ----------------------------------------------------------------------------------------------------
   end

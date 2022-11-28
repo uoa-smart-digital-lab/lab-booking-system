@@ -57,7 +57,6 @@ defmodule LabbookingsWeb.InductionResolver do
   def create_induction(_root, args_in, info) do
     args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
-    IO.inspect args
     case Map.get(info.context, :user) do
       # User not logged in or doesn't exist
       nil -> {:error, :nosession}
@@ -66,16 +65,13 @@ defmodule LabbookingsWeb.InductionResolver do
         case Induction.get_inductions_by_upi_and_itemname(args.upi, args.itemname) do
           [] ->
             # Check that the specified person to be inducted actually exists
-            IO.puts "CHECKING ACCESS 1"
             case Person.get_person_by_upi(args.upi) do
               nil -> {:error, :upi}
               _person ->
                 # Check the item exists
-                IO.puts "CHECKING ACCESS 2"
                 case Item.get_item_by_name(args.itemname) do
                   nil -> {:error, :item}
                   item ->
-                    IO.puts "CHECKING ACCESS 3"
                     # Check that the logged in user is allowed to induct the person
                     case check_access(item, user) do
                       {:ok, _} ->
@@ -90,7 +86,6 @@ defmodule LabbookingsWeb.InductionResolver do
                 end
             end
           _ ->
-            IO.puts "CHECKING ACCESS 4"
             PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
         end
       end
@@ -102,20 +97,44 @@ defmodule LabbookingsWeb.InductionResolver do
   # ------------------------------------------------------------------------------------------------------
   # Delete inductions if they exist
   # ------------------------------------------------------------------------------------------------------
-  def delete_inductions(_root, args, _info) do
-    upi = Map.get(args, :upi) |> String.downcase()
-    itemname = Map.get(args, :itemname) |> String.downcase()
+  def delete_induction(_root, args_in, info) do
+    args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
+    IO.puts "HERE HERE HERE"
+    IO.inspect args
 
-    inductions = Induction.get_inductions_by_upi_and_itemname(upi, itemname)
-    {delete_all_inductions(inductions), inductions}
-  end
-
-  defp delete_all_inductions([]) do
-    :ok
-  end
-  defp delete_all_inductions([induction | rest]) do
-    Induction.delete_induction(induction)
-    delete_all_inductions(rest)
+    case Map.get(info.context, :user) do
+      # User not logged in or doesn't exist
+      nil -> {:error, :nosession}
+      user ->
+        # Check whether induction exists
+        case Induction.get_inductions_by_upi_and_itemname(args.upi, args.itemname) do
+          [] ->
+            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+          [induction | _ ] ->
+            IO.puts "HERE HERE HERE"
+            # Check that the specified person to be inducted actually exists
+            case Person.get_person_by_upi(args.upi) do
+              nil -> {:error, :upi}
+              _person ->
+                # Check the item exists
+                case Item.get_item_by_name(args.itemname) do
+                  nil -> {:error, :item}
+                  item ->
+                    # Check that the logged in user is allowed to induct the person
+                    case check_access(item, user) do
+                      {:ok, _} ->
+                        # Create the induction record
+                        Induction.delete_induction(induction)
+                        # Return the updated person being inducted
+                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                      error ->
+                        # The logged in user does not have the right to induct the person
+                        error
+                    end
+                end
+            end
+        end
+      end
   end
   # ------------------------------------------------------------------------------------------------------
 
