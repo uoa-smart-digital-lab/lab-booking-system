@@ -3,54 +3,19 @@
 # ****************************************************************************************************
 defmodule LabbookingsWeb.PersonResolver do
   alias Labbookings.Person
-  alias Labbookings.Induction
-  alias LabbookingsWeb.ItemResolver
-
-
-  # ------------------------------------------------------------------------------------------------------
-  # Fill the person schema, recursively going into the items as required.
-  # ------------------------------------------------------------------------------------------------------
-  def fill_person_schema(args) do
-    case Person.get_person_by_upi(args.upi |> String.downcase()) do
-      {:ok, person} ->
-        case Map.get(args.inductions) do
-          nil -> person |> Map.replace(:password, "")
-          _ ->
-            items = get_items_from_inductions(args.inductions, Induction.get_inductions_by_upi(args.upi))
-            person |> Map.replace(:password, "") |> Map.put(:inductions, items)
-        end
-    end
-  end
-
-  defp get_items_from_inductions(_, nil), do: []
-  defp get_items_from_inductions(_, []), do: []
-  defp get_items_from_inductions(args, [head | tail]) do
-    [ ItemResolver.fill_item_schema(args |> Map.put(:name, head.itemname)) | get_items_from_inductions(args, tail) ]
-  end
-  # ------------------------------------------------------------------------------------------------------
-
 
 
   # ------------------------------------------------------------------------------------------------------
   # Get all people in the database
   # Only admins or powerusers can do this, or if the sessionid upi and user upi match
   # ------------------------------------------------------------------------------------------------------
-  def all_people(_root, args, info) do
+  def all_people(_root, _args, info) do
+    # Get the logged in user record
     case Map.get(info.context, :user) do
       nil -> {:error, :nosession}
       user ->
-        case Map.get(user, :status) do
-          :admin -> {:ok, Person.list_people() |> process_person_list(args)}
-          :poweruser -> {:ok, Person.list_people() |> process_person_list(args)}
-          _ -> {:error, :notadmin}
-        end
+        {:ok, Person.list_people() |> process_person_list(user)}
     end
-  end
-
-  defp process_person_list([], _), do: []
-  defp process_person_list([head | tail], args) do
-    items = get_items_from_inductions(args, Induction.get_inductions_by_upi(head.upi))
-    [ head |> Map.replace(:password, "") |> Map.put(:inductions, items) | process_person_list(tail, args) ]
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -61,18 +26,40 @@ defmodule LabbookingsWeb.PersonResolver do
   # Only admins or powerusers can do this, or if the sessionid upi and user upi match
   # ------------------------------------------------------------------------------------------------------
   def get_person(_root, args_in, info) do
+    # Make sure the input argument for upi is in lowercase
     args = Map.replace(args_in, :upi, String.downcase(args_in.upi))
 
+    # Get the currently logged in user record
     case Map.get(info.context, :user) do
       nil -> {:error, :nosession}
       user ->
-        send_person_if_allowed(user, fill_person_schema(args))
+        # Send the reply only if allowed to
+        send_person_if_allowed(user, Person.get_person_by_upi(args.upi) |> Map.replace(:password, ""))
     end
   end
+  # ------------------------------------------------------------------------------------------------------
 
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Go through the list of persons and fill out the list
+  # ------------------------------------------------------------------------------------------------------
+  defp process_person_list([], _), do: []
+  defp process_person_list([head | tail], user) do
+    case send_person_if_allowed(user, head) do
+      {:ok, _} -> [ head |> Map.replace(:password, "") | process_person_list(tail, user) ]
+      _ -> process_person_list(tail, user)
+    end
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
   # Either the person is admin or poweruser, or the person upi matches the sessionid upi
-  defp send_person_if_allowed(nil, _), do: {:error, :nosession}
-  defp send_person_if_allowed(user, person) do
+  # ------------------------------------------------------------------------------------------------------
+  def send_person_if_allowed(nil, _), do: {:error, :nosession}
+  def send_person_if_allowed(user, person) do
     if user.upi == person.upi do
       {:ok, person}
     else

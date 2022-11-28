@@ -13,7 +13,7 @@ defmodule LabbookingsWeb.HeadersAndAdminContext do
     opts
   end
 
-  def call(conn, _) do
+  def call(conn, _term) do
     context = get_req_header(conn, "sessionid")
       |> get_user_from_sessionid()
       |> Map.merge(grab_auth_token(conn))

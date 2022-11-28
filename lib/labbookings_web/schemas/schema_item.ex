@@ -1,7 +1,10 @@
 defmodule LabbookingsWeb.Schema.Item do
   use Absinthe.Schema.Notation
+
   require LabbookingsWeb.Schema.Enums
 
+  alias Labbookings.Induction
+  alias Labbookings.Person
   alias LabbookingsWeb.ItemResolver
 
   @desc "Item Type"
@@ -24,7 +27,26 @@ defmodule LabbookingsWeb.Schema.Item do
     field :bookable, non_null(:boolean), description: "Whether bookable or not (eg might be being repared)."
     field :access, non_null(:itemtype), description: "The status of the item (FREE, INDUCTION, SUPERVISED)"
 
-    field :inductions, non_null(list_of(:person)), description: "List of the people the item has been inducted for"
+    field :inductions, non_null(list_of(:person)), description: "List of the people the item has been inducted for" do
+      resolve fn post, _, _ ->
+        batch({__MODULE__, :inducted_people}, post.name, fn batch_results ->
+          {:ok, Map.get(batch_results, post.name)}
+        end)
+      end
+    end
+  end
+
+  def inducted_people(_, []) do %{} end
+  def inducted_people(param, [name | names]) do
+    inductions = Induction.get_inductions_by_itemname(name)
+    Map.merge(%{name => get_persons_from_inductions(inductions)}, inducted_people(param, names))
+  end
+
+  # Given a list of induction records, return the persons identified.
+  defp get_persons_from_inductions(nil), do: []
+  defp get_persons_from_inductions([]), do: []
+  defp get_persons_from_inductions([head | tail]) do
+    [ Person.get_person_by_upi(head.upi) | get_persons_from_inductions(tail) ]
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -45,7 +67,7 @@ defmodule LabbookingsWeb.Schema.Item do
     @desc "Get an item by name"
     # ----------------------------------------------------------------------------------------------------
     field :item_get, :item do
-      arg :name, :string
+      arg :name, non_null(:string)
       resolve &ItemResolver.get_item/3
     end
   end

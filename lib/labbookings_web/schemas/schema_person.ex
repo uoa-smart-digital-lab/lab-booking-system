@@ -1,9 +1,12 @@
 defmodule LabbookingsWeb.Schema.Person do
   use Absinthe.Schema.Notation
 
+
+  alias Labbookings.Induction
+  alias Labbookings.Item
+
   alias LabbookingsWeb.PersonResolver
   alias LabbookingsWeb.SessionResolver
-  alias LabbookingsWeb.ItemResolver
   alias LabbookingsWeb.InductionResolver
 
   @desc "User Type"
@@ -24,7 +27,26 @@ defmodule LabbookingsWeb.Schema.Person do
     field :details, non_null(:json), description: "Any other details in JSON format"
     field :tokens, non_null(:integer), description: "Number of tokens in the account"
 
-    field :inductions, list_of(:item), description: "List of items the person is inducted for"
+    field :inductions, non_null(list_of(:item)), description: "List of items the person is inducted for" do
+      resolve fn post, _, _ ->
+        batch({__MODULE__, :inducted_items}, post.upi, fn batch_results ->
+          {:ok, Map.get(batch_results, post.upi)}
+        end)
+      end
+    end
+  end
+
+  def inducted_items(_, []) do %{} end
+  def inducted_items(param, [upi | upis]) do
+    inductions = Induction.get_inductions_by_upi(upi)
+    Map.merge(%{upi => get_items_from_inductions(inductions)}, inducted_items(param, upis))
+  end
+
+  # Given a list of induction records, return the items identified.
+  defp get_items_from_inductions(nil), do: []
+  defp get_items_from_inductions([]), do: []
+  defp get_items_from_inductions([head | tail]) do
+    [ Item.get_item_by_name(head.itemname) | get_items_from_inductions(tail) ]
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -32,7 +54,7 @@ defmodule LabbookingsWeb.Schema.Person do
   # Session Schema Definition
   # ------------------------------------------------------------------------------------------------------
   object :session do
-    field :sessionid, :string
+    field :sessionid, non_null(:string)
     field :upi, non_null(:string)
   end
   # ------------------------------------------------------------------------------------------------------
@@ -56,6 +78,7 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
     field :person_get, :person do
       arg :upi, non_null(:string)
+
       resolve &PersonResolver.get_person/3
     end
     # ----------------------------------------------------------------------------------------------------

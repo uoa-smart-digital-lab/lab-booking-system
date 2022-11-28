@@ -5,6 +5,7 @@ defmodule LabbookingsWeb.InductionResolver do
   alias Labbookings.Item
   alias Labbookings.Person
   alias Labbookings.Induction
+  alias LabbookingsWeb.PersonResolver
 
   # ------------------------------------------------------------------------------------------------------
   # Get all inductions in the database
@@ -53,19 +54,46 @@ defmodule LabbookingsWeb.InductionResolver do
   # ------------------------------------------------------------------------------------------------------
   # Create a new induction
   # ------------------------------------------------------------------------------------------------------
-  def create_induction(_root, args_in, _info) do
+  def create_induction(_root, args_in, info) do
     args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
-    case Person.get_person_by_upi(args.upi) do
-      nil -> {:error, :upi}
-      _person ->
-        case Item.get_item_by_name(args.itemname) do
-          nil -> {:error, :item}
-          _item ->
-            Induction.create_induction(args)
-            {:ok, Person.get_person_by_upi(args.upi) |> Map.put(:inductions, Induction.get_inductions_by_upi(args.upi))}
+    IO.inspect args
+    case Map.get(info.context, :user) do
+      # User not logged in or doesn't exist
+      nil -> {:error, :nosession}
+      user ->
+        # Check whether already inducted to avoid duplicates
+        case Induction.get_inductions_by_upi_and_itemname(args.upi, args.itemname) do
+          [] ->
+            # Check that the specified person to be inducted actually exists
+            IO.puts "CHECKING ACCESS 1"
+            case Person.get_person_by_upi(args.upi) do
+              nil -> {:error, :upi}
+              _person ->
+                # Check the item exists
+                IO.puts "CHECKING ACCESS 2"
+                case Item.get_item_by_name(args.itemname) do
+                  nil -> {:error, :item}
+                  item ->
+                    IO.puts "CHECKING ACCESS 3"
+                    # Check that the logged in user is allowed to induct the person
+                    case check_access(item, user) do
+                      {:ok, _} ->
+                        # Create the induction record
+                        Induction.create_induction(args)
+                        # Return the updated person being inducted
+                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                      error ->
+                        # The logged in user does not have the right to induct the person
+                        error
+                    end
+                end
+            end
+          _ ->
+            IO.puts "CHECKING ACCESS 4"
+            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
         end
-    end
+      end
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -78,11 +106,8 @@ defmodule LabbookingsWeb.InductionResolver do
     upi = Map.get(args, :upi) |> String.downcase()
     itemname = Map.get(args, :itemname) |> String.downcase()
 
-    case Induction.get_inductions_by_upi_and_itemname(upi, itemname) do
-      inductions ->
-        delete_all_inductions(inductions)
-        {:ok, inductions}
-    end
+    inductions = Induction.get_inductions_by_upi_and_itemname(upi, itemname)
+    {delete_all_inductions(inductions), inductions}
   end
 
   defp delete_all_inductions([]) do
@@ -92,5 +117,49 @@ defmodule LabbookingsWeb.InductionResolver do
     Induction.delete_induction(induction)
     delete_all_inductions(rest)
   end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Check whether the user has access to the item that they are wanting to induct the person to.
+  # ------------------------------------------------------------------------------------------------------
+  defp check_access(item, user) do
+    # If bookable
+    case item.bookable do
+      :true ->
+        # Check item access level
+        case item.access do
+          # No restrictions, so no induction required
+          :free -> {:error, :noinductionrequired}
+          # Has to be used under supervision, so no induction allowed
+          :supervised -> {:error, :supervisedonly}
+          # Check the status of the logged in user to determine if they can induct
+          _ ->
+            case check_user_status(user.status, item, user) do
+              # Induction allowed
+              :true -> {:ok, :inductable}
+              # Induction not allowed
+              _ -> {:error, :noaccess}
+            end
+        end
+      # Item not bookable
+      _ -> {:error, :notbookable}
+    end
+  end
+
+  # Admin can induct anyone
+  defp check_user_status(:admin, _, _) do :true end
+  # Poweruser can induct anyone who to items they have been inducted to
+  defp check_user_status(:poweruser, item, user) do
+    # Check the inductions of the user, and if the item is on that list, induct the person to the item
+    case Induction.get_inductions_by_upi_and_itemname(user.upi, item.name) do
+      [] -> :false
+      _ -> :true
+    end
+  end
+  # Users can't induct anyone
+  defp check_user_status(_, _, _) do :false end
+
   # ------------------------------------------------------------------------------------------------------
 end
