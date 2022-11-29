@@ -3,6 +3,7 @@ defmodule LabbookingsWeb.Schema.Person do
 
   alias Labbookings.Induction
   alias Labbookings.Item
+  alias Labbookings.Booking
 
   alias LabbookingsWeb.PersonResolver
   alias LabbookingsWeb.SessionResolver
@@ -34,13 +35,18 @@ defmodule LabbookingsWeb.Schema.Person do
       end
     end
 
-    field :bookings, non_null(list_of(:item)), description: "List of items the person has booked and times" do
+    field :bookings, non_null(list_of(:booking)), description: "List of bookings of items the person has booked" do
       resolve fn post, _, _ ->
         batch({__MODULE__, :booked_items}, post.upi, fn batch_results ->
-          {:ok, Map.get(batch_results, post.upi)}
+          {:ok, Map.get(batch_results, :bookings)}
         end)
       end
     end
+  end
+
+  def booked_items(_, []) do %{} end
+  def booked_items(_, [upi | _]) do
+    %{:bookings => Booking.get_bookings_by_upi(upi)}
   end
 
   def inducted_items(_, []) do %{} end

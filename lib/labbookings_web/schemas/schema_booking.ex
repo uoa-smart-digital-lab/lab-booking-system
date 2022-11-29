@@ -13,8 +13,8 @@ defmodule LabbookingsWeb.Schema.Booking do
   object :booking do
     field :item, non_null(:item), description: "The item being booked." do
       resolve fn post, _, _ ->
-        batch({__MODULE__, :items}, post.upi, fn batch_results ->
-          {:ok, Map.get(batch_results, post.upi)}
+        batch({__MODULE__, :items}, post.itemname, fn batch_results ->
+          {:ok, Map.get(batch_results, post.itemname)}
         end)
       end
     end
@@ -35,13 +35,13 @@ defmodule LabbookingsWeb.Schema.Booking do
 
   def people(_, []) do %{} end
   def people(param, [upi | upis]) do
-    person = Person.get_person(upi)
+    person = Person.get_person_by_upi(upi)
     Map.merge(%{upi => person}, people(param, upis))
   end
 
   def items(_, []) do %{} end
   def items(param, [name | names]) do
-    item = Item.get_item(name)
+    item = Item.get_item_by_name(name)
     Map.merge(%{name => item}, items(param, names))
   end
   # ------------------------------------------------------------------------------------------------------

@@ -5,7 +5,6 @@ defmodule LabbookingsWeb.BookingResolver do
   alias Labbookings.Item
   alias Labbookings.Person
   alias Labbookings.Booking
-  alias LabbookingsWeb.PersonResolver
 
   # ------------------------------------------------------------------------------------------------------
   # Get all bookings in the database
@@ -73,7 +72,7 @@ defmodule LabbookingsWeb.BookingResolver do
       nil -> {:error, :nosession}
       user ->
         # Check whether already booked to avoid duplicates TODO: Check doesn't overlap with proposed time
-        case Booking.get_bookings_by_upi_and_itemname(args.upi, args.itemname) do
+        case Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime) do
           [] ->
             # Check that the specified person to have the item booked for actually exists
             case Person.get_person_by_upi(args.upi) do
@@ -88,8 +87,8 @@ defmodule LabbookingsWeb.BookingResolver do
                       {:ok, _} ->
                         # Create the booking record
                         Booking.create_booking(args)
-                        # Return the updated person being inducted
-                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                        # Return the updated item being booked
+                        {:ok, Item.get_item_by_name(args.itemname)}
                       error ->
                         # The logged in user does not have the right to induct the person
                         error
@@ -97,7 +96,7 @@ defmodule LabbookingsWeb.BookingResolver do
                 end
             end
           _ ->
-            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+            {:ok, Item.get_item_by_name(args.itemname)}
         end
       end
   end
@@ -118,7 +117,7 @@ defmodule LabbookingsWeb.BookingResolver do
         # Check whether already booked to avoid duplicates TODO: Check doesn't overlap with proposed time
         case Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime) do
           [] ->
-            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+            {:ok, Item.get_item_by_name(args.itemname)}
           [ booking | _] ->
             # Check that the specified person to have the item booking updated for actually exists
             case Person.get_person_by_upi(args.upi) do
@@ -134,8 +133,8 @@ defmodule LabbookingsWeb.BookingResolver do
                         newargs = args |> Map.replace(:starttime, args.newstarttime) |> Map.replace(:endtime, args.newendtime)
                         # Create the booking record
                         Booking.update_booking(booking, newargs)
-                        # Return the updated person being inducted
-                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                        # Return the updated item the bookings is modified for
+                        {:ok, Item.get_item_by_name(args.itemname)}
                       error ->
                         # The logged in user does not have the right to induct the person
                         error
@@ -162,7 +161,7 @@ defmodule LabbookingsWeb.BookingResolver do
         # Check whether booking exists TODO Add in times
         case Booking.get_bookings_by_upi_and_itemname(args.upi, args.itemname) do
           [] ->
-            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+            {:ok, Item.get_item_by_name(args.itemname)}
           [booking | _ ] ->
             # Check that the specified person to remove the booking for actually exists
             case Person.get_person_by_upi(args.upi) do
@@ -177,8 +176,8 @@ defmodule LabbookingsWeb.BookingResolver do
                       {:ok, _} ->
                         # REmove the booking record
                         Booking.delete_booking(booking)
-                        # Return the updated person the booking is for
-                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                        # Return the updated item the booking is deleted from
+                        {:ok, Item.get_item_by_name(args.itemname)}
                       error ->
                         # The logged in user does not have the right to book the item
                         error
