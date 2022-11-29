@@ -42,7 +42,7 @@ type Person {
   tokens: Int!            # Number of tokens in the account
 
   inductions: [Item]!     # A list of items this person is inducted for
-  bookings: [Booking]     # A list of current bookings for this person
+  bookings: [Booking]!    # A list of current bookings for this person
 }
 
 # ******************************************************************************************************************************************************
@@ -68,18 +68,18 @@ type Item {
   access: Access!         # Level of access use
 
   inductions: [Person]!   # A list of people for whom this item is inducted.  List will be empty of induction not required (status).
-  bookings: [Booking]     # A list of bookings for this item
+  bookings: [Booking]!    # A list of bookings for this item
 }
 
 # ******************************************************************************************************************************************************
 # A bookable item.  Local time is assumed.
 # ******************************************************************************************************************************************************
 type Booking {
-  id: ID!
-  person: Person!
-  item: Item!
-  start: DateTime!
-  end: DateTime!
+  person: Person!         # The person the item is booked for
+  item: Item!             # The item being booked
+  starttime: DateTime!    # The starting time
+  endtime: DateTime!      # The ending time
+  details: Json!          # Any other relevant details
 }
 
 type Query {
@@ -167,11 +167,11 @@ type Mutation {
   # and for others for items they are inducted for, and that the user is inducted for. Items cannot be booked for a specific time of day if already booked.
 
   # Create a booking for the given item for the given person as identified by their UPI
-  bookingCreate (upi: String!, itemName: String!, start: DateTime!, end: DateTime!): Booking
+  itemBook (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!, details: Json!): Booking
 
   # Update an existing booking for the given item for the given person as identified by their UPI
-  bookingUpdate (id: ID!, upi: String!, itemName: String!, start: DateTime!, end: DateTime!): Booking
+  itemUnbook (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!): Booking
 
   # Delete an existing booking
-  bookingDelete (id: ID!): Booking
+  itemChangebooking (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!, newstarttime: DateTime, newendtime: DateTime, details: Json): Booking
 }

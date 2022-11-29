@@ -1,7 +1,6 @@
 defmodule LabbookingsWeb.Schema.Person do
   use Absinthe.Schema.Notation
 
-
   alias Labbookings.Induction
   alias Labbookings.Item
 
@@ -30,6 +29,14 @@ defmodule LabbookingsWeb.Schema.Person do
     field :inductions, non_null(list_of(:item)), description: "List of items the person is inducted for" do
       resolve fn post, _, _ ->
         batch({__MODULE__, :inducted_items}, post.upi, fn batch_results ->
+          {:ok, Map.get(batch_results, post.upi)}
+        end)
+      end
+    end
+
+    field :bookings, non_null(list_of(:item)), description: "List of items the person has booked and times" do
+      resolve fn post, _, _ ->
+        batch({__MODULE__, :booked_items}, post.upi, fn batch_results ->
           {:ok, Map.get(batch_results, post.upi)}
         end)
       end
@@ -155,12 +162,22 @@ defmodule LabbookingsWeb.Schema.Person do
     # ----------------------------------------------------------------------------------------------------
 
     # ----------------------------------------------------------------------------------------------------
-    @desc "Uninduct a perosn"
+    @desc "Uninduct a person"
     # ----------------------------------------------------------------------------------------------------
     field :person_uninduct, :person do
       arg :upi, non_null(:string)
       arg :itemname, non_null(:string)
       resolve &InductionResolver.delete_induction/3
+    end
+    # ----------------------------------------------------------------------------------------------------
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Adjust the number of tokens"
+    # ----------------------------------------------------------------------------------------------------
+    field :person_adjusttokens, :person do
+      arg :upi, non_null(:string)
+      arg :tokens, non_null(:integer)
+      resolve &PersonResolver.adjust_tokens/3
     end
     # ----------------------------------------------------------------------------------------------------
   end

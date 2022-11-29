@@ -164,7 +164,7 @@ defmodule LabbookingsWeb.ItemResolver do
         case Item.delete_item(answer) do
           {:ok, result} ->
             # Delete all references to the item from elsewhere.
-            # Occupancy.delete_occupancy_by_item(args.name)
+            Induction.delete_inductions_by_itemname(args.name)
             # Do something about the course reference
 
             {:ok, result}

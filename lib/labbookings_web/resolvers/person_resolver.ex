@@ -3,6 +3,7 @@
 # ****************************************************************************************************
 defmodule LabbookingsWeb.PersonResolver do
   alias Labbookings.Person
+  alias Labbookings.Induction
 
 
   # ------------------------------------------------------------------------------------------------------
@@ -165,9 +166,9 @@ defmodule LabbookingsWeb.PersonResolver do
               answer ->
                 case Person.delete_person(answer) do
                   {:ok, result} ->
-                    # Get rid of references to the user in the occupancy and participant databases.
-                    # Occupancy.delete_occupancy_by_upi(args.upi)
-                    # Participant.delete_participants_by_upi(args.upi)
+                    # Get rid of references to the user in the inductions and bookings databases.
+                    Induction.delete_inductions_by_upi(args.upi)
+                    # Booking.delete_bookings_by_upi(args.upi)
                     {:ok, result |> Map.replace(:password, "")}
                   _ ->
                     {:error, :internalerror}
@@ -176,6 +177,33 @@ defmodule LabbookingsWeb.PersonResolver do
           _ -> {:error, :notadmin}
         end
       end
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Change the number of tokens a person has - can only be done by admins.  Tokens will be used as a form
+  # of payment for using equipment.
+  # ------------------------------------------------------------------------------------------------------
+  def adjust_tokens(_root, args_in, info) do
+    args = Map.replace(args_in, :upi, String.downcase(args_in.upi))
+    case Map.get(info.context, :user) do
+      nil -> {:error, :nosession}
+      user ->
+        case Map.get(user, :status) do
+          :admin ->
+            case Person.get_person_by_upi(args.upi) do
+              nil -> {:error, :noperson}
+              person ->
+                case Person.update_person(person, args |> Map.replace(:tokens, args.tokens)) do
+                  {:ok, updated_person} -> {:ok, updated_person |> Map.replace(:password, "")}
+                  _ -> {:error, :internalerror}
+                end
+            end
+          _ -> {:error, :notadmin}
+        end
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 end

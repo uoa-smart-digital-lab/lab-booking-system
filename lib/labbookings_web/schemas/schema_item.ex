@@ -6,6 +6,7 @@ defmodule LabbookingsWeb.Schema.Item do
   alias Labbookings.Induction
   alias Labbookings.Person
   alias LabbookingsWeb.ItemResolver
+  alias LabbookingsWeb.BookingResolver
 
   @desc "Item Type"
   enum :itemtype do
@@ -113,6 +114,43 @@ defmodule LabbookingsWeb.Schema.Item do
     field :item_delete, :item do
       arg :name, non_null(:string)
       resolve &ItemResolver.delete_item/3
+    end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Book an item"
+    # ----------------------------------------------------------------------------------------------------
+    field :item_book, :item do
+      arg :itemname, non_null(:string)
+      arg :upi, non_null(:string)
+      arg :starttime, non_null(:datetime)
+      arg :endtime, non_null(:datetime)
+      arg :details, non_null(:json)
+      resolve &BookingResolver.create_booking/3
+    end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Unbook an item"
+    # ----------------------------------------------------------------------------------------------------
+    field :item_unbook, :item do
+      arg :itemname, non_null(:string)
+      arg :upi, non_null(:string)
+      arg :starttime, non_null(:datetime)
+      arg :endtime, non_null(:datetime)
+      resolve &BookingResolver.delete_booking/3
+    end
+
+    # ----------------------------------------------------------------------------------------------------
+    @desc "Change a booking for an item"
+    # ----------------------------------------------------------------------------------------------------
+    field :item_changebooking, :item do
+      arg :itemname, non_null(:string)
+      arg :upi, non_null(:string)
+      arg :starttime, non_null(:datetime)
+      arg :endtime, non_null(:datetime)
+      arg :newstarttime, :datetime
+      arg :newendtime, :datetime
+      arg :details, :json
+      resolve &BookingResolver.update_booking/3
     end
   end
   # ------------------------------------------------------------------------------------------------------

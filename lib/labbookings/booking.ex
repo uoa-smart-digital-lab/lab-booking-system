@@ -1,34 +1,34 @@
 # ****************************************************************************************************
-# Core database functions to be used by the resolvers for Induction
+# Core database functions to be used by the resolvers for Booking
 # ****************************************************************************************************
-defmodule Labbookings.Induction do
+defmodule Labbookings.Booking do
   import Ecto.Query, warn: false
 
   alias Labbookings.Repo
-  alias Labbookings.Bookings.Induction
+  alias Labbookings.Bookings.Booking
 
   # ------------------------------------------------------------------------------------------------------
-  # List all the inductions in the database
+  # List all the bookings in the database
   # ------------------------------------------------------------------------------------------------------
-  def list_inductions do
-    Repo.all(Induction)
+  def list_bookings do
+    Repo.all(Booking)
   end
   # ------------------------------------------------------------------------------------------------------
 
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Get the Induction given the upi
+  # Get the Bookings given the upi
   # ------------------------------------------------------------------------------------------------------
-  def get_inductions_by_upi(upi) do
-    # Get all the inductions with that upi
-    query = from p in Induction,
+  def get_bookings_by_upi(upi) do
+    # Get all the bookings with that upi
+    query = from p in Booking,
       where: p.upi == ^upi
 
-    # Return the list of inductions for this person
+    # Return the list of bookigns for this person
     case Repo.all(query) do
       nil -> []
-      inductions -> inductions
+      bookings -> bookings
     end
   end
   # ------------------------------------------------------------------------------------------------------
@@ -36,17 +36,17 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Get the induction given the itemname
+  # Get the bookings for the itemname
   # ------------------------------------------------------------------------------------------------------
-  def get_inductions_by_itemname(itemname) do
-    # Get all the inductions with that itemanme
-    query = from p in Induction,
+  def get_bookings_by_itemname(itemname) do
+    # Get all the bookings with that itemanme
+    query = from p in Booking,
       where: p.itemname == ^itemname
 
-    # Return the list of inductions for this item
+    # Return the list of bookings for this item
     case Repo.all(query) do
       nil -> []
-      inductions -> inductions
+      bookings -> bookings
     end
   end
   # ------------------------------------------------------------------------------------------------------
@@ -54,17 +54,17 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Get the induction given the upi and itemname
+  # Get the bookings given the upi and itemname
   # ------------------------------------------------------------------------------------------------------
-  def get_inductions_by_upi_and_itemname(upi, itemname) do
-    # Get all the inductions with the upi and itemanme
+  def get_bookings_by_upi_and_itemname(upi, itemname) do
+    # Get all the bookings with the upi and itemanme
     query = from p in Induction,
       where: (p.itemname == ^itemname) and (p.upi == ^upi)
 
-    # Return the list of inductions for this person and item
+    # Return the list of bookings for this person and item
     case Repo.all(query) do
       nil -> []
-      inductions -> inductions
+      bookings -> bookings
     end
   end
   # ------------------------------------------------------------------------------------------------------
@@ -72,11 +72,29 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Create a new induction
+  # Get the bookings by the itemname and whether they overlap the given timeframe
   # ------------------------------------------------------------------------------------------------------
-  def create_induction(attrs \\ %{}) do
-    %Induction{}
-    |> Induction.changeset(attrs)
+  def get_bookings_by_itemname_and_date(itemname, starttime, endtime) do
+    # Get all the bookings with the itemname that overlap this timeframe
+    query = from p in Booking,
+      where: (p.itemname == ^itemname) and (((p.starttime >= ^starttime) and (p.endtime >= ^endtime)) or ((p.starttime <= ^starttime) and (p.endtime <= ^endtime)) or ((p.starttime >= ^starttime) and (p.endtime <= ^endtime)) or ((p.starttime <= ^starttime) and (p.starttime >= ^endtime)))
+
+    # Return the list of bookings that match
+    case Repo.all(query) do
+      nil -> []
+      bookings -> bookings
+    end
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Create a new booking
+  # ------------------------------------------------------------------------------------------------------
+  def create_booking(attrs \\ %{}) do
+    %Booking{}
+    |> Booking.changeset(attrs)
     |> Repo.insert()
   end
   # ------------------------------------------------------------------------------------------------------
@@ -84,10 +102,10 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Update an existing induction
+  # Update an existing booking
   # ------------------------------------------------------------------------------------------------------
-  def update_induction(%Induction{} = induction, attrs) do
-    induction
+  def update_booking(%Booking{} = booking, attrs) do
+    booking
     |> Induction.changeset(attrs)
     |> Repo.update()
   end
@@ -96,20 +114,20 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Delete an existing induction
+  # Delete an existing booking
   # ------------------------------------------------------------------------------------------------------
-  def delete_induction(%Induction{} = induction) do
-    Repo.delete(induction)
+  def delete_booking(%Booking{} = booking) do
+    Repo.delete(booking)
   end
   # ------------------------------------------------------------------------------------------------------
 
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Delete all the inductions for a given user (for when deleting a user)
+  # Delete all the bookings for a given user (for when deleting a user)
   # ------------------------------------------------------------------------------------------------------
-  def delete_inductions_by_upi(upi) do
-    query = from r in Induction,
+  def delete_bookings_by_upi(upi) do
+    query = from r in Booking,
     where: r.upi == ^upi
 
     # Delete all the records that match
@@ -118,7 +136,7 @@ defmodule Labbookings.Induction do
 
   defp delete_list([]), do: :ok
   defp delete_list([head | tail]) do
-    delete_induction(head)
+    delete_booking(head)
     delete_list(tail)
   end
   # ------------------------------------------------------------------------------------------------------
@@ -126,10 +144,10 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Delete all the inductions for a given item (for when deleting an item)
+  # Delete all the bookings for a given item (for when deleting an item)
   # ------------------------------------------------------------------------------------------------------
-  def delete_inductions_by_itemname(itemname) do
-    query = from r in Induction,
+  def delete_bookings_by_itemname(itemname) do
+    query = from r in Booking,
     where: r.itemname == ^itemname
 
     # Delete all the records that match
@@ -140,10 +158,10 @@ defmodule Labbookings.Induction do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Change the details on a induction without affecting the database
+  # Change the details on a booking without affecting the database
   # ------------------------------------------------------------------------------------------------------
-  def change_induction(%Induction{} = induction, attrs \\ %{}) do
-    Induction.changeset(induction, attrs)
+  def change_induction(%Booking{} = booking, attrs \\ %{}) do
+    Booking.changeset(booking, attrs)
   end
   # ------------------------------------------------------------------------------------------------------
 end

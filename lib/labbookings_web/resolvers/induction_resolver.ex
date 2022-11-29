@@ -95,12 +95,10 @@ defmodule LabbookingsWeb.InductionResolver do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Delete inductions if they exist
+  # Delete induction if it exists
   # ------------------------------------------------------------------------------------------------------
   def delete_induction(_root, args_in, info) do
     args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
-    IO.puts "HERE HERE HERE"
-    IO.inspect args
 
     case Map.get(info.context, :user) do
       # User not logged in or doesn't exist
@@ -111,7 +109,6 @@ defmodule LabbookingsWeb.InductionResolver do
           [] ->
             PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
           [induction | _ ] ->
-            IO.puts "HERE HERE HERE"
             # Check that the specified person to be inducted actually exists
             case Person.get_person_by_upi(args.upi) do
               nil -> {:error, :upi}
@@ -123,7 +120,7 @@ defmodule LabbookingsWeb.InductionResolver do
                     # Check that the logged in user is allowed to induct the person
                     case check_access(item, user) do
                       {:ok, _} ->
-                        # Create the induction record
+                        # Delete the induction record
                         Induction.delete_induction(induction)
                         # Return the updated person being inducted
                         PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
@@ -169,7 +166,7 @@ defmodule LabbookingsWeb.InductionResolver do
 
   # Admin can induct anyone
   defp check_user_status(:admin, _, _) do :true end
-  # Poweruser can induct anyone who to items they have been inducted to
+  # Poweruser can induct anyone to items they have been inducted to
   defp check_user_status(:poweruser, item, user) do
     # Check the inductions of the user, and if the item is on that list, induct the person to the item
     case Induction.get_inductions_by_upi_and_itemname(user.upi, item.name) do
@@ -177,7 +174,7 @@ defmodule LabbookingsWeb.InductionResolver do
       _ -> :true
     end
   end
-  # Users can't induct anyone
+  # Ordinary users can't induct anyone
   defp check_user_status(_, _, _) do :false end
 
   # ------------------------------------------------------------------------------------------------------
