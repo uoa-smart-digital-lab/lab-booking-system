@@ -214,6 +214,53 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "item_book",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "c925a747-ecaf-48a4-86e5-ee8cd21bb339",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)\r\n{\r\n  itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {\r\n    name\r\n    url\r\n    image\r\n    bookings {\r\n        person {\r\n            upi\r\n        }\r\n        item {\r\n            name\r\n        }\r\n        starttime\r\n        endtime\r\n        details\r\n    }\r\n  }\r\n}",
+								"variables": "{\r\n    \"itemname\":\"hololens2_1\",\r\n    \"upi\":\"rdav031\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T16:00:00Z\",\r\n    \"endtime\":\"2022-11-29T18:00:00Z\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"id": "86579e85-1b31-44aa-a06a-67099c45e064"
@@ -416,7 +463,11 @@
 							}
 						],
 						"body": {
-							"mode": "graphql"
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation personDelete ($upi:String!)\n{\n  personDelete (upi:$upi) {\n    upi\n    name\n  }\n}",
+								"variables": "{\"upi\":\"jblg123\"}"
+							}
 						},
 						"url": {
 							"raw": "localhost:4000/api",
@@ -524,6 +575,53 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "person_adjusttokens",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "af549135-25d6-4bfc-8726-2f935be322a7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "346f14f2-32f5-4efc-9695-c2c690f72b10",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation personAdjusttokens ($upi:String!, $tokens:Int! )\n{\n  personAdjusttokens(upi:$upi, tokens:$tokens) {\n    upi\n    name\n    tokens\n    inductions {\n        name\n    }\n  }\n}",
+								"variables": "{\n    \"upi\":\"jblg123\",\n    \"tokens\":30\n}"
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/api",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"id": "b38614a7-781e-4c40-a4dc-c7da02045e99"
@@ -557,7 +655,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation login ($upi:String!, $password:String!){\n  login(upi:$upi, password:$password) {\n    sessionid\n    upi\n  }\n}",
-								"variables": "{\"upi\": \"rdav031\", \"password\": \"12345\"}"
+								"variables": "{\"upi\": \"fdag123\", \"password\": \"12345\"}"
 							}
 						},
 						"url": {
