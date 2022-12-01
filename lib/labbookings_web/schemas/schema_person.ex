@@ -38,15 +38,16 @@ defmodule LabbookingsWeb.Schema.Person do
     field :bookings, non_null(list_of(:booking)), description: "List of bookings of items the person has booked" do
       resolve fn post, _, _ ->
         batch({__MODULE__, :booked_items}, post.upi, fn batch_results ->
-          {:ok, Map.get(batch_results, :bookings)}
+          {:ok, Map.get(batch_results, post.upi)}
         end)
       end
     end
   end
 
   def booked_items(_, []) do %{} end
-  def booked_items(_, [upi | _]) do
-    %{:bookings => Booking.get_bookings_by_upi(upi)}
+  def booked_items(param, [upi | upis]) do
+    bookings = Booking.get_bookings_by_upi(upi)
+    Map.merge(%{upi => bookings}, booked_items(param, upis))
   end
 
   def inducted_items(_, []) do %{} end

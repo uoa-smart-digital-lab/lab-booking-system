@@ -58,7 +58,7 @@ defmodule Labbookings.Booking do
   # ------------------------------------------------------------------------------------------------------
   def get_bookings_by_upi_and_itemname(upi, itemname) do
     # Get all the bookings with the upi and itemanme
-    query = from p in Induction,
+    query = from p in Booking,
       where: (p.itemname == ^itemname) and (p.upi == ^upi)
 
     # Return the list of bookings for this person and item

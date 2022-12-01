@@ -4,39 +4,6 @@
 defmodule LabbookingsWeb.ItemResolver do
   alias Labbookings.Item
   alias Labbookings.Induction
-  alias LabbookingsWeb.PersonResolver
-
-
-  # ------------------------------------------------------------------------------------------------------
-  # Fill the item schema, recursively going into the person records as required.
-  # ------------------------------------------------------------------------------------------------------
-  def fill_item_schema(args) do
-    # Get the core item record
-    case Item.get_item_by_name(args.name |> String.downcase()) do
-      nil -> {:error, :noitem}
-      item ->
-        # Get the induction persons if asked for
-        case Map.get(args, :inductions) do
-          nil -> item  # No induction items requested
-          _ ->
-            # Get the person records from the list of inductions
-            persons = get_persons_from_inductions(args.inductions, Induction.get_inductions_by_itemname(args.itemname))
-            # Add the array of items to the person record
-            item |> Map.put(:inductions, persons)
-        end
-    end
-  end
-
-  # Given a list of induction records, return the persons identified.  The args allow us to pass into the
-  # get persons routine the request for what parts of the record in case we are asking for inductions there
-  # in which case we might be wanting the item records associated with inductions that that person has.
-  defp get_persons_from_inductions(_, nil), do: []
-  defp get_persons_from_inductions(_, []), do: []
-  defp get_persons_from_inductions(args, [head | tail]) do
-    [ PersonResolver.fill_person_schema(args |> Map.put(:upi, head.upi)) | get_persons_from_inductions(args, tail) ]
-  end
-  # ------------------------------------------------------------------------------------------------------
-
 
 
   # ------------------------------------------------------------------------------------------------------

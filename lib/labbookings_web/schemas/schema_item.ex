@@ -30,38 +30,64 @@ defmodule LabbookingsWeb.Schema.Item do
     field :access, non_null(:itemtype), description: "The status of the item (FREE, INDUCTION, SUPERVISED)"
 
     field :inductions, non_null(list_of(:person)), description: "List of the people the item has been inducted for" do
-      resolve fn post, _, _ ->
-        batch({__MODULE__, :inducted_people}, post.name, fn batch_results ->
-          {:ok, Map.get(batch_results, post.name)}
-        end)
+      resolve fn post, _, resolution ->
+          batch({__MODULE__, :inducted_people}, {post.name, resolution.context.user}, fn batch_results ->
+            {:ok, Map.get(batch_results, post.name)}
+          end)
+        end
       end
-    end
 
     field :bookings, non_null(list_of(:booking)), description: "List of bookings of items the person has booked" do
       resolve fn post, _, _ ->
         batch({__MODULE__, :booked_items}, post.name, fn batch_results ->
-          {:ok, Map.get(batch_results, :bookings)}
+          {:ok, Map.get(batch_results, post.name)}
         end)
       end
     end
   end
 
+
   def booked_items(_, []) do %{} end
-  def booked_items(_, [itemname | _]) do
-    %{:bookings => Booking.get_bookings_by_itemname(itemname)}
+  def booked_items(param, [name | names]) do
+    bookings = Booking.get_bookings_by_itemname(name)
+    Map.merge(%{name => bookings}, booked_items(param, names))
   end
 
-  def inducted_people(_, []) do %{} end
-  def inducted_people(param, [name | names]) do
+  def inducted_people(_, {[], _}) do %{} end
+  def inducted_people(param, {[name | names], user}) do
     inductions = Induction.get_inductions_by_itemname(name)
-    Map.merge(%{name => get_persons_from_inductions(inductions)}, inducted_people(param, names))
+    Map.merge(%{name => get_persons_from_inductions(inductions, user)}, inducted_people(param, names))
   end
 
   # Given a list of induction records, return the persons identified.
-  defp get_persons_from_inductions(nil), do: []
-  defp get_persons_from_inductions([]), do: []
-  defp get_persons_from_inductions([head | tail]) do
-    [ Person.get_person_by_upi(head.upi) | get_persons_from_inductions(tail) ]
+  defp get_persons_from_inductions(nil, _), do: []
+  defp get_persons_from_inductions([], _), do: []
+  defp get_persons_from_inductions([head | tail], user) do
+    case send_person_if_allowed(user, Person.get_person_by_upi(head.upi)) do
+      {:ok, person} -> [ person |> Map.replace(:password, "") | get_persons_from_inductions(tail, user) ]
+      _ -> [get_persons_from_inductions(tail, user)]
+    end
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Either the person is admin or poweruser, or the person upi matches the sessionid upi
+  # ------------------------------------------------------------------------------------------------------
+  def send_person_if_allowed(nil, _), do: {:error, :nosession}
+  def send_person_if_allowed(user, person) do
+    IO.inspect user
+    IO.inspect person
+    if user.upi == person.upi do
+      {:ok, person}
+    else
+      case Map.get(user, :status) do
+        :admin -> {:ok, person}
+        :poweruser -> {:ok, person}
+        _ -> {:ok, {:error, :notadmin}}
+      end
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 
