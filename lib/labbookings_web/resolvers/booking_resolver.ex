@@ -210,7 +210,7 @@ defmodule LabbookingsWeb.BookingResolver do
             #   # Booking allowed
             #   :true -> {:ok, :inductable}
             #   # Booking not allowed
-            #   _ -> {:error, :noaccess}
+            #   _ -> {:error, :notadmin}
             # end
         end
       # Item not bookable

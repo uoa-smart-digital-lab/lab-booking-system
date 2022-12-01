@@ -78,7 +78,7 @@ defmodule LabbookingsWeb.InductionResolver do
                         # Create the induction record
                         Induction.create_induction(args)
                         # Return the updated person being inducted
-                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                        {:ok, Person.get_person_by_upi(args.upi) |> PersonResolver.tune_for_user(user)}
                       error ->
                         # The logged in user does not have the right to induct the person
                         error
@@ -86,7 +86,7 @@ defmodule LabbookingsWeb.InductionResolver do
                 end
             end
           _ ->
-            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+            {:ok, Person.get_person_by_upi(args.upi) |> PersonResolver.tune_for_user(user)}
         end
       end
   end
@@ -107,7 +107,7 @@ defmodule LabbookingsWeb.InductionResolver do
         # Check whether induction exists
         case Induction.get_inductions_by_upi_and_itemname(args.upi, args.itemname) do
           [] ->
-            PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+            {:ok, Person.get_person_by_upi(args.upi) |> PersonResolver.tune_for_user(user)}
           [induction | _ ] ->
             # Check that the specified person to be inducted actually exists
             case Person.get_person_by_upi(args.upi) do
@@ -123,7 +123,7 @@ defmodule LabbookingsWeb.InductionResolver do
                         # Delete the induction record
                         Induction.delete_induction(induction)
                         # Return the updated person being inducted
-                        PersonResolver.send_person_if_allowed(user, Person.get_person_by_upi(args.upi))
+                        {:ok, Person.get_person_by_upi(args.upi) |> PersonResolver.tune_for_user(user)}
                       error ->
                         # The logged in user does not have the right to induct the person
                         error
@@ -156,7 +156,7 @@ defmodule LabbookingsWeb.InductionResolver do
               # Induction allowed
               :true -> {:ok, :inductable}
               # Induction not allowed
-              _ -> {:error, :noaccess}
+              _ -> {:error, :notadmin}
             end
         end
       # Item not bookable

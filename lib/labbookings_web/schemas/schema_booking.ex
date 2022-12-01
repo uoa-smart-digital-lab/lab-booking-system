@@ -5,6 +5,7 @@ defmodule LabbookingsWeb.Schema.Booking do
 
   alias Labbookings.Person
   alias Labbookings.Item
+  alias LabbookingsWeb.PersonResolver
 
   # ------------------------------------------------------------------------------------------------------
   # Bookings Schema definition
@@ -19,12 +20,9 @@ defmodule LabbookingsWeb.Schema.Booking do
     end
 
     field :person, non_null(:person), description: "The person the item is booked for" do
-      resolve fn post, _, resolution ->
+      resolve fn post, _, _ ->
         batch({__MODULE__, :people}, post.upi, fn batch_results ->
-          case send_person_if_allowed(resolution.context.user, Map.get(batch_results, post.upi)) do
-            {:ok, person} -> {:ok, person}
-            error -> error
-          end
+          {:ok, Map.get(batch_results, post.upi)}
         end)
       end
     end
@@ -36,35 +34,13 @@ defmodule LabbookingsWeb.Schema.Booking do
   end
 
   def people(_, []) do %{} end
-  def people(param, [upi | upis]) do
-    IO.inspect param
-    person = Person.get_person_by_upi(upi)
-    Map.merge(%{upi => person |> Map.replace(:password, "") }, people(param, upis))
+  def people(user, [upi | upis]) do
+    Map.merge(%{upi => Person.get_person_by_upi(upi) |> PersonResolver.tune_for_user(user) }, people(user, upis))
   end
 
   def items(_, []) do %{} end
   def items(param, [name | names]) do
-    item = Item.get_item_by_name(name)
-    Map.merge(%{name => item}, items(param, names))
-  end
-  # ------------------------------------------------------------------------------------------------------
-
-
-
-  # ------------------------------------------------------------------------------------------------------
-  # Either the person is admin or poweruser, or the person upi matches the sessionid upi
-  # ------------------------------------------------------------------------------------------------------
-  def send_person_if_allowed(nil, _), do: {:error, :nosession}
-  def send_person_if_allowed(user, person) do
-    if user.upi == person.upi do
-      {:ok, person}
-    else
-      case Map.get(user, :status) do
-        :admin -> {:ok, person}
-        :poweruser -> {:ok, person}
-        _ -> {:error, :notadmin}
-      end
-    end
+    Map.merge(%{name => Item.get_item_by_name(name)}, items(param, names))
   end
   # ------------------------------------------------------------------------------------------------------
 

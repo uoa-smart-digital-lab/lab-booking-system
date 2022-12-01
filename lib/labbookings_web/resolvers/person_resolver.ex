@@ -30,13 +30,7 @@ defmodule LabbookingsWeb.PersonResolver do
     # Make sure the input argument for upi is in lowercase
     args = Map.replace(args_in, :upi, String.downcase(args_in.upi))
 
-    # Get the currently logged in user record
-    case Map.get(info.context, :user) do
-      nil -> {:error, :nosession}
-      user ->
-        # Send the reply only if allowed to
-        send_person_if_allowed(user, Person.get_person_by_upi(args.upi) |> Map.replace(:password, ""))
-    end
+    Person.get_person_by_upi(args.upi) |> tune_for_user(Map.get(info.context, :user))
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -47,29 +41,34 @@ defmodule LabbookingsWeb.PersonResolver do
   # ------------------------------------------------------------------------------------------------------
   defp process_person_list([], _), do: []
   defp process_person_list([head | tail], user) do
-    case send_person_if_allowed(user, head) do
-      {:ok, _} -> [ head |> Map.replace(:password, "") | process_person_list(tail, user) ]
-      _ -> process_person_list(tail, user)
-    end
+    [ head |> tune_for_user(user) | process_person_list(tail, user) ]
   end
   # ------------------------------------------------------------------------------------------------------
 
 
-
   # ------------------------------------------------------------------------------------------------------
-  # Either the person is admin or poweruser, or the person upi matches the sessionid upi
+  # Tune a person map to be suitable for a specific user
   # ------------------------------------------------------------------------------------------------------
-  def send_person_if_allowed(nil, _), do: {:error, :nosession}
-  def send_person_if_allowed(user, person) do
+  def tune_for_user(nil, _), do: nil
+  def tune_for_user(person, nil), do: person |> remove_sensitive()
+  def tune_for_user(person, user) do
     if user.upi == person.upi do
-      {:ok, person}
+      person |> remove_password()
     else
-      case Map.get(user, :status) do
-        :admin -> {:ok, person}
-        :poweruser -> {:ok, person}
-        _ -> {:error, :notadmin}
+      case user.status do
+        :admin -> person |> remove_password()
+        :poweruser ->
+          case person.status do
+            :admin -> person |> remove_sensitive()
+            _ -> person |> remove_password()
+          end
+        _ -> person |> remove_sensitive()
       end
     end
+  end
+  defp remove_password(person), do: person |> Map.replace(:password, "")
+  defp remove_sensitive(person) do
+    person |> Map.replace(:tokens, -1) |> Map.replace(:password, "")
   end
   # ------------------------------------------------------------------------------------------------------
 

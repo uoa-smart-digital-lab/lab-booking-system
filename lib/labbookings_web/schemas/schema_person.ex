@@ -46,14 +46,12 @@ defmodule LabbookingsWeb.Schema.Person do
 
   def booked_items(_, []) do %{} end
   def booked_items(param, [upi | upis]) do
-    bookings = Booking.get_bookings_by_upi(upi)
-    Map.merge(%{upi => bookings}, booked_items(param, upis))
+    Map.merge(%{upi => Booking.get_bookings_by_upi(upi)}, booked_items(param, upis))
   end
 
   def inducted_items(_, []) do %{} end
   def inducted_items(param, [upi | upis]) do
-    inductions = Induction.get_inductions_by_upi(upi)
-    Map.merge(%{upi => get_items_from_inductions(inductions)}, inducted_items(param, upis))
+    Map.merge(%{upi => get_items_from_inductions(Induction.get_inductions_by_upi(upi))}, inducted_items(param, upis))
   end
 
   # Given a list of induction records, return the items identified.
@@ -63,6 +61,8 @@ defmodule LabbookingsWeb.Schema.Person do
     [ Item.get_item_by_name(head.itemname) | get_items_from_inductions(tail) ]
   end
   # ------------------------------------------------------------------------------------------------------
+
+
 
   # ------------------------------------------------------------------------------------------------------
   # Session Schema Definition

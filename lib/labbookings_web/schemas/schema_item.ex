@@ -8,6 +8,7 @@ defmodule LabbookingsWeb.Schema.Item do
   alias Labbookings.Booking
   alias LabbookingsWeb.ItemResolver
   alias LabbookingsWeb.BookingResolver
+  alias LabbookingsWeb.PersonResolver
 
   @desc "Item Type"
   enum :itemtype do
@@ -49,49 +50,19 @@ defmodule LabbookingsWeb.Schema.Item do
 
   def booked_items(_, []) do %{} end
   def booked_items(param, [name | names]) do
-    bookings = Booking.get_bookings_by_itemname(name)
-    Map.merge(%{name => bookings}, booked_items(param, names))
+    Map.merge(%{name => Booking.get_bookings_by_itemname(name)}, booked_items(param, names))
   end
 
   def inducted_people(_, []) do %{} end
   def inducted_people(user, [name | names]) do
-    IO.inspect user
-    inductions = Induction.get_inductions_by_itemname(name)
-
-    Map.merge(%{name => get_persons_from_inductions(inductions, user)}, inducted_people(user, names))
+    Map.merge(%{name => get_persons_from_inductions(user, Induction.get_inductions_by_itemname(name))}, inducted_people(user, names))
   end
 
   # Given a list of induction records, return the persons identified.
-  defp get_persons_from_inductions(nil, _), do: []
-  defp get_persons_from_inductions([], _), do: []
-  defp get_persons_from_inductions([head | tail], user) do
-    IO.inspect user
-    case check_if_allowed(user, Person.get_person_by_upi(head.upi)) do
-      {:ok, person} ->
-        IO.inspect person
-        [ person |> Map.replace(:password, "") | get_persons_from_inductions(tail, user) ]
-      _ -> [get_persons_from_inductions(tail, user)]
-    end
-  end
-  # ------------------------------------------------------------------------------------------------------
-
-
-
-  # ------------------------------------------------------------------------------------------------------
-  # Either the person is admin or poweruser, or the person upi matches the sessionid upi
-  # ------------------------------------------------------------------------------------------------------
-  def check_if_allowed(nil, _), do: {:error, :nosession}
-  def check_if_allowed(_, {:error, error}), do: {:error, error}
-  def check_if_allowed(user, person) do
-    if user.upi == person.upi do
-      {:ok, person}
-    else
-      case Map.get(user, :status) do
-        :admin -> {:ok, person}
-        :poweruser -> {:ok, person}
-        _ -> {:error, :notadmin}}
-      end
-    end
+  defp get_persons_from_inductions(_, nil), do: []
+  defp get_persons_from_inductions(_, []), do: []
+  defp get_persons_from_inductions(user, [head | tail]) do
+    [ Person.get_person_by_upi(head.upi) |> PersonResolver.tune_for_user(user) | get_persons_from_inductions(user, tail) ]
   end
   # ------------------------------------------------------------------------------------------------------
 
