@@ -1,4 +1,4 @@
-# Roomusage
+# Lab Booking System
 
 To start your Phoenix server:
 
