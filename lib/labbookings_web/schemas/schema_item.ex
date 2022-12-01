@@ -31,7 +31,7 @@ defmodule LabbookingsWeb.Schema.Item do
 
     field :inductions, non_null(list_of(:person)), description: "List of the people the item has been inducted for" do
       resolve fn post, _, resolution ->
-          batch({__MODULE__, :inducted_people}, {post.name, resolution.context.user}, fn batch_results ->
+          batch({__MODULE__, :inducted_people, resolution.context.user}, post.name, fn batch_results ->
             {:ok, Map.get(batch_results, post.name)}
           end)
         end
@@ -53,18 +53,23 @@ defmodule LabbookingsWeb.Schema.Item do
     Map.merge(%{name => bookings}, booked_items(param, names))
   end
 
-  def inducted_people(_, {[], _}) do %{} end
-  def inducted_people(param, {[name | names], user}) do
+  def inducted_people(_, []) do %{} end
+  def inducted_people(user, [name | names]) do
+    IO.inspect user
     inductions = Induction.get_inductions_by_itemname(name)
-    Map.merge(%{name => get_persons_from_inductions(inductions, user)}, inducted_people(param, names))
+
+    Map.merge(%{name => get_persons_from_inductions(inductions, user)}, inducted_people(user, names))
   end
 
   # Given a list of induction records, return the persons identified.
   defp get_persons_from_inductions(nil, _), do: []
   defp get_persons_from_inductions([], _), do: []
   defp get_persons_from_inductions([head | tail], user) do
-    case send_person_if_allowed(user, Person.get_person_by_upi(head.upi)) do
-      {:ok, person} -> [ person |> Map.replace(:password, "") | get_persons_from_inductions(tail, user) ]
+    IO.inspect user
+    case check_if_allowed(user, Person.get_person_by_upi(head.upi)) do
+      {:ok, person} ->
+        IO.inspect person
+        [ person |> Map.replace(:password, "") | get_persons_from_inductions(tail, user) ]
       _ -> [get_persons_from_inductions(tail, user)]
     end
   end
@@ -75,17 +80,16 @@ defmodule LabbookingsWeb.Schema.Item do
   # ------------------------------------------------------------------------------------------------------
   # Either the person is admin or poweruser, or the person upi matches the sessionid upi
   # ------------------------------------------------------------------------------------------------------
-  def send_person_if_allowed(nil, _), do: {:error, :nosession}
-  def send_person_if_allowed(user, person) do
-    IO.inspect user
-    IO.inspect person
+  def check_if_allowed(nil, _), do: {:error, :nosession}
+  def check_if_allowed(_, {:error, error}), do: {:error, error}
+  def check_if_allowed(user, person) do
     if user.upi == person.upi do
       {:ok, person}
     else
       case Map.get(user, :status) do
         :admin -> {:ok, person}
         :poweruser -> {:ok, person}
-        _ -> {:ok, {:error, :notadmin}}
+        _ -> {:error, :notadmin}}
       end
     end
   end
