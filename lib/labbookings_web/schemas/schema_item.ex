@@ -148,7 +148,6 @@ defmodule LabbookingsWeb.Schema.Item do
     # ----------------------------------------------------------------------------------------------------
     field :item_unbook, :item do
       arg :itemname, non_null(:string)
-      arg :upi, non_null(:string)
       arg :starttime, non_null(:datetime)
       arg :endtime, non_null(:datetime)
       resolve &BookingResolver.delete_booking/3

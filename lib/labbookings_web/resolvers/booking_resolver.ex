@@ -5,6 +5,7 @@ defmodule LabbookingsWeb.BookingResolver do
   alias Labbookings.Item
   alias Labbookings.Person
   alias Labbookings.Booking
+  alias Labbookings.Induction
 
   # ------------------------------------------------------------------------------------------------------
   # Get all bookings in the database
@@ -127,16 +128,18 @@ defmodule LabbookingsWeb.BookingResolver do
   # Delete booking if it exists
   # ------------------------------------------------------------------------------------------------------
   def delete_booking(_root, args_in, info) do
-    args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
+    args = args_in |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
     # Check that the user is actually logged in
     check_user_logged_in(Map.get(info.context, :user))
       # Ensure the item actually exists
       |> check_item_exists(Item.get_item_by_name(args.itemname))
-      # Check that the user is allowed to delete the booking for the person
-      |> check_user_allowed()
       # Get the existing booking
       |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
+      # Get the person on the booking
+      |> get_person_on_booking()
+      # Check that the user is allowed to book the item for this person
+      |> check_user_allowed()
       # Delete the booking
       |> delete_booking()
       # Return the updated item
@@ -168,11 +171,17 @@ defmodule LabbookingsWeb.BookingResolver do
   defp check_person_exists({:ok, _}, nil) do {:error, :upi} end
   defp check_person_exists({:ok, data}, person) do {:ok, Map.put(data, :person, person)} end
 
+  defp get_person_on_booking({:error, error}) do {:error, error} end
+  defp get_person_on_booking({:ok, data}) do
+    person = Person.get_person_by_upi(data.booking.upi)
+    {:ok, Map.put(data, :person, person)}
+  end
+
   defp check_user_allowed({:error, error}) do {:error, error} end
   defp check_user_allowed({:ok, data}) do
-    case check_access(data.item, data.user) do
+    case check_access(data.item, data.user, data.person) do
       {:ok, _} -> {:ok, data}
-      _ -> {:error, :notallowed}
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -235,9 +244,12 @@ defmodule LabbookingsWeb.BookingResolver do
 
 
   # ------------------------------------------------------------------------------------------------------
-  # Check whether the user has access to the item that they are wanting to book for the person.
+  # Check whether the user has been inducted to the item that they are wanting to book for the person.
   # ------------------------------------------------------------------------------------------------------
-  defp check_access(item, _user) do
+  defp check_access(item, user, person) do
+    # Get the inductions for this item
+    inductions = Induction.get_inductions_by_itemname(item.name)
+
     # If bookable
     case item.bookable do
       :true ->
@@ -248,31 +260,38 @@ defmodule LabbookingsWeb.BookingResolver do
           # Has to be used under supervision, so no booking allowed
           :supervised -> {:error, :supervisedonly}
           # Check the status of the logged in user to determine if they can induct
-          _ -> {:ok, :bookable}
-            # case check_user_status(user.status, item, user) do
-            #   # Booking allowed
-            #   :true -> {:ok, :inductable}
-            #   # Booking not allowed
-            #   _ -> {:error, :notadmin}
-            # end
+          _ ->
+            case user.status do
+              :admin ->
+                # Is the person who is to booked the item inducted to use the item?
+                case is_person_inducted(inductions, person.upi) do
+                  :true -> {:ok, :bookable}
+                  _ -> {:error, :notinducted}
+                end
+              :poweruser ->
+                # Can only book items for others if they themselves are inducted as well as the other
+                case is_person_inducted(inductions, user.upi) and is_person_inducted(inductions, person.upi) do
+                  :true -> {:ok, :bookable}
+                  _ -> {:error, :notinducted}
+                end
+              _ ->
+                case is_person_inducted(inductions, person.upi) and (user.upi == person.upi) do
+                  :true -> {:ok, :bookable}
+                  _ -> {:error, :notinducted}
+                end
+            end
         end
       # Item not bookable
       _ -> {:error, :notbookable}
     end
   end
 
-  # # Admin can book anything
-  # defp check_user_status(:admin, _, _) do :true end
-  # # Poweruser can book items for anyone (and themselves) that they have been inducted for
-  # defp check_user_status(:poweruser, item, user) do
-  #   # Check the inductions of the user, and if the item is on that list, induct the person to the item
-  #   case Booking.get_inductions_by_upi_and_itemname(user.upi, item.name) do
-  #     [] -> :false
-  #     _ -> :true
-  #   end
-  # end
-  # # Ordinary users can only book for themselves that they are inducted for, or which require no induction
-  # defp check_user_status(_, _, _) do :false end
-
+  defp is_person_inducted([], _) do :false end
+  defp is_person_inducted([head | tail], upi) do
+    case head.upi == upi do
+      :true -> :true
+      _ -> is_person_inducted(tail, upi)
+    end
+  end
   # ------------------------------------------------------------------------------------------------------
 end
