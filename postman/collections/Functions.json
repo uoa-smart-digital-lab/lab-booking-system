@@ -27,14 +27,18 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query itemGet ($name: String!) {\n    itemGet(name: $name) {\n        name\n        cost\n        access\n        bookable\n        inductions {\n            upi \n            name\n            password\n        }\n        bookings {\n            person {\n                upi\n \n            }\n            item {\n                name\n            }\n            starttime\n            endtime\n        }\n    }\n}",
-								"variables": "{\"name\":\"hololens2_1\"}"
+								"query": "query itemGet ($name: String!) {\n    itemGet(name: $name) {\n        name\n        cost\n        access\n        bookable\n        inductions {\n            upi \n        }\n        bookings {\n            person {\n                upi\n            }\n            item {\n                name\n            }\n            starttime\n            endtime\n        }\n    }\n}",
+								"variables": "{\"name\":\"hololens2_2\"}"
 							}
 						},
 						"url": {
-							"raw": "{{url}}",
+							"raw": "localhost:4000/api",
 							"host": [
-								"{{url}}"
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api"
 							]
 						}
 					},
@@ -246,7 +250,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)\r\n{\r\n  itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {\r\n    name\r\n    url\r\n    image\r\n    bookings {\r\n        person {\r\n            upi\r\n        }\r\n        item {\r\n            name\r\n        }\r\n        starttime\r\n        endtime\r\n        details\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"itemname\":\"hololens2_1\",\r\n    \"upi\":\"rdav031\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T14:00:00Z\",\r\n    \"endtime\":\"2022-11-29T16:00:00Z\"\r\n}"
+								"variables": "{\r\n    \"itemname\":\"hololens2_2\",\r\n    \"upi\":\"rdav031\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T14:00:00Z\",\r\n    \"endtime\":\"2022-11-29T16:00:00Z\"\r\n}"
 							}
 						},
 						"url": {
@@ -292,8 +296,8 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation itemUnbook ($itemname:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!)\r\n{\r\n  itemUnbook(itemname:$itemname, upi:$upi, starttime:$starttime, endtime:$endtime) {\r\n    name\r\n    url\r\n    image\r\n    bookings {\r\n        person {\r\n            upi\r\n        }\r\n        item {\r\n            name\r\n        }\r\n        starttime\r\n        endtime\r\n        details\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"itemname\":\"hololens2_1\",\r\n    \"upi\":\"rdav031\",\r\n    \"starttime\":\"2022-11-29T20:00:00Z\",\r\n    \"endtime\":\"2022-11-29T21:00:00Z\"\r\n}"
+								"query": "mutation itemUnbook ($itemname:String!, $starttime:DateTime!, $endtime:DateTime!)\r\n{\r\n  itemUnbook(itemname:$itemname, starttime:$starttime, endtime:$endtime) {\r\n    name\r\n    url\r\n    image\r\n    bookings {\r\n        person {\r\n            upi\r\n        }\r\n        item {\r\n            name\r\n        }\r\n        starttime\r\n        endtime\r\n        details\r\n    }\r\n  }\r\n}",
+								"variables": "{\r\n    \"itemname\":\"hololens2_2\",\r\n    \"starttime\":\"2022-11-29T18:00:00Z\",\r\n    \"endtime\":\"2022-11-29T20:00:00Z\"\r\n}"
 							}
 						},
 						"url": {
@@ -380,7 +384,7 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query personGet ($upi: String!) {\r\n    personGet(upi: $upi) {\r\n        upi\r\n        name\r\n        password\r\n        tokens\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n}",
+								"query": "query personGet ($upi: String!) {\r\n    personGet(upi: $upi) {\r\n        name\r\n        password\r\n        tokens\r\n        status\r\n        inductions {\r\n            name\r\n        }\r\n        bookings {\r\n            item {\r\n                name\r\n            }\r\n            starttime\r\n            endtime\r\n        }\r\n    }\r\n}",
 								"variables": "{\r\n    \"upi\":\"rdav031\"\r\n}"
 							}
 						},
@@ -418,7 +422,7 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query personAll {\r\n    personAll {\r\n        upi\r\n        name\r\n        password\r\n        tokens\r\n        status\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n}",
+								"query": "query personAll {\r\n    personAll {\r\n        name\r\n        password\r\n        tokens\r\n        status\r\n        inductions {\r\n            name\r\n        }\r\n        bookings {\r\n            item {\r\n                name\r\n            }\r\n            starttime\r\n            endtime\r\n        }\r\n    }\r\n}",
 								"variables": ""
 							}
 						},
@@ -513,7 +517,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation personUpdate ($upi:String!, $name:String, $password:String, $details:Json, $status:Usertype)\r\n{\r\n  personUpdate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {\r\n    upi\r\n    name\r\n  }\r\n}",
-								"variables": "{\r\n    \"upi\":\"rdav031\",\r\n    \"password\":\"1gelk0tt\",\r\n    \"name\":\"Roy Davies\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"ADMIN\"\r\n}"
+								"variables": "{\r\n    \"upi\":\"jblg123\",\r\n    \"password\":\"12345\",\r\n    \"name\":\"Joe BLoggs\",\r\n    \"details\":\"{}\",\r\n    \"status\":\"ADMIN\"\r\n}"
 							}
 						},
 						"url": {
@@ -607,7 +611,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation personInduct ($upi:String!, $itemname:String! )\n{\n  personInduct(upi:$upi, itemname:$itemname) {\n    upi\n    name\n    inductions {\n        name\n    }\n  }\n}",
-								"variables": "{\n    \"upi\":\"fdag123\",\n    \"itemname\":\"hololens2_1\"\n}"
+								"variables": "{\n    \"upi\":\"rdav031\",\n    \"itemname\":\"hololens2_1\"\n}"
 							}
 						},
 						"url": {
@@ -654,7 +658,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation personUninduct ($upi:String!, $itemname:String! )\n{\n  personUninduct(upi:$upi, itemname:$itemname) {\n    upi\n    name\n    inductions {\n        name\n    }\n  }\n}",
-								"variables": "{\n    \"upi\":\"jblg123\",\n    \"itemname\":\"hololens2_2\"\n}"
+								"variables": "{\n    \"upi\":\"rdav031\",\n    \"itemname\":\"hololens2_2\"\n}"
 							}
 						},
 						"url": {
