@@ -163,14 +163,14 @@ type Mutation {
   # ******************************************************************************************************************************************************
   # Bookings
   # ******************************************************************************************************************************************************
-  # Make a booking for an item.  Anyone can book an item they are inducted for.  Users can only book for themselves.  Superusers can book for themselves
+  # Make a booking for an item.  Anyone can book an item they are inducted for.  Users can only book for themselves.  Powerusers can book for themselves
   # and for others for items they are inducted for, and that the user is inducted for. Items cannot be booked for a specific time of day if already booked.
 
   # Create a booking for the given item for the given person as identified by their UPI
   itemBook (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!, details: Json!): Booking
 
-  # Update an existing booking for the given item for the given person as identified by their UPI
-  itemUnbook (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!): Booking
+  # Unbook the item at this time
+  itemUnbook (itemname: String!, starttime: DateTime!, endtime: DateTime!): Booking
 
   # Delete an existing booking
   itemChangebooking (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!, newstarttime: DateTime, newendtime: DateTime, details: Json): Booking
