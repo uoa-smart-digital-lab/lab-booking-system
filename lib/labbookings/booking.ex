@@ -125,7 +125,7 @@ defmodule Labbookings.Booking do
   # ------------------------------------------------------------------------------------------------------
   def update_booking(%Booking{} = booking, attrs) do
     booking
-    |> Induction.changeset(attrs)
+    |> Booking.changeset(attrs)
     |> Repo.update()
   end
   # ------------------------------------------------------------------------------------------------------

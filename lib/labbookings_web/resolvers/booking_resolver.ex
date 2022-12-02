@@ -103,7 +103,7 @@ defmodule LabbookingsWeb.BookingResolver do
     # Check that the user is actually logged in
     check_user_logged_in(Map.get(info.context, :user))
       # Check the start time is before the end time
-      |> check_start_is_before_end(args.starttime, args.endtime)
+      |> check_start_is_before_end(args.newstarttime, args.newendtime)
       # Ensure the item actually exists
       |> check_item_exists(Item.get_item_by_name(args.itemname))
       # Ensure the person the item is to be booked for actually exists
@@ -112,7 +112,7 @@ defmodule LabbookingsWeb.BookingResolver do
       |> check_user_allowed()
       # Get the existing booking
       |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
-      # Make sure the booking doesn't overlap some other booking for this item
+      # Make sure the booking doesn't overlap some other booking for this item (except the one being changed)
       |> check_overlap_bookings(Booking.get_overlapping_bookings(args.itemname, args.starttime, args.endtime))
       # Make the booking
       |> update_booking(args)
@@ -129,38 +129,18 @@ defmodule LabbookingsWeb.BookingResolver do
   def delete_booking(_root, args_in, info) do
     args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
-    case Map.get(info.context, :user) do
-      # User not logged in or doesn't exist
-      nil -> {:error, :nosession}
-      user ->
-        # Check whether booking exists TODO Add in times
-        case Booking.get_bookings_by_upi_and_itemname(args.upi, args.itemname) do
-          [] ->
-            {:ok, Item.get_item_by_name(args.itemname)}
-          [booking | _ ] ->
-            # Check that the specified person to remove the booking for actually exists
-            case Person.get_person_by_upi(args.upi) do
-              nil -> {:error, :upi}
-              _person ->
-                # Check the item exists
-                case Item.get_item_by_name(args.itemname) do
-                  nil -> {:error, :item}
-                  item ->
-                    # Check that the logged in user is allowed to book the item
-                    case check_access(item, user) do
-                      {:ok, _} ->
-                        # REmove the booking record
-                        Booking.delete_booking(booking)
-                        # Return the updated item the booking is deleted from
-                        {:ok, Item.get_item_by_name(args.itemname)}
-                      error ->
-                        # The logged in user does not have the right to book the item
-                        error
-                    end
-                end
-            end
-        end
-    end
+    # Check that the user is actually logged in
+    check_user_logged_in(Map.get(info.context, :user))
+      # Ensure the item actually exists
+      |> check_item_exists(Item.get_item_by_name(args.itemname))
+      # Check that the user is allowed to delete the booking for the person
+      |> check_user_allowed()
+      # Get the existing booking
+      |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
+      # Delete the booking
+      |> delete_booking()
+      # Return the updated item
+      |> get_updated_item(args.itemname)
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -198,7 +178,9 @@ defmodule LabbookingsWeb.BookingResolver do
 
   defp get_existing_booking({:error, error}, _) do {:error, error} end
   defp get_existing_booking({:ok, _}, []) do {:error, :notexist} end
-  defp get_existing_booking({:ok, data}, booking) do {:ok, Map.put(data, :booking, booking)} end
+  defp get_existing_booking({:ok, data}, [booking | _]) do
+    {:ok, Map.put(data, :booking, booking)}
+  end
 
   defp check_overlap_bookings({:error, error}, _) do {:error, error} end
   defp check_overlap_bookings({:ok, data}, []) do {:ok, data} end
@@ -227,6 +209,15 @@ defmodule LabbookingsWeb.BookingResolver do
     newargs = args |> Map.replace(:starttime, args.newstarttime) |> Map.replace(:endtime, args.newendtime)
     # Create the booking record
     case Booking.update_booking(data.booking, newargs) do
+      {:error, _} -> {:error, :internalerror}
+      _ -> {:ok, data}
+    end
+  end
+
+  defp delete_booking({:error, error}) do {:error, error} end
+  defp delete_booking({:ok, data}) do
+    # Create the booking record
+    case Booking.delete_booking(data.booking) do
       {:error, _} -> {:error, :internalerror}
       _ -> {:ok, data}
     end
