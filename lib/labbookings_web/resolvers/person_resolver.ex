@@ -29,8 +29,10 @@ defmodule LabbookingsWeb.PersonResolver do
   def get_person(_root, args_in, info) do
     # Make sure the input argument for upi is in lowercase
     args = Map.replace(args_in, :upi, String.downcase(args_in.upi))
-
-    Person.get_person_by_upi(args.upi) |> tune_for_user(Map.get(info.context, :user))
+    case Person.get_person_by_upi(args.upi) |> tune_for_user(Map.get(info.context, :user)) do
+      nil -> {:error, :noperson}
+      person -> {:ok, person}
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 

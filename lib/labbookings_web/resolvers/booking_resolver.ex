@@ -55,8 +55,15 @@ defmodule LabbookingsWeb.BookingResolver do
   # ------------------------------------------------------------------------------------------------------
   def get_bookings_by_itemname_and_date(_root, args, _info) do
     itemname = Map.get(args, :itemname) |> String.downcase()
-    Booking.get_bookings_by_itemname_and_date(itemname, args.starttime, args.endtime)
+    case test_parameters(DateTime.from_iso8601(args.starttime), DateTime.from_iso8601(args.endtime)) do
+      {:ok, {starttime, endtime}} -> Booking.get_bookings_by_itemname_and_date(itemname, starttime, endtime)
+      error -> error
+    end
   end
+
+  defp test_parameters({:ok, starttime, _}, {:ok, endtime, _}), do: {:ok, {starttime, endtime}}
+  defp test_parameters({:error, _}, _), do: {:error, :starttime}
+  defp test_parameters(_, {:error, _}), do: {:error, :endtime}
   # ------------------------------------------------------------------------------------------------------
 
 
@@ -67,41 +74,24 @@ defmodule LabbookingsWeb.BookingResolver do
   def create_booking(_root, args_in, info) do
     args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
-    case Map.get(info.context, :user) do
-      # User not logged in or doesn't exist
-      nil -> {:error, :nosession}
-      user ->
-        # Check whether already booked to avoid duplicates TODO: Check doesn't overlap with proposed time
-        case Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime) do
-          [] ->
-            # Check that the specified person to have the item booked for actually exists
-            case Person.get_person_by_upi(args.upi) do
-              nil -> {:error, :upi}
-              _person ->
-                # Check the item exists
-                case Item.get_item_by_name(args.itemname) do
-                  nil -> {:error, :item}
-                  item ->
-                    # Check that the logged in user is allowed to book the item
-                    case check_access(item, user) do
-                      {:ok, _} ->
-                        # Create the booking record
-                        Booking.create_booking(args)
-                        # Return the updated item being booked
-                        {:ok, Item.get_item_by_name(args.itemname)}
-                      error ->
-                        # The logged in user does not have the right to induct the person
-                        error
-                    end
-                end
-            end
-          _ ->
-            {:ok, Item.get_item_by_name(args.itemname)}
-        end
-      end
+    # Check that the user is actually logged in
+    check_user_logged_in(Map.get(info.context, :user))
+      # Check the start time is before the end time
+      |> check_start_is_before_end(args.starttime, args.endtime)
+      # Ensure the item actually exists
+      |> check_item_exists(Item.get_item_by_name(args.itemname))
+      # Ensure the person the item is to be booked for actually exists
+      |> check_person_exists(Person.get_person_by_upi(args.upi))
+      # Check that the user is allowed to book the item for this person
+      |> check_user_allowed()
+      # Make sure the booking doesn't overlap some other booking for this item
+      |> check_overlap_bookings(Booking.get_overlapping_bookings(args.itemname, args.starttime, args.endtime))
+      # Make the booking
+      |> make_booking(args)
+      # Return the updated item
+      |> get_updated_item(args.itemname)
   end
   # ------------------------------------------------------------------------------------------------------
-
 
 
   # ------------------------------------------------------------------------------------------------------
@@ -110,39 +100,24 @@ defmodule LabbookingsWeb.BookingResolver do
   def update_booking(_root, args_in, info) do
     args = args_in |> Map.replace(:upi, String.downcase(args_in.upi)) |> Map.replace(:itemname, String.downcase(args_in.itemname))
 
-    case Map.get(info.context, :user) do
-      # User not logged in or doesn't exist
-      nil -> {:error, :nosession}
-      user ->
-        # Check whether already booked to avoid duplicates TODO: Check doesn't overlap with proposed time
-        case Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime) do
-          [] ->
-            {:ok, Item.get_item_by_name(args.itemname)}
-          [ booking | _] ->
-            # Check that the specified person to have the item booking updated for actually exists
-            case Person.get_person_by_upi(args.upi) do
-              nil -> {:error, :upi}
-              _person ->
-                # Check the item exists
-                case Item.get_item_by_name(args.itemname) do
-                  nil -> {:error, :item}
-                  item ->
-                    # Check that the logged in user is allowed to update the booking
-                    case check_access(item, user) do
-                      {:ok, _} ->
-                        newargs = args |> Map.replace(:starttime, args.newstarttime) |> Map.replace(:endtime, args.newendtime)
-                        # Create the booking record
-                        Booking.update_booking(booking, newargs)
-                        # Return the updated item the bookings is modified for
-                        {:ok, Item.get_item_by_name(args.itemname)}
-                      error ->
-                        # The logged in user does not have the right to induct the person
-                        error
-                    end
-                end
-            end
-        end
-      end
+    # Check that the user is actually logged in
+    check_user_logged_in(Map.get(info.context, :user))
+      # Check the start time is before the end time
+      |> check_start_is_before_end(args.starttime, args.endtime)
+      # Ensure the item actually exists
+      |> check_item_exists(Item.get_item_by_name(args.itemname))
+      # Ensure the person the item is to be booked for actually exists
+      |> check_person_exists(Person.get_person_by_upi(args.upi))
+      # Check that the user is allowed to book the item for this person
+      |> check_user_allowed()
+      # Get the existing booking
+      |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
+      # Make sure the booking doesn't overlap some other booking for this item
+      |> check_overlap_bookings(Booking.get_overlapping_bookings(args.itemname, args.starttime, args.endtime))
+      # Make the booking
+      |> update_booking(args)
+      # Return the updated item
+      |> get_updated_item(args.itemname)
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -185,7 +160,84 @@ defmodule LabbookingsWeb.BookingResolver do
                 end
             end
         end
-      end
+    end
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Helper functions for above
+  # ------------------------------------------------------------------------------------------------------
+  defp check_user_logged_in(nil) do {:error, :nosession} end
+  defp check_user_logged_in(user) do {:ok, %{:user => user}} end
+
+  defp check_start_is_before_end({:error, error}, _, _) do {:error, error} end
+  defp check_start_is_before_end({:ok, data}, starttime, endtime) do
+    case DateTime.compare(starttime, endtime) do
+      :lt -> {:ok, data}
+      _ -> {:error, :wrongorder}
+    end
+  end
+
+  defp check_item_exists({:error, error}, _) do {:error, error} end
+  defp check_item_exists({:ok, _}, nil) do {:error, :item} end
+  defp check_item_exists({:ok, data}, item) do {:ok, Map.put(data, :item, item)} end
+
+  defp check_person_exists({:error, error}, _) do {:error, error} end
+  defp check_person_exists({:ok, _}, nil) do {:error, :upi} end
+  defp check_person_exists({:ok, data}, person) do {:ok, Map.put(data, :person, person)} end
+
+  defp check_user_allowed({:error, error}) do {:error, error} end
+  defp check_user_allowed({:ok, data}) do
+    case check_access(data.item, data.user) do
+      {:ok, _} -> {:ok, data}
+      _ -> {:error, :notallowed}
+    end
+  end
+
+  defp get_existing_booking({:error, error}, _) do {:error, error} end
+  defp get_existing_booking({:ok, _}, []) do {:error, :notexist} end
+  defp get_existing_booking({:ok, data}, booking) do {:ok, Map.put(data, :booking, booking)} end
+
+  defp check_overlap_bookings({:error, error}, _) do {:error, error} end
+  defp check_overlap_bookings({:ok, data}, []) do {:ok, data} end
+  defp check_overlap_bookings({:ok, data}, bookings) do
+    case remove_booking_from_bookings(Map.get(data, :booking), bookings) do
+      [] -> {:ok, data}
+      _ -> {:error, :overlap}
+    end
+  end
+
+  defp remove_booking_from_bookings(nil, _) do {:error, :overlap} end
+  defp remove_booking_from_bookings(_, []) do [] end
+  defp remove_booking_from_bookings(booking, [booking | tail]) do remove_booking_from_bookings(booking, tail) end
+  defp remove_booking_from_bookings(booking, [head | tail]) do [head | remove_booking_from_bookings(booking, tail)] end
+
+  defp make_booking({:error, error}, _) do {:error, error} end
+  defp make_booking({:ok, data}, args) do
+    case Booking.create_booking(args) do
+      {:error, _} -> {:error, :internalerror}
+      _ -> {:ok, data}
+    end
+  end
+
+  defp update_booking({:error, error}, _) do {:error, error} end
+  defp update_booking({:ok, data}, args) do
+    newargs = args |> Map.replace(:starttime, args.newstarttime) |> Map.replace(:endtime, args.newendtime)
+    # Create the booking record
+    case Booking.update_booking(data.booking, newargs) do
+      {:error, _} -> {:error, :internalerror}
+      _ -> {:ok, data}
+    end
+  end
+
+  defp get_updated_item({:error, error}, _) do {:error, error} end
+  defp get_updated_item({:ok, _}, itemname) do
+    case Item.get_item_by_name(itemname) do
+      {:error, _} -> {:error, :internalerror}
+      item -> {:ok, item}
+    end
   end
   # ------------------------------------------------------------------------------------------------------
 

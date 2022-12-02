@@ -77,8 +77,27 @@ defmodule Labbookings.Booking do
   def get_bookings_by_itemname_and_date(itemname, starttime, endtime) do
     # Get all the bookings with the itemname that overlap this timeframe
     query = from p in Booking,
-      where: (p.itemname == ^itemname) and (((p.starttime >= ^starttime) and (p.endtime >= ^endtime)) or ((p.starttime <= ^starttime) and (p.endtime <= ^endtime)) or ((p.starttime >= ^starttime) and (p.endtime <= ^endtime)) or ((p.starttime <= ^starttime) and (p.starttime >= ^endtime)))
+      where: (p.itemname == ^itemname) and (p.starttime == ^starttime) and (p.endtime == ^endtime)
 
+    # Return the list of bookings that match
+    case Repo.all(query) do
+      nil -> []
+      bookings -> bookings
+    end
+  end
+  # ------------------------------------------------------------------------------------------------------
+
+
+
+  # ------------------------------------------------------------------------------------------------------
+  # Get the bookings by the itemname and whether they overlap the given timeframe
+  # ------------------------------------------------------------------------------------------------------
+  def get_overlapping_bookings(itemname, starttime, endtime) do
+    # Get all the bookings with the itemname that overlap this timeframe
+    query = from p in Booking,
+      where: (p.itemname == ^itemname) and (((^endtime > p.starttime) and (^endtime < p.endtime)) or
+                                            ((^starttime > p.starttime) and (^starttime < p.endtime)) or
+                                            ((^starttime <= p.starttime) and (^endtime >= p.endtime)))
     # Return the list of bookings that match
     case Repo.all(query) do
       nil -> []

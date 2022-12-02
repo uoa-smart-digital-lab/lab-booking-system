@@ -20,8 +20,8 @@ defmodule LabbookingsWeb.Schema.Booking do
     end
 
     field :person, non_null(:person), description: "The person the item is booked for" do
-      resolve fn post, _, _ ->
-        batch({__MODULE__, :people}, post.upi, fn batch_results ->
+      resolve fn post, _, resolution ->
+        batch({__MODULE__, :people, resolution.context.user}, post.upi, fn batch_results ->
           {:ok, Map.get(batch_results, post.upi)}
         end)
       end
