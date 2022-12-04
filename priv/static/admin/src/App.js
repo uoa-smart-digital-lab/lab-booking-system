@@ -40,26 +40,36 @@ const user_details =
         {title: "UPI", width: 3, name: "upi", type: "string", editable: false, index: true},
         {title: "Name", width: 3, name: "name", type: "string", editable: true, index: false}, 
         {title: "Password", width: 3, name: "password", type: "password", editable: true, nocol: true, index: false}, 
-        {title: "Status", width: 3, name: "status", type: "enum", enum: "usertype", editable: true, index: false}
+        {title: "Status", width: 3, name: "status", type: "enum", enum: "usertype", editable: true, index: false},
+        {title: "Tokens", width: 3, name: "tokens", type: "number", editable: false, index: false},
+        {title: "Details", width: 3, name: "details", type: "json", editable: false, index: false},
+        {title: "Inductions", width: 3, name: "inductions", type: "table", table: ["inductions", "name"], editable: true, index: true}
     ],
 
     queries: {
-        main: gql`query personAll { personAll { upi, name, password, status } }`,
-        update: gql`mutation personUpdate ($name: String, $status: Usertype, $upi: String!, $password: String) {
-            personUpdate (name: $name, status: $status, upi: $upi, password: $password) {
-                upi
-            }
+        main: gql`query personAll { personAll { upi name password status tokens details inductions { name }}}`,
+        update: gql`mutation personUpdate ($upi:String!, $name:String, $password:String, $details:Json, $status:Usertype)
+        {
+          personUpdate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {
+            upi
+          }
         }`,
-        create: gql`mutation personCreate ($name: String!, $status: Usertype!, $upi: String!, $password: String!) {
-            personCreate (name: $name, status: $status, upi: $upi, password: $password, details: "{}") {
-                upi
-            }
+        create: gql`mutation personCreate ($upi:String!, $name:String!, $password:String!, $details:Json!, $status:Usertype! )
+        {
+          personCreate(upi:$upi, name:$name, password:$password, details:$details, status:$status) {
+            upi
+          }
         }`,
-        delete: gql`mutation personDelete ($upi: String!) {
-            personDelete (upi: $upi) {
-                upi
-            }
+        delete: gql`mutation personDelete ($upi:String!)
+        {
+          personDelete (upi:$upi) {
+            upi
+          }
         }`
+    },
+
+    subqueries: {
+        inductions: gql`query { itemAll { name } }`
     }
 };
 // ----------------------------------------------------------------------------------------------------
@@ -72,30 +82,39 @@ const user_details =
 const item_details = 
 {
     title: "All Items",
-    description: "View and edit all items", 
+    description: "View and edit all bookable items", 
+
+    accesstype: ["FREE", "INDUCTION", "SUPERVISED"],
 
     columns: [
         {title: "Name", width: 3, name: "name", type: "string", editable: false, index: true}, 
         {title: "Image", width: 3, name: "image", type: "string", editable: true, index: false}, 
-        {title: "URL", width: 3, name: "url", type: "url", editable: true, index: false}
+        {title: "URL", width: 3, name: "url", type: "url", editable: true, index: false},
+        {title: "Cost", width: 1, name: "cost", type: "number", editable: true, index: false},
+        {title: "Bookable", width: 1, name: "bookable", type: "boolean", editable: true, index: false},
+        {title: "Access", width: 2, name: "access", type: "enum", enum: "accesstype", editable: true, index: false},
+        {title: "Details", width: 1, name: "details", type: "json", editable: false, index: false}
     ],
 
     queries: {
-        main: gql`query itemAll { itemAll { name,  image, url } }`,
-        update: gql`mutation itemUpdate ($url: String, $image: String, $name: String!) {
-            itemUpdate (image: $image, url: $url, name: $name) {
-                name
-            }
+        main: gql`query itemAll { itemAll { name image url cost bookable access details} }`,
+        update: gql`mutation itemUpdate ($name:String!, $url:String!, $image:String!, $details:Json!, $cost:Int!, $bookable:Boolean!, $access:Itemtype!)
+        {
+          itemUpdate(name:$name, url:$url, image:$image, details:$details, cost:$cost, bookable:$bookable, access:$access) {
+            name
+          }
         }`,
-        create: gql`mutation itemCreate ($url: String!, $image: String!, $name: String!) {
-            itemCreate (image: $image, url: $url, name: $name, details: "{}") {
-                name
-            }
+        create: gql`mutation itemCreate ($name:String!, $url:String!, $image:String!, $details:Json!, $cost:Int!, $bookable:Boolean!, $access:Itemtype!)
+        {
+          itemCreate(name:$name, url:$url, image:$image, details:$details, cost:$cost, bookable:$bookable, access:$access) {
+            name
+          }
         }`,
-        delete: gql`mutation itemDelete ($name: String!) {
-            itemDelete (name: $name) {
-                name
-            }
+        delete: gql`mutation itemDelete ($name:String!)
+        {
+          itemDelete(name:$name) {
+            name
+          }
         }`
     }
 };
@@ -103,41 +122,47 @@ const item_details =
 
 
 // ----------------------------------------------------------------------------------------------------
-// Course table details
+// Inductions table details
 // ----------------------------------------------------------------------------------------------------
-const course_details = 
+const induction_details_for_person = 
 {
-    title: "All Courses",
-    description: "View and edit all courses", 
+    title: "Inductions",
+    description: "View and edit inductions for a person", 
 
     columns: [
-        {title: "Name", width: 3, name: "name", type: "string", editable: false, index: true}, 
-        {title: "Canvas URL", width: 3, name: "canvasurl", type: "url", editable: true, index: false},
-        {title: "Max Number Students", width: 3, name: "max", type: "number", editable: true, index: false},
+        {title: "UPI", width: 3, name: "upi", type: "string", editable: false, index: true}, 
         {title: "Item Name", width: 3, name: "itemName", type: "table", table: ["item", "name"], editable: true, index: false}
     ],
 
     queries: {
-        main: gql`query allCourses { allCourses { name, canvasurl, max item { name } } }`,
-        update: gql`mutation updateCourse ($canvasurl: String, $max: Int, $name: String!, $itemName: String) {
-            updateCourse (canvasurl: $canvasurl, max: $max, name: $name, itemName: $itemName) {
-                name
+        main: gql`query personGet($upi: String!) {
+            personGet (upi:$upi) { 
+                upi 
+                inductions { 
+                    name 
+                }
             }
         }`,
-        create: gql`mutation createCourse ($canvasurl: String!, $max: Int!, $name: String!, $itemName: String!) {
-            createCourse (canvasurl: $canvasurl, max: $max, name: $name, itemName: $itemName) {
-                name
+        create: gql`mutation personInduct ($upi:String!, $itemname:String! ) {
+            personInduct (upi:$upi, itemname:$itemname) {
+                upi
+                inductions {
+                    name
+                }
             }
         }`,
-        delete: gql`mutation deleteCourse ($name: String!) {
-            deleteCourse (name: $name) {
-                name
+        delete: gql`mutation personUninduct ($name: String!) {
+            personUninduct (upi:$upi, itemname:$itemname) {
+                upi
+                inductions {
+                    name
+                }
             }
         }`
     },
 
     subqueries: {
-        itemName: gql`query { allItems { name } }`
+        itemName: gql`query { itemAll { name } }`
     }
 };
 // ----------------------------------------------------------------------------------------------------
@@ -228,8 +253,8 @@ export default function App() {
         currentState: 0,
         errorMessage: "",
         currentTitle: "Dashboard",
-        states: {start: 0, main: 1, people: 2, items: 3, courses: 4, occupants: 6, participants: 7, checkin: 8, error: 20, done: 21},
-        headings: {start: "Dashboard", main: "Dashboard", people: "People", items: "Items", courses: "Courses", occupants: "Occupants", participants: "Participants", checkin: "Check In or Out"},
+        states: {start: 0, main: 1, people: 2, items: 3, inductions: 5, bookings: 6, induct: 8, error: 20, done: 21},
+        headings: {start: "Dashboard", main: "Dashboard", people: "People", items: "Items", inductions: "Inductions", induct: "Induct or Uninduct"},
 
         set: (name, value) => { setState( previousState => { return { ...previousState, [name]: value }} ); }
 	});
@@ -275,10 +300,10 @@ export default function App() {
             case state.states.main          : return (<Main />)
             case state.states.people        : return (<GraphQLTable sessionid={state.sessionid} details={user_details}/>)
             case state.states.items         : return (<GraphQLTable sessionid={state.sessionid} details={item_details}/>)
-            // case state.states.courses       : return (<GraphQLTable sessionid={state.sessionid} details={course_details}/>)
+            case state.states.inductions    : return (<GraphQLTable sessionid={state.sessionid} details={induction_details_for_person}/>)
             // case state.states.occupants     : return (<GraphQLTable sessionid={state.sessionid} details={occupancy_details}/>)
             // case state.states.participants  : return (<GraphQLTable sessionid={state.sessionid} details={participancy_details}/>)
-            // case state.states.checkin       : window.location = "/checkin?sessionid=" + state.sessionid;
+            case state.states.induct        : window.location = "/induct?sessionid=" + state.sessionid;
             default                         : return (<Main />)
         }
     }
@@ -297,11 +322,11 @@ export default function App() {
         {key: "main", text: state.headings.start, value: "main"},
         {key: "people", text: state.headings.people, value: "people"},
         {key: "items", text: state.headings.items, value: "items"},
-        // {key: "courses", text: state.headings.courses, value: "courses"},
+        {key: "inductions", text: state.headings.inductions, value: "inductions"},
         // {key: "occupants", text: state.headings.occupants, value: "occupants"},
         // {key: "participants", text: state.headings.participants, value: "participants"},
-        // {content: (<Divider fitted />), value: "divider"},
-        // {key: "checkin", text: state.headings.checkin, value: "checkin"}
+        {content: (<Divider fitted />), value: "divider"},
+        {key: "induct", text: state.headings.induct, value: "induct"}
     ]
     // ------------------------------------------------------------------------------------------------
 

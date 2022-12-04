@@ -1,3 +1,9 @@
+// ----------------------------------------------------------------------------------------------------
+// GraphQL Table Version 2
+// A tool to make working with GraphQL data easier in an administration context
+// ----------------------------------------------------------------------------------------------------
+
+
 import React, { useState, useEffect } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Button, Table, Header, Icon, Message, Modal, Grid, Divider, Form } from 'semantic-ui-react'
@@ -80,7 +86,7 @@ function View({props})
         props.details.columns.forEach((col) => {
             if (col.type ==="table")
             {
-                LoadSubQuery({sessionid: state.sessionid, query: props.details.subqueries[col.name]}) //, name: col.name, field: col.table[1]})
+                LoadSubQuery({sessionid: state.sessionid, query: props.details.subqueries[col.name], name: col.name, field: col.table[1]})
                 .then((data) => {
                     if (! state.subfields.hasOwnProperty(col.table[0])) state.subfields[col.table[0]] = {};
                     state.subfields[col.table[0]][col.table[1]] = data; state.set("subfields", state.subfields)
@@ -164,6 +170,12 @@ function View({props})
                     case "number":
                         newDetails[col.name] = parseFloat(newDetails[col.name]===""?"0":newDetails[col.name]);
                         break;
+                    case "boolean":
+                        newDetails[col.name] = newDetails[col.name]==="true"
+                        break;
+                    case "json":
+                        newDetails[col.name] = JSON.parse(newDetails[col.name]===""?"{}":newDetails[col.name]);
+                        break;                        
                     case "table":
                         break;
                     case "enum":
@@ -290,6 +302,18 @@ function View({props})
                         col_content = entry[col.table[0]][col.table[1]];
                     }
                 }
+            }
+            else if (col.type === "json")
+            {
+                if (entry.hasOwnProperty(col.name)) {
+                    col_content = JSON.stringify(entry[col.name]);
+                }               
+            }
+            else if (col.type === "boolean")
+            {
+                if (entry.hasOwnProperty(col.name)) {
+                    col_content = entry[col.name] ? "true" : "false";
+                }               
             }
             else {
                 if (entry.hasOwnProperty(col.name)) {
@@ -425,6 +449,24 @@ function View({props})
                         </Form.Field>
                     )
                 }
+                else if ((col.type === "boolean") && (col.editable))
+                {
+                    let the_details = ["true", "false"];
+                    let drop_menu = the_details.map((item) => {return ({key: item, text: item, value: item})});
+                    inputs.push(
+                        <Form.Field>
+                              <Form.Dropdown
+                                    name={col.name}
+                                    label={col.title}
+                                    defaultValue={entry[col.name]}
+                                    fluid
+                                    selection
+                                    options={drop_menu}
+                                    onChange={handleChange}
+                                />
+                        </Form.Field>
+                    )
+                }
                 else
                 {
                     inputs.push(
@@ -507,6 +549,14 @@ function View({props})
                                     options={drop_menu}
                                     onChange={handleChange}
                                 />
+                        </Form.Field>
+                    )
+                }
+                else if (col.type === "json")
+                {
+                    inputs.push(
+                        <Form.Field>
+                            <Form.Input label={col.title} placeholder={col.title} name={col.name} onChange={handleChange} type="text" />
                         </Form.Field>
                     )
                 }
