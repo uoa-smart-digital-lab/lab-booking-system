@@ -458,7 +458,7 @@ function View({props})
                               <Form.Dropdown
                                     name={col.name}
                                     label={col.title}
-                                    defaultValue={entry[col.name]}
+                                    defaultValue={(entry[col.name]===true)?"true":"false"}
                                     fluid
                                     selection
                                     options={drop_menu}
