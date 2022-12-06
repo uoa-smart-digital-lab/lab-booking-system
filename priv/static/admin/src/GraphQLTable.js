@@ -449,6 +449,14 @@ function View({props})
                         </Form.Field>
                     )
                 }
+                else if ((col.type === "json") && (col.editable))
+                {
+                    inputs.push(
+                        <Form.Field>
+                            <Form.Input label={col.title} placeholder={col.title} defaultValue={entry[col.name]} name={col.name} onChange={handleChange} type="text" />
+                        </Form.Field>
+                    )
+                }
                 else if ((col.type === "boolean") && (col.editable))
                 {
                     let the_details = ["true", "false"];
@@ -467,7 +475,7 @@ function View({props})
                         </Form.Field>
                     )
                 }
-                else
+                else 
                 {
                     inputs.push(
                         <Form.Field>
@@ -557,6 +565,23 @@ function View({props})
                     inputs.push(
                         <Form.Field>
                             <Form.Input label={col.title} placeholder={col.title} name={col.name} onChange={handleChange} type="text" />
+                        </Form.Field>
+                    )
+                }
+                else if (col.type === "boolean")
+                {
+                    let the_details = ["true", "false"];
+                    let drop_menu = the_details.map((item) => {return ({key: item, text: item, value: item})});
+                    inputs.push(
+                        <Form.Field>
+                              <Form.Dropdown
+                                    name={col.name}
+                                    label={col.title}
+                                    fluid
+                                    selection
+                                    options={drop_menu}
+                                    onChange={handleChange}
+                                />
                         </Form.Field>
                     )
                 }
