@@ -3,7 +3,7 @@
 Note, this is still very much a work-in-progress, so there are no easy installation how-tos yet.  If you want to try this out in its current raw form, you have to first set up you development environment for Elixir and the Phoenix Framework.
 
 The [Phoenix Framework Installation page](https://hexdocs.pm/phoenix/installation.html) is a good place to start.
-In particuloar, you will need to set up postgresql, and set the login password in the config file dev.exs of this code to whatever you choose.
+In particular, you will need to set up postgresql, and set the login password in the config file dev.exs of this code to whatever you choose.
 
 ## Prerequisites
   * Install postgreqel
