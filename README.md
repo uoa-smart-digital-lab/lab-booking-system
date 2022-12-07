@@ -1,5 +1,10 @@
 # Lab Booking System
 
+Note, this is still very much a work-in-progress, so there are no easy installation how-tos yet.  If you want to try this out in its current raw form, you have to first set up you development environment for Elixir and the Phoenix Framework.
+
+The [Phoenix Framework Installation page](https://hexdocs.pm/phoenix/installation.html) is a good place to start.
+In particular, you will need to set up postgresql, and set the login password in the config file dev.exs of this code to whatever you choose.
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
@@ -19,7 +24,7 @@ To setup and build the React WebApps:
 
 For the server to serve the static files from the right place, either links have to be created to the build folders or the build folders have to copied in under the priv/static/builds folder
 
-Now you can visit [`localhost:8080`](http://localhost:8080) from your browser.
+Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
