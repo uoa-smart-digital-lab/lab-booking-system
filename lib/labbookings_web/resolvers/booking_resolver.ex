@@ -202,7 +202,7 @@ defmodule LabbookingsWeb.BookingResolver do
 
   defp remove_booking_from_bookings(nil, _) do {:error, :overlap} end
   defp remove_booking_from_bookings(_, []) do [] end
-  defp remove_booking_from_bookings(booking, [booking | tail]) do remove_booking_from_bookings(booking, tail) end
+  defp remove_booking_from_bookings(booking, [booking | tail]) do tail end
   defp remove_booking_from_bookings(booking, [head | tail]) do [head | remove_booking_from_bookings(booking, tail)] end
 
   defp make_booking({:error, error}, _) do {:error, error} end
@@ -257,8 +257,24 @@ defmodule LabbookingsWeb.BookingResolver do
         case item.access do
           # No restrictions, so just do the booking
           :free -> {:ok, :bookable}
-          # Has to be used under supervision, so no booking allowed
-          :supervised -> {:error, :supervisedonly}
+          # Has to be used under supervision, so no only booking by admins and powerusers
+          :supervised ->
+            case user.status do
+              :admin ->
+                # Is the person who is to booked the item inducted to use the item?
+                case is_person_inducted(inductions, person.upi) do
+                  :true -> {:ok, :bookable}
+                  _ -> {:error, :notinducted}
+                end
+              :poweruser ->
+                # Can only book items for others if they themselves are inducted as well as the other
+                case is_person_inducted(inductions, user.upi) and is_person_inducted(inductions, person.upi) do
+                  :true -> {:ok, :bookable}
+                  _ -> {:error, :notinducted}
+                end
+                _ -> {:error, :supervisedonly}
+              end
+
           # Check the status of the logged in user to determine if they can induct
           _ ->
             case user.status do
