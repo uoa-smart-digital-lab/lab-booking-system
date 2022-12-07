@@ -5,9 +5,6 @@ Note, this is still very much a work-in-progress, so there are no easy installat
 The [Phoenix Framework Installation page](https://hexdocs.pm/phoenix/installation.html) is a good place to start.
 In particular, you will need to set up postgresql, and set the login password in the config file dev.exs of this code to whatever you choose.
 
-## Prerequisites
-  * Install postgreqel
-
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
