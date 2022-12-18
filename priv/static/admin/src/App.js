@@ -272,7 +272,6 @@ export default function App() {
             state.set("sessionid", sessionid);
             state.set("currentState", state.states.main);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
     // ------------------------------------------------------------------------------------------------
 

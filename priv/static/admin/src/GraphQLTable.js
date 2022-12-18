@@ -115,7 +115,6 @@ function View({props})
         // Load the main data
         LoadMain();
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
     // ------------------------------------------------------------------------------------------------
 

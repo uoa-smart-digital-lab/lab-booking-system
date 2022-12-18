@@ -16,14 +16,15 @@ class AllItems extends Component
     }
 
     constructor(props) {
+        console.log(props);
         super (props);
         this.state = { upi: '', name: '' };
     }
 
     ItemCards = (data) => {
         return (
-            data.data.itemAll.map(({ id, url, name }) => (
-                <Item id={id} name={name} url={url} />))
+            data.data.itemAll.map(({ name, url, image, bookable, access, details }) => (
+                <Item name={name} url={url} image={image} bookable={bookable} access={access} details={details}/>))
         )
     }
 
@@ -35,7 +36,7 @@ class AllItems extends Component
                     All items
                 </Header>
                 <Card.Group centered>
-                    <this.Itemcards data={this.props.data} />
+                    <this.ItemCards data={this.props.data} />
                 </Card.Group>
             </>
         )

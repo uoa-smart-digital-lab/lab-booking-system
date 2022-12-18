@@ -18,7 +18,6 @@ defmodule LabbookingsWeb.Router do
     # get "/checkin", CheckInPageController, :index
   end
 
-
   pipeline :api do
     plug :accepts, ["json"]
     plug LabbookingsWeb.HeadersAndAdminContext

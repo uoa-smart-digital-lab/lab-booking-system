@@ -43,9 +43,18 @@ const getQuery = () => {
 const getQueryStringVal = (key) => {
     let query = getQuery();
     let returnValue = query.get(key);
-    window.history.pushState({}, document.title, window.location.pathname);
     return returnValue;
 };
+// ----------------------------------------------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------------------------------------------
+// Clear the parameters from the url
+// ----------------------------------------------------------------------------------------------------
+function clearParameters() {
+    window.history.pushState({}, document.title, window.location.pathname);
+}
 // ----------------------------------------------------------------------------------------------------
 
 
@@ -59,6 +68,8 @@ function FindItems() {
     if (loading) return (<Loading />);
     if (error) return (<Error message={error.message} />);
 
+    console.log(data);
+    
     return (
             <AllItems data={data} />
         );
@@ -72,14 +83,14 @@ function FindItems() {
 // ----------------------------------------------------------------------------------------------------
 function GetBookings ({item_name}) {
     const { loading, error, data } = useQuery(GraphQL.BOOKINGALL, {
-        variables: {itemName: item_name}
+        variables: {name: item_name}
     });
 
     if (loading) return (<Loading />);
     if (error) return (<Error message={error.message} />);
 
     return (
-        <Bookings itemName={data.bookingAll.item.name} bookings={data.bookingAll.bookings}/>
+        <Bookings name={data.itemGet.name} url={data.itemGet.url} image={data.itemGet.image} bookable={data.itemGet.bookable} access={data.itemGet.access} details={data.itemGet.details} bookings={data.itemGet.bookings}/>
     );
 }   
 // ----------------------------------------------------------------------------------------------------
@@ -98,7 +109,7 @@ function ItemQRCode ({name}) {
     if (error) return (<Error message={error.message} />);
 
     return (
-        <ItemQR id={data.itemGet.id} name={data.itemGet.name} url={data.itemGet.url}/>
+        <ItemQR name={data.itemGet.name} url={data.itemGet.url} image={data.itemGet.image}/>
     );
 }
 // ----------------------------------------------------------------------------------------------------
@@ -181,6 +192,8 @@ class App extends Component
         const item_name = getQueryStringVal("item");
         const book = getQueryStringVal("book");
         const qrcode = getQueryStringVal("qrcode");
+
+        // clearParameters();
 
         // Set up the return html
         let return_value;

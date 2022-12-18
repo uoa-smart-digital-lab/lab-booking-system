@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
-import { Card, Icon, Button } from 'semantic-ui-react'
+import { Card, Image, Button, Icon } from 'semantic-ui-react'
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -15,32 +15,47 @@ class Item extends Component
         }
     }
 
-    handleClick = () => {
+    handleBooking = () => {
         window.location = this.state.link;
     }
 
-    handleMap = () => {
-        window.location = this.props.mapurl;
+    handleUrl = () => {
+        // window.open(this.props.url, '_blank');
+        window.location = this.props.url;
+    }
+
+    getname = (details, name) => {
+        if (details.hasOwnProperty('name'))
+        {
+            return details.name
+        }
+        else {
+            return name
+        }
     }
 
     render ()
     {
         return (
             <Card color='blue'>
-                <Button icon fluid basic onClick={this.handleClick}>
-                    <Card.Content>
-                        <Icon color='blue' name='university' size='massive'/>
-                        <Card.Header as="h2">{this.props.name}</Card.Header>
-                        <Card.Meta>
-                            {this.props.campus}
-                        </Card.Meta>
-                    </Card.Content>
-                </Button>
+                <Card.Content>
+                    <Image src={this.props.image} size='medium'/>
+                    <Card.Header as="h2">{this.getname(this.props.details, this.props.name)}</Card.Header>
+                    <Card.Description>{this.props.name.toUpperCase()}</Card.Description>
+                    <Card.Meta>
+                        {this.props.campus}
+                    </Card.Meta>
+                </Card.Content>
 
                 <Card.Content>
-                    <Button icon fluid basic onClick={this.handleMap}>
-                        <Icon color='blue' name='map'/>
-                        Map
+                    <Button icon fluid basic onClick={this.handleUrl}>
+                        <Icon color='blue' name='external'/>
+                        &nbsp; More Details
+                    </Button>
+                    &nbsp;
+                    <Button icon fluid basic onClick={this.handleBooking}>
+                        <Icon color='blue' name='calendar'/>
+                        &nbsp; Make Booking
                     </Button>
                 </Card.Content>
             </Card>

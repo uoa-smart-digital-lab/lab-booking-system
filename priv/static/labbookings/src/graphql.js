@@ -6,7 +6,7 @@ import { gql } from "@apollo/client";
 const GraphQL = 
 {
     PERSONALL : gql`query { personAll { name upi } } `,
-    ITEMALL : gql`query { itemAll { url name } } `,
+    ITEMALL : gql`query { itemAll { url image name access bookable, details } } `,
     ITEMGET : gql`
         query itemGet($name: String!) 
         {
@@ -14,18 +14,36 @@ const GraphQL =
                 url
                 name
                 image
+                details
+                cost
+                bookable
+                access
+                bookings { 
+                    person { name upi }
+                    starttime
+                    endtime
+                }
+                inductions {
+                    upi
+                }
             }
         }`,
 
     BOOKINGALL : gql`
-        query bookingAll($itemName: String!)
+        query itemGet($name: String!)
         {
-            bookingAll (itemName: $itemName) { 
+            itemGet (name: $name) { 
+                name
+                url
+                image
+                details
+                cost
+                bookable
+                access
                 bookings {
-                    upi
-                }
-                item {
-                    name
+                    person { name upi }
+                    starttime
+                    endtime
                 }
             }
         }`,
