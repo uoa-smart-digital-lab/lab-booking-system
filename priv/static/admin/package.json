@@ -13,6 +13,7 @@
     "react": "^17.0.2",
     "react-cookies": "^0.1.1",
     "react-dom": "^17.0.2",
+    "react-hooks": "^1.0.1",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
@@ -22,18 +23,15 @@
     "yarn": "^1.22.19"
   },
   "scripts": {
+<<<<<<< Updated upstream
     "build:dev": "dotenv -e .env.development react-scripts build",
     "build:prod": "dotenv -e .env.production react-scripts build",
+=======
+>>>>>>> Stashed changes
     "build": "react-scripts build",
     "start": "react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [
