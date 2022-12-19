@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
 
 // ----------------------------------------------------------------------------------------------------
 // Common data for GraphQL
@@ -94,7 +94,25 @@ const GraphQL =
         "nosession" :               "Incorrect or absent SessionID",
         "badpassword" :             "Incorrect password",
         "problemdeletingsession" :  "Problem deleting Session"
-    }
+    },
+
+    client : new ApolloClient({
+        uri: '/api',
+        cache: new InMemoryCache()
+      }),
+    
+      fetch : ({uri, headers, body}) => {
+        return new Promise ((resolve, reject) => {
+          fetch(uri, { method:"POST", headers:headers, body:body })
+          .then (result => result.json())
+          .then ((result) => {
+              resolve(result)
+          })
+          .catch ((err) => {
+              reject(err);
+          });
+        });
+      }
 }
 
 export default GraphQL;

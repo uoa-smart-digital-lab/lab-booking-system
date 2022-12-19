@@ -8,26 +8,13 @@ import GraphQL from './graphql';
 import Error from './Error';
 import ItemQR from './ItemQR';
 import Loading from './Loading';
+import Login from './Login';
 import { Card, Header, Form, Icon } from 'semantic-ui-react'
 import {
-  ApolloClient,
-  InMemoryCache,
   ApolloProvider,
   useQuery,
-  useMutation,
-  gql
+  useMutation
 } from "@apollo/client";
-
-
-
-// ----------------------------------------------------------------------------------------------------
-// The GraphQL Parameters
-// ----------------------------------------------------------------------------------------------------
-const client = new ApolloClient({
-    uri: '/api',
-    cache: new InMemoryCache()
-});
-// ----------------------------------------------------------------------------------------------------
 
 
 
@@ -62,17 +49,18 @@ function clearParameters() {
 // ----------------------------------------------------------------------------------------------------
 // Get a list of all the items in the database
 // ----------------------------------------------------------------------------------------------------
-function FindItems() {
-    const { loading, error, data } = useQuery(GraphQL.ITEMALL);
+function FindItems({dologin, dologout, sessionid}) {
+    const { loading, error, data } = useQuery(GraphQL.ITEMALL, {
+        context : { headers : { sessionid : sessionid } },
+        fetchPolicy: 'network-only'
+    });
 
     if (loading) return (<Loading />);
     if (error) return (<Error message={error.message} />);
-
-    console.log(data);
     
     return (
-            <AllItems data={data} />
-        );
+        <AllItems data={data} dologin={dologin} dologout={dologout} loggedin={sessionid != ''}/>
+    );
 }
 // ----------------------------------------------------------------------------------------------------
 
@@ -81,9 +69,11 @@ function FindItems() {
 // ----------------------------------------------------------------------------------------------------
 // Get the Bookings of a specific item
 // ----------------------------------------------------------------------------------------------------
-function GetBookings ({item_name}) {
+function GetBookings ({item_name, sessionid}) {
     const { loading, error, data } = useQuery(GraphQL.BOOKINGALL, {
-        variables: {name: item_name}
+        variables: {name: item_name},
+        context : { headers : { sessionid : sessionid } },
+        fetchPolicy: 'network-only'
     });
 
     if (loading) return (<Loading />);
@@ -100,10 +90,12 @@ function GetBookings ({item_name}) {
 // ----------------------------------------------------------------------------------------------------
 // Display a QR code for a specific item
 // ----------------------------------------------------------------------------------------------------
-function ItemQRCode ({name}) {
+function ItemQRCode ({name, sessionid}) {
     const { loading, error, data } = useQuery(GraphQL.ITEMGET, {
-        variables: {name: name}
-    });  
+        variables: {name: name},
+        context : { headers : { sessionid : sessionid } },
+        fetchPolicy: 'network-only'
+    });
     
     if (loading) return (<Loading />);
     if (error) return (<Error message={error.message} />);
@@ -174,15 +166,17 @@ function Bookinorout({item_name}) {
 
 
 
+
 // ----------------------------------------------------------------------------------------------------
 // The main App
 // ----------------------------------------------------------------------------------------------------
 class App extends Component
 {
+    handleChange = (e, { name, value }) => { this.setState({ [name]: value }); }
     
     constructor(props) {
         super (props);
-        this.state = { loading: false, error: false, data: {}, upi: '' };
+        this.state = { loggingin: false, loading: false, error: false, data: {}, upi: '', sessionid: '', errorMessage: ''};
     }
 
 
@@ -192,6 +186,10 @@ class App extends Component
         const item_name = getQueryStringVal("item");
         const book = getQueryStringVal("book");
         const qrcode = getQueryStringVal("qrcode");
+        const sessionid = getQueryStringVal("sessionid");
+        if (sessionid) {
+            this.setState({"sessionid": sessionid});
+        }
 
         // clearParameters();
 
@@ -205,10 +203,18 @@ class App extends Component
         else if (book) { return_value = ( <Bookinorout item_name={book} /> ); }
         // Generate a QR code for use with booking in or out.
         else if (qrcode) { return_value = ( <ItemQRCode name={qrcode}/> ); }
-        else { return_value = ( <FindItems /> ); }
+        else {
+            if (this.state.loggingin)
+            {
+                return_value = (<Login errorMessage={this.state.errorMessage} error={() => {this.setState({"errorMessage": "Error logging in"});}} loggedin={(result) => {this.setState({"sessionid": result.sessionid}); this.setState({"loggingin": false});}}/>);
+            }
+            else
+            {
+                return_value = ( <FindItems sessionid={this.state.sessionid} dologout={() => {this.setState({"sessionid": ''}); }} dologin={() => {this.setState({"loggingin": true}); }}/> );
+            }
+        }
 
-        return ( <ApolloProvider client={client}> {return_value} </ApolloProvider> );
-
+        return ( <ApolloProvider client={GraphQL.client}> {return_value} </ApolloProvider> );
     }
 }
 
