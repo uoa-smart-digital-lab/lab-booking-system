@@ -45,6 +45,9 @@ const GraphQL =
                     starttime
                     endtime
                 }
+                inductions {
+                    upi
+                }
             }
         }`,
 

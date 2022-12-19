@@ -12,11 +12,10 @@ class AllItems extends Component
     handleChange = (e, { name, value }) => { this.setState({ [name]: value }); }
   
     handleSubmit = () => {
-        const { upi, name } = this.state;
+        const { search } = this.state;
     }
 
     constructor(props) {
-        console.log(props);
         super (props);
         this.state = { search: '' };
     }
@@ -24,16 +23,35 @@ class AllItems extends Component
     ItemCards = (data) => {
         return (
             data.data.itemAll.map(({ name, url, image, bookable, access, details }) => {
-                if (name.includes(this.search) || (this.search === "")) {
-                    ( <Item name={name} url={url} image={image} bookable={bookable} access={access} details={details}/>)
+                if (bookable && (name.includes(this.state.search) || (this.state.search === ""))) {
+                    return (<Item name={name} url={url} image={image} bookable={bookable} access={access} details={details} />)
                 }
             })
         )
     }
+    //     var returnData = "";
+
+    //     returnData = data.data.itemAll.map(({ name, url, image, bookable, access, details }) => {
+
+    //         <Item name={name} url={url} image={image} bookable={bookable} access={access} details={details}/>
+
+    //         // if (name.includes(this.state.search) || (this.state.search === "")) {
+    //         //     console.log(name);
+    //         //     ( <Item name={name} url={url} image={image} bookable={bookable} access={access} details={details}/>)
+    //         // }
+    //         // else{
+    //         //     ( <Item name={"TEST"} url={url} image={image} bookable={bookable} access={access} details={details}/>)
+    //         // }
+    //     })
+
+    //     console.log(returnData);
+    //     return (returnData);
+    // }
 
 
     render ()
     {
+        console.log("rendering")
         return (
             <>
                 <Header centered as="h3" color='blue' block>
