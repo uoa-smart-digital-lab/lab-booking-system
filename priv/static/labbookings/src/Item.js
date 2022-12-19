@@ -11,7 +11,7 @@ class Item extends Component
     constructor(props) {
         super (props);
         this.state = {
-            link : window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?item=" + this.props.name
+            link : window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?item=" + this.props.name + (this.props.sessionid !== '' ? "&sessionid=" + this.props.sessionid : "")
         }
     }
 
@@ -25,13 +25,7 @@ class Item extends Component
     }
 
     getname = (details, name) => {
-        if (details.hasOwnProperty('name'))
-        {
-            return details.name
-        }
-        else {
-            return name
-        }
+        return (details.hasOwnProperty('name') ? details.name : name);
     }
 
     render ()

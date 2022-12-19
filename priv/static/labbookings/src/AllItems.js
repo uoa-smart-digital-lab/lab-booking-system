@@ -12,9 +12,8 @@ class AllItems extends Component
     handleChange = (e, { name, value }) => { this.setState({ [name]: value }); }
 
     constructor(props) {
-        console.log(props.loggedin);
         super (props);
-        this.state = { search: '' };
+        this.state = { search: '', loggedin: props.sessionid !== '' };
     }
 
     detailsname = (details) => {
@@ -25,7 +24,7 @@ class AllItems extends Component
         return (
             data.data.itemAll.map(({ name, url, image, bookable, access, details }) => {
                 if (bookable && (name.includes(this.state.search.toLowerCase()) || this.detailsname(details).includes(this.state.search.toLowerCase()) || (this.state.search === ""))) {
-                    return (<Item name={name} url={url} image={image} bookable={bookable} access={access} details={details} />)
+                    return (<Item name={name} url={url} image={image} bookable={bookable} access={access} details={details} sessionid={this.props.sessionid}/>)
                 }
             })
         )
@@ -43,7 +42,7 @@ class AllItems extends Component
                         <Input name='search' icon='search' placeholder='Search for item...' onChange={this.handleChange} />
                     </Menu.Item>
                     <Menu.Item>
-                        <Button onClick={this.props.loggedin?this.props.dologout:this.props.dologin}>Log {this.props.loggedin?"out":"in"}</Button>
+                        <Button onClick={this.state.loggedin?this.props.dologout:this.props.dologin}>Log {this.state.loggedin?"out":"in"}</Button>
                     </Menu.Item>
                 </Menu>
                 <Card.Group centered>

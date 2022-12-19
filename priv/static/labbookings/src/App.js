@@ -59,7 +59,7 @@ function FindItems({dologin, dologout, sessionid}) {
     if (error) return (<Error message={error.message} />);
     
     return (
-        <AllItems data={data} dologin={dologin} dologout={dologout} loggedin={sessionid != ''}/>
+        <AllItems data={data} dologin={dologin} dologout={dologout} sessionid={sessionid}/>
     );
 }
 // ----------------------------------------------------------------------------------------------------
@@ -188,7 +188,7 @@ class App extends Component
         const qrcode = getQueryStringVal("qrcode");
         const sessionid = getQueryStringVal("sessionid");
         if (sessionid) {
-            this.setState({"sessionid": sessionid});
+            this.state.sessionid = sessionid; // Set the value without triggering a reload of the page.
         }
 
         // clearParameters();
