@@ -7,7 +7,7 @@ import Calendar from 'react-awesome-calendar';
 // const datesToAddContentTo = [tomorrow, in3Days, in5Days];
 
 // ----------------------------------------------------------------------------------------------------
-// Show the current bookings for an item, ie the maximum number of spaces minus the number of occupants
+// Show the current bookings for an item and make a booking (if the user is allowed to)
 // ----------------------------------------------------------------------------------------------------
 class Bookings extends Component
 {
@@ -61,14 +61,12 @@ class Bookings extends Component
     //     setValue(nextValue);
     //   }
 
-    tileClassName = ({ date, view }) => {
-    // Add class to tiles in month view only
-    if (view === 'month') {
-        // Check if a date React-Calendar wants to check is on the list of dates to add class to
-        // if (datesToAddContentTo.find(dDate => isSameDay(dDate, date))) {
-        return 'calendar_selected';
-        // }
+    onClickTimeLine = (date) => {
+
     }
+
+    onClickEvent = (event) => {
+
     }
 
     render ()
@@ -76,7 +74,7 @@ class Bookings extends Component
         return (
             <>
                 <Header centered as="h3" color='blue' block>
-                    Item with Bookings
+                    Book an item
                 </Header>
                 <Card centered color='blue'>
                     <Card.Content>
@@ -94,40 +92,19 @@ class Bookings extends Component
                             &nbsp; More Details
                         </Button>
                         &nbsp;
-                        <Button icon fluid basic onClick={this.handleBooking}>
-                            <Icon color='blue' name='calendar'/>
-                            &nbsp; Make Booking
-                        </Button>
+                        <Card.Description>
+                            Use Calendar below to see and make bookings.
+                        </Card.Description>
                     </Card.Content>
                     <Card.Content>
                         <Calendar
                             events={this.events}
-                            // onChange={onChange}
-                            // value={date}
-                            // tileClassName={this.tileClassName}
-                            
+                            onClickTimeLine={onClickTimeLine}                            
+                            onClickEvent={onClickEvent}                            
                         />
                     </Card.Content>
 
                 </Card>
-
-                {/* <Card.Group centered>
-                    <Card color={this.state.num_spaces<=0 ? "red" : "blue"} icon>
-                        <Card.Content>
-                            <Icon color={this.state.num_spaces<=0 ? "red" : "blue"} name='university' size='massive'/>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Header as="h2">
-                                {this.props.itemName}
-                            </Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Header as="h4">
-                                {this.state.num_spaces} space{this.state.num_spaces === 1? "" : "s"} left.
-                            </Card.Header>
-                        </Card.Content>
-                    </Card>
-                </Card.Group> */}
             </>
         )
     }

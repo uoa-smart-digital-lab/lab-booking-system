@@ -39,18 +39,25 @@ defmodule LabbookingsWeb.Schema.Item do
       end
 
     field :bookings, non_null(list_of(:booking)), description: "List of bookings of items the person has booked" do
-      resolve fn post, _, _ ->
-        batch({__MODULE__, :booked_items}, post.name, fn batch_results ->
+      resolve fn post, _, resolution ->
+        IO.inspect post
+        batch({__MODULE__, :booked_items, %{starttime: get_parameter(post, :starttime), endtime: get_parameter(post, :endtime)}}, post.name, fn batch_results ->
           {:ok, Map.get(batch_results, post.name)}
         end)
       end
     end
   end
 
+  def get_parameter(conn, param) do
+    case Map.get(conn, :__args__) do
+      nil -> nil
+      args -> Map.get(args, param)
+    end
+  end
 
   def booked_items(_, []) do %{} end
   def booked_items(param, [name | names]) do
-    Map.merge(%{name => Booking.get_bookings_by_itemname(name)}, booked_items(param, names))
+    Map.merge(%{name => Booking.get_bookings_by_itemname(name, param.starttime, param.endtime)}, booked_items(param, names))
   end
 
   def inducted_people(_, []) do %{} end
@@ -76,6 +83,8 @@ defmodule LabbookingsWeb.Schema.Item do
     @desc "Get all the items"
     # ----------------------------------------------------------------------------------------------------
     field :item_all, non_null(list_of(:item)) do
+      arg :starttime, :datetime
+      arg :endtime, :datetime
       resolve(&ItemResolver.all_items/3)
     end
 
@@ -84,6 +93,8 @@ defmodule LabbookingsWeb.Schema.Item do
     # ----------------------------------------------------------------------------------------------------
     field :item_get, :item do
       arg :name, non_null(:string)
+      arg :starttime, :datetime
+      arg :endtime, :datetime
       resolve &ItemResolver.get_item/3
     end
   end

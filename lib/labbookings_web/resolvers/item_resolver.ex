@@ -10,9 +10,13 @@ defmodule LabbookingsWeb.ItemResolver do
   # Get all items in the database
   # Anyone can do this, so no need to check sessionid
   # ------------------------------------------------------------------------------------------------------
-  def all_items(_root, _args, _info) do
-    {:ok, Item.list_items()}
+  def all_items(_root, args_in, info) do
+    args = Map.merge(args_in, info.context)
+    {:ok, Item.list_items() |> add_args(args)}
   end
+
+  defp add_args([], _), do: []
+  defp add_args([head | tail], args), do: [head |> Map.merge(%{__args__: args}) | add_args(tail, args)]
   # ------------------------------------------------------------------------------------------------------
 
 
@@ -23,29 +27,9 @@ defmodule LabbookingsWeb.ItemResolver do
   # ------------------------------------------------------------------------------------------------------
   def get_item(_root, args_in, info) do
     args = Map.merge(args_in, info.context)
-    get_item_by_id_or_name(Map.get(args, :id), Map.get(args, :name))
-  end
-  # ------------------------------------------------------------------------------------------------------
-
-
-
-  # ------------------------------------------------------------------------------------------------------
-  # Get a item by ID or item name if it exists
-  # Anyone can do this, so no need to check sessionid
-  # ------------------------------------------------------------------------------------------------------
-  def get_item_by_id_or_name(nil, nil) do
-    {:error, :noname}
-  end
-  def get_item_by_id_or_name(nil, name) do
-    case Item.get_item_by_name(name |> String.downcase()) do
+    case Item.get_item_by_name(Map.get(args, :name) |> String.downcase()) do
       nil -> {:error, :noitem}
-      answer -> {:ok, answer}
-    end
-  end
-  def get_item_by_id_or_name(id, _) do
-    case Item.get_item(id) do
-      nil -> {:error, :noitem}
-      answer -> {:ok, answer}
+      answer -> {:ok, answer |> Map.merge(%{__args__: args})}
     end
   end
   # ------------------------------------------------------------------------------------------------------

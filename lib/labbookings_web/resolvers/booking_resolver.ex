@@ -8,16 +8,6 @@ defmodule LabbookingsWeb.BookingResolver do
   alias Labbookings.Induction
 
   # ------------------------------------------------------------------------------------------------------
-  # Get all bookings in the database
-  # ------------------------------------------------------------------------------------------------------
-  def all_bookings(_root, _args, _info) do
-    {:ok, Booking.list_bookings()}
-  end
-  # ------------------------------------------------------------------------------------------------------
-
-
-
-  # ------------------------------------------------------------------------------------------------------
   # Get all bookings for a person
   # ------------------------------------------------------------------------------------------------------
   def get_bookings_by_upi(_root, args, _info) do
@@ -34,18 +24,6 @@ defmodule LabbookingsWeb.BookingResolver do
   def get_bookings_by_itemname(_root, args, _info) do
     itemname = Map.get(args, :itemname) |> String.downcase()
     Booking.get_bookings_by_itemname(itemname)
-  end
-  # ------------------------------------------------------------------------------------------------------
-
-
-
-  # ------------------------------------------------------------------------------------------------------
-  # Get all bookings for a person and item
-  # ------------------------------------------------------------------------------------------------------
-  def get_bookings_by_upi_and_itemname(_root, args, _info) do
-    upi = Map.get(args, :upi) |> String.downcase()
-    itemname = Map.get(args, :itemname) |> String.downcase()
-    Booking.get_bookings_by_upi_and_itemname(upi, itemname)
   end
   # ------------------------------------------------------------------------------------------------------
 
@@ -86,7 +64,7 @@ defmodule LabbookingsWeb.BookingResolver do
       # Check that the user is allowed to book the item for this person
       |> check_user_allowed()
       # Make sure the booking doesn't overlap some other booking for this item
-      |> check_overlap_bookings(Booking.get_overlapping_bookings(args.itemname, args.starttime, args.endtime))
+      |> check_overlap_bookings(Booking.get_bookings_by_itemname(args.itemname, args.starttime, args.endtime))
       # Make the booking
       |> make_booking(args)
       # Return the updated item
@@ -114,7 +92,7 @@ defmodule LabbookingsWeb.BookingResolver do
       # Get the existing booking
       |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
       # Make sure the booking doesn't overlap some other booking for this item (except the one being changed)
-      |> check_overlap_bookings(Booking.get_overlapping_bookings(args.itemname, args.starttime, args.endtime))
+      |> check_overlap_bookings(Booking.get_bookings_by_itemname(args.itemname, args.starttime, args.endtime))
       # Make the booking
       |> update_booking(args)
       # Return the updated item

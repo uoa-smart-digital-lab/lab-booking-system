@@ -10,14 +10,18 @@ defmodule LabbookingsWeb.PersonResolver do
   # Get all people in the database
   # Only admins or powerusers can do this, or if the sessionid upi and user upi match
   # ------------------------------------------------------------------------------------------------------
-  def all_people(_root, _args, info) do
+  def all_people(_root, args_in, info) do
+    args = Map.merge(args_in, info.context)
     # Get the logged in user record
     case Map.get(info.context, :user) do
       nil -> {:error, :nosession}
       user ->
-        {:ok, Person.list_people() |> process_person_list(user)}
+        {:ok, Person.list_people() |> add_args(args) |> process_person_list(user)}
     end
   end
+
+  defp add_args([], _), do: []
+  defp add_args([head | tail], args), do: [head |> Map.merge(%{__args__: args}) | add_args(tail, args)]
   # ------------------------------------------------------------------------------------------------------
 
 
@@ -31,7 +35,7 @@ defmodule LabbookingsWeb.PersonResolver do
     args = Map.replace(args_in, :upi, String.downcase(args_in.upi))
     case Person.get_person_by_upi(args.upi) |> tune_for_user(Map.get(info.context, :user)) do
       nil -> {:error, :noperson}
-      person -> {:ok, person}
+      person -> {:ok, person |> Map.merge(%{__args__: args})}
     end
   end
   # ------------------------------------------------------------------------------------------------------
