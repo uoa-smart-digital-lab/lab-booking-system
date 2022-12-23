@@ -32,6 +32,18 @@ const getQueryStringVal = (key) => {
     let returnValue = query.get(key);
     return returnValue;
 };
+const removeQueryStringVal = (key) => {
+    let query = getQuery();
+    query.delete(key);
+    let queryString = "";
+    let firstQuery = true;
+    for (let queryKey of query.keys()) {
+        queryString += (firstQuery?"/?":"&") + queryKey + "=" + query.get(queryKey);
+        firstQuery = false;
+    }
+    let link = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + queryString;
+    window.location = link;
+}
 // ----------------------------------------------------------------------------------------------------
 
 
@@ -69,7 +81,7 @@ function FindItems({dologin, dologout, sessionid}) {
 // ----------------------------------------------------------------------------------------------------
 // Get the Bookings of a specific item
 // ----------------------------------------------------------------------------------------------------
-function GetBookings ({item_name, sessionid}) {
+function GetBookings ({dologin, dologout, item_name, sessionid}) {
     const { loading, error, data } = useQuery(GraphQL.BOOKINGALL, {
         variables: {name: item_name},
         context : { headers : { sessionid : sessionid } },
@@ -80,7 +92,7 @@ function GetBookings ({item_name, sessionid}) {
     if (error) return (<Error message={error.message} />);
 
     return (
-        <Bookings name={data.itemGet.name} url={data.itemGet.url} image={data.itemGet.image} bookable={data.itemGet.bookable} access={data.itemGet.access} details={data.itemGet.details} bookings={data.itemGet.bookings}/>
+        <Bookings name={data.itemGet.name} url={data.itemGet.url} image={data.itemGet.image} bookable={data.itemGet.bookable} access={data.itemGet.access} details={data.itemGet.details} bookings={data.itemGet.bookings} inductions={data.itemGet.inductions} dologin={dologin} dologout={dologout} sessionid={sessionid}/>
     );
 }   
 // ----------------------------------------------------------------------------------------------------
@@ -198,7 +210,7 @@ class App extends Component
 
         // Check each of the parameters and generate the appropriate html
         // A specific item name is given, so show occupancy in that item
-        if (item_name) { return_value = ( <GetBookings item_name={item_name}/> ) }
+        if (item_name) { return_value = ( <GetBookings item_name={item_name} sessionid={this.state.sessionid} dologout={() => {removeQueryStringVal("sessionid"); this.setState({"sessionid": ''}); }} dologin={() => {this.setState({"loggingin": true}); }}/> ) }
         // Booking in or out - this is reached by booking the QR Code
         else if (book) { return_value = ( <Bookinorout item_name={book} /> ); }
         // Generate a QR code for use with booking in or out.
@@ -210,7 +222,7 @@ class App extends Component
             }
             else
             {
-                return_value = ( <FindItems sessionid={this.state.sessionid} dologout={() => {this.setState({"sessionid": ''}); }} dologin={() => {this.setState({"loggingin": true}); }}/> );
+                return_value = ( <FindItems sessionid={this.state.sessionid} dologout={() => {removeQueryStringVal("sessionid"); this.setState({"sessionid": ''}); }} dologin={() => {this.setState({"loggingin": true}); }}/> );
             }
         }
 

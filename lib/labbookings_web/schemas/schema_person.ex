@@ -56,10 +56,6 @@ defmodule LabbookingsWeb.Schema.Person do
     Map.merge(%{upi => Booking.get_bookings_by_upi(upi, param.starttime, param.endtime)}, booked_items(param, upis))
   end
 
-  # def booked_items(param, [name | names]) do
-  #   Map.merge(%{name => Booking.get_bookings_by_itemname(name, param.starttime, param.endtime)}, booked_items(param, names))
-  # end
-
   def inducted_items(_, []) do %{} end
   def inducted_items(param, [upi | upis]) do
     Map.merge(%{upi => get_items_from_inductions(Induction.get_inductions_by_upi(upi))}, inducted_items(param, upis))
