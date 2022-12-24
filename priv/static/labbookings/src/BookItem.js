@@ -19,13 +19,21 @@ function View(args)
 	// Set props and state
 	const props = args.props;
 
-	const MUTATION = gql`mutation itemBook($upi: String!, $itemname: String!) { itemBook (upi: $upi, itemname: $itemname, starttime: $starttime, endtime: $endtime) { name } }`
+	const MUTATION = gql`
+	mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
+		{
+		itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
+			name
+		}
+	}
+	`
 	
 	const [state, setState] = useState({
-		starttime: "",
-		endtime: "",
-		upi: "",
-		itemname: "",
+		starttime: props.starttime,
+		endtime: props.endtime,
+		upi: props.upi,
+		itemname: props.itemname,
+		sessionid: props.sessionid,
 		set: (name, value) => { setState( previousState => { return { ...previousState, [name]: value }} ); }
 	});
 
@@ -35,7 +43,9 @@ function View(args)
 	// Do the actual login when the user presses the button
 	let DoBooking = () =>
 	{		
-		itemBook({variables: { upi: state.upi, itemname: state.itemname, starttime: state.starttime, endtime: state.endtime}})
+		const variables = { upi: state.upi, itemname: state.itemname, starttime: state.starttime, endtime: state.endtime, details:"{}"};
+		console.log(variables);
+		itemBook({variables: variables})
 		.then(result => props.bookedin(result.data.itemBook))
 		.catch(error => {
 			console.debug(error);

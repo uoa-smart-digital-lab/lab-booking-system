@@ -51,9 +51,9 @@ const removeQueryStringVal = (key) => {
 // ----------------------------------------------------------------------------------------------------
 // Clear the parameters from the url
 // ----------------------------------------------------------------------------------------------------
-function clearParameters() {
-    window.history.pushState({}, document.title, window.location.pathname);
-}
+// function clearParameters() {
+//     window.history.pushState({}, document.title, window.location.pathname);
+// }
 // ----------------------------------------------------------------------------------------------------
 
 
@@ -61,7 +61,7 @@ function clearParameters() {
 // ----------------------------------------------------------------------------------------------------
 // Get a list of all the items in the database
 // ----------------------------------------------------------------------------------------------------
-function FindItems({dologin, dologout, sessionid}) {
+function FindItems({dologin, dologout, sessionid, upi}) {
     const { loading, error, data } = useQuery(GraphQL.ITEMALL, {
         context : { headers : { sessionid : sessionid } },
         fetchPolicy: 'network-only'
@@ -71,7 +71,7 @@ function FindItems({dologin, dologout, sessionid}) {
     if (error) return (<Error message={error.message} />);
     
     return (
-        <AllItems data={data} dologin={dologin} dologout={dologout} sessionid={sessionid}/>
+        <AllItems data={data} dologin={dologin} dologout={dologout} upi={upi} sessionid={sessionid}/>
     );
 }
 // ----------------------------------------------------------------------------------------------------
@@ -188,7 +188,15 @@ class App extends Component
     
     constructor(props) {
         super (props);
-        this.state = { loggingin: false, loading: false, error: false, data: {}, upi: '', sessionid: '', errorMessage: ''};
+        this.state = { 
+            loggingin: false, 
+            loading: false, 
+            error: false, 
+            data: {}, 
+            upi: '', 
+            sessionid: '', 
+            errorMessage: ''
+        };
     }
 
 
@@ -202,6 +210,10 @@ class App extends Component
         if (sessionid) {
             this.state.sessionid = sessionid; // Set the value without triggering a reload of the page.
         }
+        const upi = getQueryStringVal("upi");
+        if (upi) {
+            this.state.upi = upi; // Set the value without triggering a reload of the page.
+        }
 
         // clearParameters();
 
@@ -210,7 +222,23 @@ class App extends Component
 
         // Check each of the parameters and generate the appropriate html
         // A specific item name is given, so show occupancy in that item
-        if (item_name) { return_value = ( <GetBookings item_name={item_name} sessionid={this.state.sessionid} dologout={() => {removeQueryStringVal("sessionid"); this.setState({"sessionid": ''}); }} dologin={() => {this.setState({"loggingin": true}); }}/> ) }
+        if (item_name) { 
+            return_value = ( 
+                <GetBookings    item_name={item_name} 
+                                upi={this.state.upi} 
+                                sessionid={this.state.sessionid} 
+                                dologout={() => {
+                                    removeQueryStringVal("upi"); 
+                                    removeQueryStringVal("sessionid"); 
+                                    this.setState({"sessionid": ''}); 
+                                    this.setState({"upi": ''});
+                                }} 
+                                dologin={() => {
+                                    this.setState({"loggingin": true}); 
+                                }}
+                />
+            ) 
+        }
         // Booking in or out - this is reached by booking the QR Code
         else if (book) { return_value = ( <Bookinorout item_name={book} /> ); }
         // Generate a QR code for use with booking in or out.
@@ -218,11 +246,35 @@ class App extends Component
         else {
             if (this.state.loggingin)
             {
-                return_value = (<Login errorMessage={this.state.errorMessage} error={() => {this.setState({"errorMessage": "Error logging in"});}} loggedin={(result) => {this.setState({"sessionid": result.sessionid}); this.setState({"loggingin": false});}}/>);
+                return_value = (
+                    <Login  errorMessage={this.state.errorMessage} 
+                            error={() => {
+                                this.setState({"errorMessage": "Error logging in"});
+                            }} 
+                            loggedin={(result) => {
+                                this.setState({"sessionid": result.sessionid}); 
+                                this.setState({"upi": result.upi}); 
+                                this.setState({"loggingin": false});
+                            }}
+                    />
+                );
             }
             else
             {
-                return_value = ( <FindItems sessionid={this.state.sessionid} dologout={() => {removeQueryStringVal("sessionid"); this.setState({"sessionid": ''}); }} dologin={() => {this.setState({"loggingin": true}); }}/> );
+                return_value = (
+                    <FindItems  sessionid={this.state.sessionid} 
+                                upi={this.state.upi} 
+                                dologout={() => {
+                                    removeQueryStringVal("upi"); 
+                                    removeQueryStringVal("sessionid"); 
+                                    this.setState({"sessionid": ''}); 
+                                    this.setState({"upi": ''});
+                                }} 
+                                dologin={() => {
+                                    this.setState({"loggingin": true}); 
+                                }}
+                    /> 
+                );
             }
         }
 

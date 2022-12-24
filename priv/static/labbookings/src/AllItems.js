@@ -24,7 +24,7 @@ class AllItems extends Component
         return (
             data.data.itemAll.map(({ name, url, image, bookable, access, details }) => {
                 if (bookable && (name.includes(this.state.search.toLowerCase()) || this.detailsname(details).includes(this.state.search.toLowerCase()) || (this.state.search === ""))) {
-                    return (<Item sessionid={this.props.sessionid} name={name} url={url} image={image} bookable={bookable} access={access} details={details} />)
+                    return (<Item sessionid={this.props.sessionid} upi={this.props.upi} name={name} url={url} image={image} bookable={bookable} access={access} details={details} />)
                 }
                 else { return (<></>); }
             })

@@ -59,6 +59,7 @@ class Bookings extends Component
 
     }
 
+    // Create a start and end time on the hours timeline
     onClickTimeLine = (date) => {
         let localdate = date.year.toString() + "-" + ((date.month<9)?"0":"") + (date.month+1).toString() + "-" + ((date.day<10)?"0":"") + date.day.toString() + "T" + ((Math.floor(date.hour)<10)?"0":"") + Math.floor(date.hour).toString() + ":00:00+00:00";
         let localdateplushalfhour = date.year.toString() + "-" + ((date.month<9)?"0":"") + (date.month+1).toString() + "-" + ((date.day<10)?"0":"") + date.day.toString() + "T" + ((Math.floor(date.hour)<10)?"0":"") + Math.floor(date.hour).toString() + ":30:00+00:00";
@@ -74,11 +75,11 @@ class Bookings extends Component
             this.setState({"selectedtitle":"NEW BOOKING"});
             this.setState({"selectedcolor": "#2185d0cc"});
             this.setState({"choosingstartdate": true});
-        }
-        
-        //this.setState({"makingBooking": true})
+            this.setState({"makingBooking": true})
+    }
     }
 
+    // Create a start and end time on the days timeline
     onClickDay = (e) => {
         if (this.state.choosingstartdate) {
             let localdate = e.getFullYear().toString() + "-" + ((e.getMonth()<9)?"0":"") + (e.getMonth()+1).toString() + "-" + ((e.getDate()<10)?"0":"") + e.getDate().toString() + "T" + "00:00:00+00:00";
@@ -95,15 +96,20 @@ class Bookings extends Component
             this.setState({"selectedtitle":"NEW BOOKING"});
             this.setState({"selectedcolor": "#2185d0cc"});
             this.setState({"choosingstartdate": true});
+            this.setState({"makingBooking": true})
         }
     }
 
     onClickEvent = (event) => {
-
     }
 
-    createNewBooking = (booking) => {
-
+    cancelbooking = () => {
+        this.setState({"selectedstart": ""}); 
+        this.setState({"selectedtitle": ""});
+        this.setState({"selectedend": ""});
+        this.setState({"selectedcolor": "#cccccccc"});
+        this.setState({"choosingstartdate": true});
+        this.setState({"makingBooking": false})
     }
 
     editExistingBooking = (booking) => {
@@ -132,48 +138,6 @@ class Bookings extends Component
         return calendarEvents;
     }
 
-    nameString = (detail, mode) => {
-        const month = ["January","February","March","April","May","June","July","August","September","October","November","December"]; 
-        let answer = "";
-        switch (mode) {
-            case "dailyMode":
-                answer = detail.day.toString();
-                break;
-            case "monthlyMode":
-                answer = month[detail.month];
-                break;
-            case "yearlyMode":
-                answer = detail.year.toString();
-                break;
-        }
-        return answer;
-    }
-
-    calendarHeader = (props) => {
-        return (<>
-            <Menu fluid borderless stackable widths={3} >
-                <Menu.Item>
-                    <Button basic onClick={props.onClickPrev} icon labelPosition='left'>
-                        <Icon name='left arrow' />
-                        {this.nameString(props.prev, props.mode)}
-                    </Button>
-                </Menu.Item>
-
-                {/* <Menu.Menu position="right"> */}
-                    <Menu.Item>
-                        <Checkbox label='Multi-day booking' onChange={(e, data) => this.setState({"daybookings": data.checked})}/>
-                    </Menu.Item>
-                    <Menu.Item>
-                        <Button basic onClick={props.onClickNext} icon labelPosition='right'>
-                            {this.nameString(props.next, props.mode)}
-                            <Icon name='right arrow' />
-                        </Button>
-                    </Menu.Item>
-                {/* </Menu.Menu> */}
-            </Menu>
-        </>);
-    }
-
     BookingCard = () => {
         return (
             <>
@@ -192,7 +156,7 @@ class Bookings extends Component
                         <Card.Description>{this.props.name.toUpperCase()}</Card.Description>
                     </Card.Content>
 
-                    <Card.Content>
+                    {/* <Card.Content>
                         <Button icon fluid basic onClick={this.handleUrl}>
                             <Icon color='blue' name='external'/>
                             &nbsp; More Details
@@ -201,7 +165,7 @@ class Bookings extends Component
                         <Card.Description>
                             Use Calendar below to see and make bookings.
                         </Card.Description>
-                    </Card.Content>
+                    </Card.Content> */}
                     <Card.Content>
                         <Checkbox label='Multi-day booking' onChange={(e, data) => this.setState({"daybookings": data.checked})}/>
                     </Card.Content>
@@ -224,7 +188,7 @@ class Bookings extends Component
     {
         if (this.state.makingBooking) {
             return (
-                <BookItem />
+                <BookItem starttime={this.state.selectedstart} endtime={this.state.selectedend} upi={this.props.upi} sessionid={this.props.sessionid} cancelbooking={this.cancelbooking} itemname={this.props.name}/>
             )
         } else {
             return this.BookingCard();

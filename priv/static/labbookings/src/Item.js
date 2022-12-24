@@ -11,7 +11,7 @@ class Item extends Component
     constructor(props) {
         super (props);
         this.state = {
-            link : window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?item=" + this.props.name + (this.props.sessionid !== '' ? "&sessionid=" + this.props.sessionid : "")
+            link : window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?item=" + this.props.name + (this.props.sessionid !== '' ? "&sessionid=" + this.props.sessionid : "") + (this.props.upi !== '' ? "&upi=" + this.props.upi : "")
         }
     }
 
@@ -26,6 +26,21 @@ class Item extends Component
 
     getname = (details, name) => {
         return (details.hasOwnProperty('name') ? details.name : name);
+    }
+
+    MakeBookingButton = () => {
+        if (this.props.sessionid !== '')
+        {
+            return (
+                <>
+                    &nbsp;
+                    <Button icon fluid basic onClick={this.handleBooking}> <Icon color='blue' name='calendar'/>
+                        &nbsp; Make Booking
+                    </Button>
+                </>
+            )
+        }
+        else {return (<></>)}
     }
 
     render ()
@@ -46,11 +61,7 @@ class Item extends Component
                         <Icon color='blue' name='external'/>
                         &nbsp; More Details
                     </Button>
-                    &nbsp;
-                    <Button icon fluid basic onClick={this.handleBooking}>
-                        <Icon color='blue' name='calendar'/>
-                        &nbsp; Make Booking
-                    </Button>
+                    {this.MakeBookingButton()}
                 </Card.Content>
             </Card>
         )
