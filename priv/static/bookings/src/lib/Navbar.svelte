@@ -16,6 +16,7 @@ A simple navbar
     export let inducted;            // Current value for inducted checkbox
     export let context;             // Current value for context checkbox
     export let daybooking;          // Current value for daybooking checkbox
+    export let search;              // Current value for search field
 
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -43,7 +44,7 @@ Layout
         paddingTop: '6px',
         borderRadius: '$sm'
     }}>
-    <h2>Smart Digital Lab{name?" | "+name:""}{itemname?" | "+itemname:""}</h2>
+    <h2>Smart Digital Lab{name?" | "+name:""}{itemname?" | "+itemname.toUpperCase():""}</h2>
 </Box>
 <Divider variant='dotted'/>
 <SimpleGrid cols={4} 
@@ -59,6 +60,7 @@ Layout
             rightSectionWidth={70}
             styles={{ rightSection: { pointerEvents: 'none' } }}
             on:input={(event) => {changevar("search", event.target.value); }}
+            value={search}
         />
         <Checkbox label="Available now" color="gray" on:click={(event) => { changevar("availability", event.target.checked); }} bind:checked={availability} />
         <Checkbox label="Allowed to book" color="gray" on:click={(event) => { changevar("inducted", event.target.checked); }} disabled={!loggedin} bind:checked={inducted}/>
@@ -67,7 +69,7 @@ Layout
         </Button>
     {:else}
         <Button on:click={cancelbooking} variant='light' color='green'>
-            Cancel
+            Item List
         </Button>
         <Checkbox label="Whole day booking" color="gray" on:click={(event) => { changevar("daybooking", event.target.checked); }} bind:checked={daybooking} />
         <Space />

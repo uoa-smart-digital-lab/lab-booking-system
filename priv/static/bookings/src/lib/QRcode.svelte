@@ -9,17 +9,19 @@ An individual Item's qrcode
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
 
-    export let itemname;         // Details about the item itself
+    export let itemname;            // Details about the item itself
+    export let qrsearch;            // QR Code for a qrsearch instead of a specific item
 
-    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?item=" + itemname;
+    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (qrsearch?"search=" + qrsearch:"item=" + itemname);
 
-    let item = query(ITEMGET, {
-      variables: {name: itemname}
-    });
-
-    function getname (details, name) {
-        return (details.name ? details.name : name);
+    let item;
+    if (!qrsearch) {
+        item = query(ITEMGET, {
+            variables: {name: itemname}
+        });
     }
+
+    const getname = (details, name) => details.name ? details.name : name;
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -38,27 +40,37 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-{#if $item.loading}
-    Loading...
-{:else if $item.error}
-    Error: {$item.error.message}
+{#if qrsearch}
+    <a href = {qrlink}>
+        <QrCode value={qrlink} alt={qrlink}/>
+    </a>
+
+    <Divider variant='dotted'/>
+
+    <Text align='center' size='sm'>
+        {qrsearch}
+    </Text>
 {:else}
-    <Card shadow="md" p="lg">
-        <QrCode value={qrlink} />
+    {#if $item.loading}
+        Loading...
+    {:else if $item.error}
+        Error: {$item.error.message}
+    {:else}
+        <a href = {qrlink}>
+            <QrCode value={qrlink} alt={qrlink}/>
+        </a>
 
-        <Card.Section>
-            <Divider variant='dotted'/>
+        <Divider variant='dotted'/>
 
-            <Text align='center' size='lg' weight={500}>
-                {getname($item.data.itemGet.details, $item.data.itemGet.name)}
-            </Text>
-        
-            <Divider variant='dotted'/>
-        
-            <Text align='center' size='sm'>
-                {itemname}
-            </Text>
-        </Card.Section>
-    </Card>
+        <Text align='center' size='lg' weight={500}>
+            {getname($item.data.itemGet.details, $item.data.itemGet.name)}
+        </Text>
+
+        <Divider variant='dotted'/>
+
+        <Text align='center' size='sm'>
+            {itemname.toUpperCase()}
+        </Text>
+    {/if}
 {/if}
 <!----------------------------------------------------------------------------------------------------->

@@ -25,10 +25,13 @@ The main App
     let loggedin = false;
     let name = "";
     let qrcode = "";
+    let qrsearch = "";
     let itemname = "";
 
     itemname = getQueryStringVal("item");
     qrcode = getQueryStringVal("qrcode");
+    searchvalue = getQueryStringVal("search");
+    qrsearch = getQueryStringVal("qrsearch");
 
     $: search = searchvalue;
     $: daybooking = daybookingvalue;
@@ -87,7 +90,7 @@ The main App
 Styles
 ------------------------------------------------------------------------------------------------------->
 <style>
-  
+
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -97,10 +100,12 @@ Layout
 ------------------------------------------------------------------------------------------------------->
   <main>
     <SvelteUIProvider themeObserver="light" fluid>
-      {#if qrcode}
-        <QRcode itemname={qrcode} />
+      {#if qrsearch}
+        <QRcode {qrsearch}/>
+      {:else if qrcode}
+        <QRcode itemname={qrcode}/>
       {:else}
-        <Navbar context={itemname?"booking":"main"} {name} {itemname} {dologin} {loggedin} {changevar} {cancelbooking} {availability} {inducted} {daybooking}/>
+        <Navbar context={itemname?"booking":"main"} {name} {itemname} {search} {dologin} {loggedin} {changevar} {cancelbooking} {availability} {inducted} {daybooking}/>
         {#if itemname}
           <Booking {itemname} {daybooking} />
         {:else}

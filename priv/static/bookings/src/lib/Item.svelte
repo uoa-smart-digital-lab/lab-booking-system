@@ -45,7 +45,7 @@ Layout
         <Divider variant='dotted'/>
     
         <Text align='center' size='sm'>
-            {item.name}
+            {item.name.toUpperCase()}
         </Text>
     
         <Divider variant='dotted'/>
