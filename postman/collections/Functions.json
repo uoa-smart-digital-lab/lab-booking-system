@@ -27,16 +27,15 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query itemGet ($name: String!) {\n    itemGet(name: $name) {\n        name\n        cost\n        access\n        bookable\n        inductions {\n            upi \n        }\n        bookings {\n            person {\n                upi\n            }\n            item {\n                name\n            }\n            starttime\n            endtime\n        }\n    }\n}",
-								"variables": "{\"name\":\"hololens2_2\"}"
+								"query": "query itemGet ($name: String!, $starttime:DateTime, $endtime:DateTime) {\n    itemGet(name: $name, starttime: $starttime, endtime: $endtime) {\n        name\n        details\n        cost\n        access\n        bookable\n        inductions {\n            upi \n        }\n        bookings {\n            person {\n                upi\n            }\n            item {\n                name\n            }\n            starttime\n            endtime\n        }\n    }\n}",
+								"variables": "{\"name\":\"hololens2_1\"}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -62,15 +61,14 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query itemAll {\r\n    itemAll {\r\n        name\r\n        access\r\n        bookable\r\n        inductions {\r\n            upi\r\n            password\r\n            tokens\r\n        }\r\n        bookings {\r\n            person {\r\n                upi\r\n                name\r\n                password\r\n                tokens\r\n            }\r\n            starttime\r\n            endtime\r\n        }\r\n    }\r\n}"
+								"query": "query itemAll ($starttime:DateTime, $endtime:DateTime) {\r\n    itemAll(starttime: $starttime, endtime: $endtime) {\r\n        name\r\n        access\r\n        bookable\r\n        details\r\n        inductions {\r\n            upi\r\n        }\r\n    }\r\n}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -109,15 +107,14 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemCreate ($name:String!, $url:String!, $image:String!, $details:Json!, $cost:Int!, $bookable:Boolean!, $access:Itemtype!)\r\n{\r\n  itemCreate(name:$name, url:$url, image:$image, details:$details, cost:$cost, bookable:$bookable, access:$access) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"hololens2_3\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/hololens2.jpg\",\r\n    \"details\":\"{}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"INDUCTION\"\r\n}"
+								"variables": "{\r\n    \"name\":\"quest2_b_3\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Oculus Quest 2\\\"}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"INDUCTION\"\r\n}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -155,16 +152,15 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation itemUpdate ($name:String!, $url:String, $image:String, $details:Json)\r\n{\r\n  itemUpdate(name:$name, url:$url, image:$image, details:$details) {\r\n    name\r\n    url\r\n    image\r\n    inductions {\r\n        upi\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"hololens2_1\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/hololens2.jpg\",\r\n    \"details\":\"{}\"\r\n}"
+								"query": "mutation itemUpdate ($name:String!, $url:String, $image:String, $details:Json, $access:Itemtype)\r\n{\r\n  itemUpdate(name:$name, url:$url, image:$image, details:$details, access:$access) {\r\n    name\r\n    url\r\n    image\r\n    access\r\n    inductions {\r\n        upi\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n  }\r\n}",
+								"variables": "{\r\n    \"name\":\"quest2_b_1\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Oculus Quest 2\\\"}\",\r\n    \"access\":\"FREE\"\r\n}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -207,11 +203,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -250,15 +245,14 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)\r\n{\r\n  itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {\r\n    name\r\n    url\r\n    image\r\n    bookings {\r\n        person {\r\n            upi\r\n        }\r\n        item {\r\n            name\r\n        }\r\n        starttime\r\n        endtime\r\n        details\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"itemname\":\"hololens2_2\",\r\n    \"upi\":\"rdav031\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T14:00:00Z\",\r\n    \"endtime\":\"2022-11-29T16:00:00Z\"\r\n}"
+								"variables": "{\r\n    \"itemname\":\"hololens2_1\",\r\n    \"upi\":\"rdav031\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T14:00:00Z\",\r\n    \"endtime\":\"2022-11-29T16:00:00Z\"\r\n}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -301,11 +295,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -348,11 +341,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -389,11 +381,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -427,11 +418,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -474,11 +464,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -521,11 +510,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -568,11 +556,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -615,11 +602,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -662,11 +648,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -709,11 +694,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -752,16 +736,15 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation login ($upi:String!, $password:String!){\n  login(upi:$upi, password:$password) {\n    sessionid\n    upi\n  }\n}",
-								"variables": "{\"upi\": \"fdag123\", \"password\": \"12345\"}"
+								"query": "mutation login ($upi:String!, $password:String!){\n  login(upi:$upi, password:$password) {\n    sessionid\n    person {\n        upi\n        name\n    }\n  }\n}",
+								"variables": "{\"upi\": \"rdav031\", \"password\": \"12345\"}"
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "{{url}}/api",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "4000",
 							"path": [
 								"api"
 							]
@@ -803,11 +786,11 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:4000/api",
+							"raw": "localhost:3000/api",
 							"host": [
 								"localhost"
 							],
-							"port": "4000",
+							"port": "3000",
 							"path": [
 								"api"
 							]
