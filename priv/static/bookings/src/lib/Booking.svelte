@@ -29,9 +29,8 @@ An individual Item from a list of items
       variables: {name: itemname}
     });
 
-    function getname (details, name) {
-        return (details.name ? details.name : name);
-    }
+    const getname = (details, name) => { return (details.name ? details.name : name); }
+
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -55,6 +54,6 @@ Layout
 {:else if $item.error}
     Error: {$item.error.message}
 {:else}
-    <Calendar {plugins} {options} {daybooking}/>
+    <Calendar {plugins} {options} />
 {/if}
 <!----------------------------------------------------------------------------------------------------->

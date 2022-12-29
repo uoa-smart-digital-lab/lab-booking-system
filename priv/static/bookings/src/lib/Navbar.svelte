@@ -7,32 +7,15 @@ A simple navbar
     import { MagnifyingGlass } from 'radix-icons-svelte';
 
     export let dologin;             // Function to call when log in button pressed
-    export let changesearch;        // Function to call when the search text changes (send text as parameter)
+    export let cancelbooking;       // Go back to the main app
+    export let changevar;           // Change variable in the main app
     export let loggedin;            // Whether the user is presently logged in or not
-    export let changeavailability;  // Function to call when 'available now' setting is changed
-    export let changeinducted;      // Function to call when 'inducted' setting is changed
-    export let changedaybooking;    // Function to call when 'daybooking' setting is changed
     export let name;                // The logged in user's name
     export let itemname;            // The current item being investigated
-    export let availability;
-    export let inducted;
-    export let context;
-    export let daybooking;
-
-    function inputchanged(event) {
-        changesearch(event.target.value);
-    }
-    function availabilitychanged(event) {
-        changeavailability(event.target.checked);
-    }
-    function inductedchanged(event) {
-        changeinducted(event.target.checked);
-    }
-    function daybookingchanged(event) {
-        console.log("HERE");
-        changedaybooking(event.target.checked);
-    }
-
+    export let availability;        // Current value for availability checkbox
+    export let inducted;            // Current value for inducted checkbox
+    export let context;             // Current value for context checkbox
+    export let daybooking;          // Current value for daybooking checkbox
 
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -56,9 +39,9 @@ Layout
     css={{
         backgroundColor: '$dark100',
         textAlign: 'center',
-        padding: '5px',
-        paddingTop: '10px',
-        borderRadius: '$md'
+        padding: '3px',
+        paddingTop: '6px',
+        borderRadius: '$sm'
     }}>
     <h2>Smart Digital Lab{name?" | "+name:""}{itemname?" | "+itemname:""}</h2>
 </Box>
@@ -75,18 +58,18 @@ Layout
             placeholder='Refine'
             rightSectionWidth={70}
             styles={{ rightSection: { pointerEvents: 'none' } }}
-            on:input={inputchanged}
+            on:input={(event) => {changevar("search", event.target.value); }}
         />
-        <Checkbox label="Available now" color="gray" on:click={availabilitychanged} bind:checked={availability} />
-        <Checkbox label="Allowed to book" color="gray" on:click={inductedchanged} disabled={!loggedin} bind:checked={inducted}/>
+        <Checkbox label="Available now" color="gray" on:click={(event) => { changevar("availability", event.target.checked); }} bind:checked={availability} />
+        <Checkbox label="Allowed to book" color="gray" on:click={(event) => { changevar("inducted", event.target.checked); }} disabled={!loggedin} bind:checked={inducted}/>
         <Button on:click={dologin} variant='light' color='{loggedin?"red":"blue"}'>
             Log {loggedin?"out":"in"}
         </Button>
     {:else}
-        <Button on:click={dologin} variant='light' color='green'>
+        <Button on:click={cancelbooking} variant='light' color='green'>
             Cancel
         </Button>
-        <Checkbox label="Whole day booking" color="gray" on:click={daybookingchanged} bind:checked={daybooking} />
+        <Checkbox label="Whole day booking" color="gray" on:click={(event) => { changevar("daybooking", event.target.checked); }} bind:checked={daybooking} />
         <Space />
         <Button on:click={dologin} variant='light' color='{loggedin?"red":"blue"}'>
             Log {loggedin?"out":"in"}

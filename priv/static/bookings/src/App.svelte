@@ -14,7 +14,7 @@ The main App
     import { SvelteUIProvider, Divider, Modal } from '@svelteuidev/core';
     import { getQueryStringVal } from './lib/Querystring.svelte';
 
-    let logindialog = false;
+    let logindialogopen = false;
     let loading = true;
     let searchvalue = "";
     let inducted = false;
@@ -22,9 +22,13 @@ The main App
     let daybookingvalue = true;
     let upi = "";
     let sessionid = "";
+    let loggedin = false;
     let name = "";
     let qrcode = "";
     let itemname = "";
+
+    itemname = getQueryStringVal("item");
+    qrcode = getQueryStringVal("qrcode");
 
     $: search = searchvalue;
     $: daybooking = daybookingvalue;
@@ -35,59 +39,45 @@ The main App
     });
     setClient(client);
 
-    function doneloading() {
-      loading = false;
-      return ("");
-    }
-
-    function dologin() {
+    const doneloading = () => { loading = false; return (""); }
+    const dologin = () => {
       if (sessionid === "") {
-        logindialog = true;
+        logindialogopen = true;
       }
       else {
         sessionid = "";
+        loggedin = false;
         name = "";
+        itemname = "";
         upi = "";
         inducted = false;
         availability = true;
-        logindialog = false;
+        logindialogopen = false;
       }
     }
-    function closeLogin() {
-      logindialog = false;
+    const closelogindialog = () => { logindialogopen = false; }
+    const cancelbooking = () => {itemname = "";}
+
+    const bookitem = (theItem) => { itemname = theItem.name; }
+
+    const changevar = (name, newvalue) => {
+      switch (name) {
+        case "search" : searchvalue = newvalue; break;
+        case "availability" : availability = newvalue; break;
+        case "inducted" : inducted = newvalue; break;
+        case "daybooking" : daybookingvalue = newvalue; break;
+        default: break;
+      }
     }
 
-    itemname = getQueryStringVal("item");
-    function bookitem(theItem) {
-      console.log(theItem);
-
-      itemname = theItem.name;
-    }
-
-    function changesearch(newvalue) {
-      searchvalue = newvalue;
-    }
-
-    function changeavailability(newvalue) {
-      availability = newvalue;
-    }
-
-    function changeinducted(newvalue) {
-      inducted = newvalue;
-    }
-
-    function changedaybooking(newvalue) {
-      daybookingvalue = newvalue;
-    }
-
-    function loggedin(data) {
+    const successfullogin = (data) => {
       upi = data.person.upi;
       name = data.person.name;
       sessionid = data.sessionid;
-      logindialog = false;
+      loggedin = true;
+      logindialogopen = false;
     }
 
-    qrcode = getQueryStringVal("qrcode");
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -97,15 +87,7 @@ The main App
 Styles
 ------------------------------------------------------------------------------------------------------->
 <style>
-  main {
-    text-align: center;
-    padding: 1em;
-    max-width: 100%;
-    margin: 0 auto;
-    align-items:flex-start;
-    display:block;
-  }
-
+  
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -118,18 +100,16 @@ Layout
       {#if qrcode}
         <QRcode itemname={qrcode} />
       {:else}
-        <Navbar context={itemname?"booking":"main"} {name} {itemname} {dologin} loggedin={sessionid != ""} 
-            {changesearch} {changeavailability} {changeinducted} {changedaybooking} 
-            {availability} {inducted} {daybooking}/>
+        <Navbar context={itemname?"booking":"main"} {name} {itemname} {dologin} {loggedin} {changevar} {cancelbooking} {availability} {inducted} {daybooking}/>
         {#if itemname}
           <Booking {itemname} {daybooking} />
         {:else}
           {#if !loading}
-            <Modal opened={logindialog} on:close={closeLogin} title="Log In" centered>
-              <Login cancel={closeLogin} loggedin={loggedin} />
+            <Modal opened={logindialogopen} on:close={closelogindialog} title="Log In" centered>
+              <Login {closelogindialog} {successfullogin} />
             </Modal>
           {/if}
-          <Items {doneloading} {bookitem} {search} {inducted} {availability} {upi} loggedin={sessionid != ""}/>
+          <Items {doneloading} {bookitem} {search} {inducted} {availability} {upi} {loggedin}/>
         {/if}
       {/if}
     </SvelteUIProvider>

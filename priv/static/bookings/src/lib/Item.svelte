@@ -12,10 +12,8 @@ An individual Item from a list of items
 
     export let bookitem;        // The funcion to call when the book item button is pressed
 
+    const getname = (details, name) => details.name ? details.name : name;
 
-    function getname (details, name) {
-        return (details.name ? details.name : name);
-    }
 </script>
 <!----------------------------------------------------------------------------------------------------->
 

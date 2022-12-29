@@ -22,27 +22,11 @@ All the items in the system
       variables: {}
     });
 
-    function reload() {
-      items.refetch();
-    }
+    const reload = () => { items.refetch(); }
+    const getname = (details) => (details.name ? details.name : "");
+    const checkSearch = (item, search) => (item.bookable && (item.name.includes(search.toLowerCase()) || getname(item.details).includes(search.toLowerCase()) || (search === "")));
+    const checkInducted = (item, inducted, upi) => ((item.access === "FREE") ? true : ((item.access === "INDUCTION") ? (item.inductions.reduce((acc, curr) => acc || (curr.upi === upi), !inducted)) : !inducted));
 
-    function getname (details) {
-        return (details.name ? details.name : "");
-    }
-
-    function checkSearch (item, search) {
-        return (item.bookable && (item.name.includes(search.toLowerCase()) || getname(item.details).includes(search.toLowerCase()) || (search === "")))
-    }
-
-    function checkInducted (item, inducted, upi) {
-        if (item.access === "FREE") {
-            return (true);
-        } else if (item.access === "INDUCTION") {
-            return (item.inductions.reduce((acc, curr) => acc || (curr.upi === upi), !inducted));
-        } else {
-            return !inducted
-        }
-    }
 </script>
 <!----------------------------------------------------------------------------------------------------->
 

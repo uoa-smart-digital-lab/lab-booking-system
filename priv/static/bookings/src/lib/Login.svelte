@@ -7,8 +7,8 @@ A login dialog box
     import { Card, Divider, Input, Button, SimpleGrid, Title } from '@svelteuidev/core';
     import { LOGIN } from './Graphql.svelte';
 
-    export let loggedin;
-    export let cancel;
+    export let successfullogin;
+    export let closelogindialog;
 
     let upi = "";
     let password = "";
@@ -22,7 +22,7 @@ A login dialog box
         try
         {
             let result = await Login({ variables: { upi, password } });
-            loggedin(result.data.login);
+            successfullogin(result.data.login);
         }
         catch (error)
         {
@@ -57,7 +57,7 @@ Layout
     <Divider variant='dotted'/>
 
     <SimpleGrid cols={2}>
-        <Button on:click={cancel} variant='filled' color='blue' fullSize>
+        <Button on:click={closelogindialog} variant='filled' color='blue' fullSize>
             Cancel
         </Button>
         <Button on:click={handleSubmit} variant='filled' color='green' fullSize>
