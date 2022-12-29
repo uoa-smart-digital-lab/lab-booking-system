@@ -33,7 +33,7 @@ The main App
     searchvalue = getQueryStringVal("search");
     qrsearch = getQueryStringVal("qrsearch");
 
-    $: search = searchvalue;
+    $: search = searchvalue?searchvalue:"";
     $: daybooking = daybookingvalue;
 
     const client = new ApolloClient({
@@ -106,14 +106,12 @@ Layout
         <QRcode itemname={qrcode}/>
       {:else}
         <Navbar context={itemname?"booking":"main"} {name} {itemname} {search} {dologin} {loggedin} {changevar} {cancelbooking} {availability} {inducted} {daybooking}/>
+        <Modal opened={logindialogopen} on:close={closelogindialog} title="Log In" centered>
+          <Login {closelogindialog} {successfullogin} />
+        </Modal>
         {#if itemname}
           <Booking {itemname} {daybooking} />
         {:else}
-          {#if !loading}
-            <Modal opened={logindialogopen} on:close={closelogindialog} title="Log In" centered>
-              <Login {closelogindialog} {successfullogin} />
-            </Modal>
-          {/if}
           <Items {doneloading} {bookitem} {search} {inducted} {availability} {upi} {loggedin}/>
         {/if}
       {/if}
