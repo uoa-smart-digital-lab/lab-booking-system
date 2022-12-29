@@ -50,7 +50,7 @@ type Person {
 # ******************************************************************************************************************************************************
 type Session {
   sessionid: String!      # A GUID representing a sessionid
-  upi: String!            # The UPI of the person logged in
+  person: Person!         # The UPI of the person logged in
 }
 
 # ******************************************************************************************************************************************************
@@ -98,13 +98,13 @@ type Query {
   # ******************************************************************************************************************************************************
   # Item
   # ******************************************************************************************************************************************************
-  # Get the specified item's details.
+  # Get the specified item's details.  Start and end times are used to refine the search for bookings.
   # Errors: noname (No item name given), noitem (Item with given name doesn't exist)
-  itemGet (name: String!): Item
+  itemGet (name: String!, starttime: DateTime, endtime: DateTime): Item
 
-  # Get a list of all the items.
+  # Get a list of all the items.  Start and end times are used to refine the search for bookings.
   # Errors:
-  itemAll: [Item]
+  itemAll (starttime: DateTime, endtime: DateTime): [Item]
 }
 
 type Mutation {
