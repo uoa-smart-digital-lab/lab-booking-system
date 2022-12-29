@@ -6,7 +6,7 @@ import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
 const GraphQL = 
 {
     PERSONALL : gql`query { personAll { name upi } } `,
-    ITEMALL : gql`query { itemAll { url image name access bookable, details } } `,
+    ITEMALL : gql`query { itemAll { url image name access bookable details } } `,
     ITEMGET : gql`
         query itemGet($name: String!) 
         {
@@ -51,33 +51,13 @@ const GraphQL =
             }
         }`,
 
-    BOOKIN : gql`
-        mutation bookIn($itemName: String!, $upi: String!)
+    ITEMBOOK : gql`
+        mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
         {
-            bookIn (itemName: $itemName, upi: $upi)
-            {
-                bookings {
-                    upi
-                }
-                item {
-                    name
-                }
-            }
-        }`,
-
-    BOOKINOROUT : gql`
-    mutation bookInOrOut($itemName: String!, $upi: String!)
-    {
-        bookInOrOut (itemName: $itemName, upi: $upi)
-        {
-            bookings {
-                upi
-            }
-            item {
+            itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
                 name
             }
-        }
-    }`,
+        }`,
 
     errorcodes :
     {

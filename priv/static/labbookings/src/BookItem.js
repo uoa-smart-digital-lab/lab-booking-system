@@ -19,14 +19,7 @@ function View(args)
 	// Set props and state
 	const props = args.props;
 
-	const MUTATION = gql`
-	mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
-		{
-		itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
-			name
-		}
-	}
-	`
+	const MUTATION = GraphQL.ITEMBOOK;
 	
 	const [state, setState] = useState({
 		starttime: props.starttime,
@@ -44,7 +37,6 @@ function View(args)
 	let DoBooking = () =>
 	{		
 		const variables = { upi: state.upi, itemname: state.itemname, starttime: state.starttime, endtime: state.endtime, details:"{}"};
-		console.log(variables);
 		itemBook({variables: variables})
 		.then(result => props.bookedin(result.data.itemBook))
 		.catch(error => {

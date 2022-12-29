@@ -3,6 +3,7 @@ defmodule LabbookingsWeb.Schema.Person do
 
   alias Labbookings.Induction
   alias Labbookings.Item
+  alias Labbookings.Person
   alias Labbookings.Booking
 
   alias LabbookingsWeb.PersonResolver
@@ -76,7 +77,18 @@ defmodule LabbookingsWeb.Schema.Person do
   # ------------------------------------------------------------------------------------------------------
   object :session do
     field :sessionid, non_null(:string)
-    field :upi, non_null(:string)
+    field :person, non_null(:person) do
+      resolve fn post, _, resolution ->
+        batch({__MODULE__, :people, resolution.context.user}, post.upi, fn batch_results ->
+          {:ok, Map.get(batch_results, post.upi)}
+        end)
+      end
+    end
+  end
+
+  def people(_, []) do %{} end
+  def people(user, [upi | upis]) do
+    Map.merge(%{upi => Person.get_person_by_upi(upi) |> PersonResolver.tune_for_user(user) }, people(user, upis))
   end
   # ------------------------------------------------------------------------------------------------------
 

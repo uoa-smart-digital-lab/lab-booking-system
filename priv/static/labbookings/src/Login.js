@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import 'semantic-ui-css/semantic.min.css';
-
 import { Form, Divider, Grid, Button, Modal, Header } from 'semantic-ui-react';
 import GraphQL from './graphql';
 import {

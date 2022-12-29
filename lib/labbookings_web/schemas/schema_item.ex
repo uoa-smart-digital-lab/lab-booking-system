@@ -39,7 +39,7 @@ defmodule LabbookingsWeb.Schema.Item do
       end
 
     field :bookings, non_null(list_of(:booking)), description: "List of bookings of items the person has booked" do
-      resolve fn post, _, resolution ->
+      resolve fn post, _, _ ->
         batch({__MODULE__, :booked_items, %{starttime: get_parameter(post, :starttime), endtime: get_parameter(post, :endtime)}}, post.name, fn batch_results ->
           {:ok, Map.get(batch_results, post.name)}
         end)

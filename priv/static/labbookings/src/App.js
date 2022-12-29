@@ -9,7 +9,7 @@ import Error from './Error';
 import ItemQR from './ItemQR';
 import Loading from './Loading';
 import Login from './Login';
-import { Card, Header, Form, Icon } from 'semantic-ui-react'
+import { Header, Form, Modal, Divider, Grid, Button } from 'semantic-ui-react'
 import {
   ApolloProvider,
   useQuery,
@@ -81,9 +81,9 @@ function FindItems({dologin, dologout, sessionid, upi}) {
 // ----------------------------------------------------------------------------------------------------
 // Get the Bookings of a specific item
 // ----------------------------------------------------------------------------------------------------
-function GetBookings ({dologin, dologout, item_name, sessionid}) {
-    const { loading, error, data } = useQuery(GraphQL.BOOKINGALL, {
-        variables: {name: item_name},
+function GetBookings ({dologin, dologout, dobooking, itemname, sessionid, upi}) {
+    const { loading, error, data } = useQuery(GraphQL.ITEMGET, {
+        variables: {name: itemname},
         context : { headers : { sessionid : sessionid } },
         fetchPolicy: 'network-only'
     });
@@ -92,7 +92,20 @@ function GetBookings ({dologin, dologout, item_name, sessionid}) {
     if (error) return (<Error message={error.message} />);
 
     return (
-        <Bookings name={data.itemGet.name} url={data.itemGet.url} image={data.itemGet.image} bookable={data.itemGet.bookable} access={data.itemGet.access} details={data.itemGet.details} bookings={data.itemGet.bookings} inductions={data.itemGet.inductions} dologin={dologin} dologout={dologout} sessionid={sessionid}/>
+            <Bookings 
+                name={data.itemGet.name} 
+                url={data.itemGet.url} 
+                image={data.itemGet.image} 
+                bookable={data.itemGet.bookable} 
+                access={data.itemGet.access} 
+                details={data.itemGet.details} 
+                bookings={data.itemGet.bookings} 
+                inductions={data.itemGet.inductions} 
+                dologin={dologin} 
+                dologout={dologout} 
+                dobooking={dobooking} 
+                sessionid={sessionid} 
+                upi={upi}/>
     );
 }   
 // ----------------------------------------------------------------------------------------------------
@@ -121,56 +134,64 @@ function ItemQRCode ({name, sessionid}) {
 
 
 // ----------------------------------------------------------------------------------------------------
-// Do the Booking In or Out.  Note, this has to be here and not in another file due to the useMutation
+// Book the Item.  Note, this has to be here and not in another file due to the useMutation
 // and something to do with different version of React.  Also, has to be a function and not a class.
 // ----------------------------------------------------------------------------------------------------
 var entered_upi = "";
-function Bookinorout({item_name}) {
-    const [bookInOrOut, { data, loading, error }] = useMutation(GraphQL.SCANINOROUT);
+function ConfirmBooking({itemname, starttime, endtime, upi}) {
+    const [itemBook, { data, loading, error }] = useMutation(GraphQL.ITEMBOOK);
 
-    let handleChange = (e, { name, value }) => { entered_upi = value; }
+	let handleChange = (e, { name, value }) => { [name] = value; };
     let handleSubmit = () => {
-        bookInOrOut({variables: { upi: entered_upi, itemName: item_name}})
+        const variables = { upi: upi, itemname: itemname, starttime: starttime, endtime: endtime, details:"{}"};
+		itemBook({variables: variables})
     }
 
     if (loading) return (<Loading />);
     if (error) return (<Error message={error.message} />);
 
+    console.log("HERE");
     if (data)
     {
-        return (<BookedIn occupants={data.bookInOrOut.occupants} upi={entered_upi} itemName={item_name}/>);
+        console.log("DATA");
+        console.log(data);
+        return (<BookedIn occupants={data.bookInOrOut.occupants} upi={entered_upi} itemName={itemname}/>);
     }
     else
     {
+        console.log("MODAL");
         return (
-            <div>
-                <Header centered as="h3" color='blue' block>
-                    Book in or out of {item_name}
+            <Modal open={true} size='tiny' >
+                <Modal.Content>
+                <Header as='h4' textAlign='center'>
+                    <span>Make Booking</span><br/><span>Set Start and End Times.</span><br/>
                 </Header>
-                <Card.Group centered>
-                    <Card invert color="blue" icon>
-                        <Card.Content>
-                            <Icon color="blue" name='id badge' size='massive'/>
-                        </Card.Content>
-                        <Form onSubmit={handleSubmit}>
-                            <Card.Content>
-                                <Form.Input
-                                    size="big" key="big" 
-                                    fluid
-                                    focus
-                                    placeholder='UPI...'
-                                    name='upi'
-                                    // value={entered_upi}
-                                    onChange={handleChange}
-                                />
-                            </Card.Content>
-                            <Card.Content>
-                                <Form.Button size="big" key="big" primary fluid content='Book In or Out' />
-                            </Card.Content>
+                <Divider />
+                <Grid columns='one'>
+                    <Grid.Row>
+                    <Grid.Column>
+                        <Form>
+                        <Form.Field>
+                            <Form.Input placeholder="Start Time" name="starttime" type="text" value={starttime} onChange={handleChange}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <Form.Input placeholder="End Time" name="endtime" type="text" value={endtime} onChange={handleChange}/>
+                        </Form.Field>
                         </Form>
-                    </Card>
-                </Card.Group>
-            </div>
+                    </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                </Modal.Content>
+                <Modal.Actions style={{ paddingLeft: '1.5em', paddingRight: '1.5em' }}>
+                <Grid columns='one'>
+                    <Grid.Row>
+                    <Grid.Column>
+                        <Button fluid basic color='green' onClick={handleSubmit}>Make Booking</Button>
+                    </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                </Modal.Actions>
+            </Modal>
         ) 
     }
 }
@@ -189,13 +210,17 @@ class App extends Component
     constructor(props) {
         super (props);
         this.state = { 
-            loggingin: false, 
+            loggingin: false,
+            confirmingbooking: false,
             loading: false, 
             error: false, 
-            data: {}, 
+            data: {},
+            itemname: '',
             upi: '', 
             sessionid: '', 
-            errorMessage: ''
+            errorMessage: '',
+            starttime: '',
+            endtime: ''
         };
     }
 
@@ -203,8 +228,8 @@ class App extends Component
     render ()
     {
         // Get any parameters sent in
-        const item_name = getQueryStringVal("item");
-        const book = getQueryStringVal("book");
+        const itemname = getQueryStringVal("item");
+        // const book = getQueryStringVal("book");
         const qrcode = getQueryStringVal("qrcode");
         const sessionid = getQueryStringVal("sessionid");
         if (sessionid) {
@@ -220,47 +245,63 @@ class App extends Component
         // Set up the return html
         let return_value;
 
-        // Check each of the parameters and generate the appropriate html
-        // A specific item name is given, so show occupancy in that item
-        if (item_name) { 
-            return_value = ( 
-                <GetBookings    item_name={item_name} 
-                                upi={this.state.upi} 
-                                sessionid={this.state.sessionid} 
-                                dologout={() => {
-                                    removeQueryStringVal("upi"); 
-                                    removeQueryStringVal("sessionid"); 
-                                    this.setState({"sessionid": ''}); 
-                                    this.setState({"upi": ''});
-                                }} 
-                                dologin={() => {
-                                    this.setState({"loggingin": true}); 
-                                }}
+        if (this.state.confirmingbooking)
+        {
+            console.log("CONFIRMING");
+            return_value = (
+                <ConfirmBooking     itemname = {this.state.itemname}
+                                    starttime = {this.state.starttime}
+                                    endtime = {this.state.endtime}
+                                    upi = {this.state.upi}
                 />
-            ) 
+            )
         }
-        // Booking in or out - this is reached by booking the QR Code
-        else if (book) { return_value = ( <Bookinorout item_name={book} /> ); }
-        // Generate a QR code for use with booking in or out.
-        else if (qrcode) { return_value = ( <ItemQRCode name={qrcode}/> ); }
-        else {
-            if (this.state.loggingin)
-            {
-                return_value = (
-                    <Login  errorMessage={this.state.errorMessage} 
-                            error={() => {
-                                this.setState({"errorMessage": "Error logging in"});
-                            }} 
-                            loggedin={(result) => {
-                                this.setState({"sessionid": result.sessionid}); 
-                                this.setState({"upi": result.upi}); 
-                                this.setState({"loggingin": false});
-                            }}
+        if (this.state.loggingin)
+        {
+            return_value = (
+                <Login  errorMessage={this.state.errorMessage} 
+                        error={() => {
+                            this.setState({"errorMessage": "Error logging in"});
+                        }} 
+                        loggedin={(result) => {
+                            this.setState({"sessionid": result.sessionid}); 
+                            this.setState({"upi": result.upi}); 
+                            this.setState({"loggingin": false});
+                        }}
+                />
+            );
+        }
+        else
+        {
+            // Check each of the parameters and generate the appropriate html
+            // A specific item name is given, so show occupancy in that item
+            if (itemname) { 
+                return_value = ( 
+                    <GetBookings    itemname={itemname} 
+                                    upi={this.state.upi} 
+                                    sessionid={this.state.sessionid} 
+                                    dologout={() => {
+                                        removeQueryStringVal("upi"); 
+                                        removeQueryStringVal("sessionid"); 
+                                        this.setState({"sessionid": ''}); 
+                                        this.setState({"upi": ''});
+                                    }} 
+                                    dologin={() => {
+                                        this.setState({"loggingin": true}); 
+                                    }}
+                                    dobooking={(starttime, endtime, itemname, upi) => {
+                                        this.setState({"starttime": starttime}); 
+                                        this.setState({"endtime": endtime}); 
+                                        this.setState({"itemname": itemname}); 
+                                        this.setState({"upi": upi}); 
+                                        this.setState({"confirmingbooking": true})
+                                    }}
                     />
-                );
+                ) 
             }
-            else
-            {
+            // Generate a QR code for use with booking in or out.
+            else if (qrcode) { return_value = ( <ItemQRCode name={qrcode}/> ); }
+            else {
                 return_value = (
                     <FindItems  sessionid={this.state.sessionid} 
                                 upi={this.state.upi} 

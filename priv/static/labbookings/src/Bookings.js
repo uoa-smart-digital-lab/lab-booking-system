@@ -3,7 +3,7 @@ import 'semantic-ui-css/semantic.min.css';
 import './App.css';
 import { Card, Image, Button, Icon, Header, Menu, Checkbox } from 'semantic-ui-react'
 import Calendar from 'react-awesome-calendar';
-import BookItem from './BookItem';
+// import BookItem from './BookItem';
 
 // const datesToAddContentTo = [tomorrow, in3Days, in5Days];
 
@@ -19,6 +19,7 @@ class Bookings extends Component
             makingBooking: false,
             loggedin: props.sessionid !== '',
             sessionid: this.props.sessionid,
+            upi: this.props.upi,
             selectedstart:"",
             selectedend:"",
             selectedtitle: "",
@@ -75,8 +76,8 @@ class Bookings extends Component
             this.setState({"selectedtitle":"NEW BOOKING"});
             this.setState({"selectedcolor": "#2185d0cc"});
             this.setState({"choosingstartdate": true});
-            this.setState({"makingBooking": true})
-    }
+            this.props.dobooking({itemname: this.state.itemname, starttime: this.state.selectedstart, endtime: this.state.selectedend, upi: this.state.upi})
+        }
     }
 
     // Create a start and end time on the days timeline
@@ -96,7 +97,7 @@ class Bookings extends Component
             this.setState({"selectedtitle":"NEW BOOKING"});
             this.setState({"selectedcolor": "#2185d0cc"});
             this.setState({"choosingstartdate": true});
-            this.setState({"makingBooking": true})
+            this.props.dobooking({itemname: this.state.itemname, starttime: this.state.selectedstart, endtime: this.state.selectedend, upi: this.state.upi})
         }
     }
 
@@ -186,13 +187,13 @@ class Bookings extends Component
 
     render ()
     {
-        if (this.state.makingBooking) {
-            return (
-                <BookItem starttime={this.state.selectedstart} endtime={this.state.selectedend} upi={this.props.upi} sessionid={this.props.sessionid} cancelbooking={this.cancelbooking} itemname={this.props.name}/>
-            )
-        } else {
+        // if (this.state.makingBooking) {
+        //     return (
+        //         <BookItem starttime={this.state.selectedstart} endtime={this.state.selectedend} upi={this.state.upi} sessionid={this.state.sessionid} cancelbooking={this.cancelbooking} itemname={this.props.name}/>
+        //     )
+        // } else {
             return this.BookingCard();
-        }
+        // }
     }
 }
 
