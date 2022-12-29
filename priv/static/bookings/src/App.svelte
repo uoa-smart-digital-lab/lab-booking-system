@@ -42,7 +42,7 @@ The main App
     });
     setClient(client);
 
-    const doneloading = () => { loading = false; return (""); }
+    // const doneloading = () => { loading = false; return (""); }
     const dologin = () => {
       if (sessionid === "") {
         logindialogopen = true;
@@ -60,9 +60,7 @@ The main App
     }
     const closelogindialog = () => { logindialogopen = false; }
     const cancelbooking = () => {itemname = "";}
-
     const bookitem = (theItem) => { itemname = theItem.name; }
-
     const changevar = (name, newvalue) => {
       switch (name) {
         case "search" : searchvalue = newvalue; break;
@@ -112,7 +110,7 @@ Layout
         {#if itemname}
           <Booking {itemname} {daybooking} />
         {:else}
-          <Items {doneloading} {bookitem} {search} {inducted} {availability} {upi} {loggedin}/>
+          <Items {bookitem} {search} {inducted} {availability} {upi} {loggedin}/>
         {/if}
       {/if}
     </SvelteUIProvider>

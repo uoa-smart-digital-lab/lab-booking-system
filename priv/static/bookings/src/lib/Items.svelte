@@ -15,7 +15,7 @@ All the items in the system
     export let inducted;        // Whether to show only items the user is inducted for, or all items.
     export let availability;    // Whether to show only items that are currently available for booking. (TODO)
     
-    export let doneloading;     // A Function to call when the full list has been loadded, to signal to the calling object.
+    // export let doneloading;     // A Function to call when the full list has been loadded, to signal to the calling object.
     export let bookitem;        // A function to call when a specific item is to be booked.
 
     let items = query(ITEMALL, {
@@ -50,7 +50,7 @@ Layout
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    {doneloading()}
+    <!-- {doneloading()} -->
     <SimpleGrid cols={4} 
         breakpoints={[
             { maxWidth: 980, cols: 3, spacing: 'md' },
