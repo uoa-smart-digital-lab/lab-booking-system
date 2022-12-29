@@ -50,7 +50,7 @@ type Person {
 # ******************************************************************************************************************************************************
 type Session {
   sessionid: String!      # A GUID representing a sessionid
-  person: Person!         # The UPI of the person logged in
+  person: Person!         # The person logged in
 }
 
 # ******************************************************************************************************************************************************
@@ -104,7 +104,7 @@ type Query {
 
   # Get a list of all the items.  Start and end times are used to refine the search for bookings.
   # Errors:
-  itemAll (starttime: DateTime, endtime: DateTime): [Item]
+  itemAll (starttime: DateTime!, endtime: DateTime!): [Item]
 }
 
 type Mutation {
