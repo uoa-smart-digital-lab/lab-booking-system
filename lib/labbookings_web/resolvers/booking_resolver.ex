@@ -92,7 +92,7 @@ defmodule LabbookingsWeb.BookingResolver do
       # Get the existing booking
       |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
       # Make sure the booking doesn't overlap some other booking for this item (except the one being changed)
-      |> check_overlap_bookings(Booking.get_bookings_by_itemname(args.itemname, args.starttime, args.endtime))
+      |> check_overlap_bookings(Booking.get_bookings_by_itemname(args.itemname, args.newstarttime, args.newendtime))
       # Make the booking
       |> update_booking(args)
       # Return the updated item
