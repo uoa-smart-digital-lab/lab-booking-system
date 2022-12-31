@@ -61,7 +61,7 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query itemAll ($starttime:DateTime, $endtime:DateTime) {\r\n    itemAll(starttime: $starttime, endtime: $endtime) {\r\n        name\r\n        access\r\n        bookable\r\n        details\r\n        inductions {\r\n            upi\r\n        }\r\n    }\r\n}"
+								"query": "query itemAll {\r\n    itemAll {\r\n        name\r\n        image\r\n        access\r\n        bookable\r\n        inductions {\r\n            upi\r\n        }\r\n        bookings {\r\n            person {\r\n                upi\r\n                name\r\n                password\r\n                tokens\r\n            }\r\n            starttime\r\n            endtime\r\n        }\r\n    }\r\n}"
 							}
 						},
 						"url": {
@@ -107,7 +107,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemCreate ($name:String!, $url:String!, $image:String!, $details:Json!, $cost:Int!, $bookable:Boolean!, $access:Itemtype!)\r\n{\r\n  itemCreate(name:$name, url:$url, image:$image, details:$details, cost:$cost, bookable:$bookable, access:$access) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"quest2_b_3\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Oculus Quest 2\\\"}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"INDUCTION\"\r\n}"
+								"variables": "{\r\n    \"name\":\"optitrack_2\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/optitrack.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Optitrack VR\\\"}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"SUPERVISED\"\r\n}"
 							}
 						},
 						"url": {
@@ -153,7 +153,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemUpdate ($name:String!, $url:String, $image:String, $details:Json, $access:Itemtype)\r\n{\r\n  itemUpdate(name:$name, url:$url, image:$image, details:$details, access:$access) {\r\n    name\r\n    url\r\n    image\r\n    access\r\n    inductions {\r\n        upi\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"quest2_b_1\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Oculus Quest 2\\\"}\",\r\n    \"access\":\"FREE\"\r\n}"
+								"variables": "{\r\n    \"name\":\"quest2_b_4\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Oculus Quest 2\\\"}\",\r\n    \"access\":\"FREE\"\r\n}"
 							}
 						},
 						"url": {
@@ -245,7 +245,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)\r\n{\r\n  itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {\r\n    name\r\n    url\r\n    image\r\n    bookings {\r\n        person {\r\n            upi\r\n        }\r\n        item {\r\n            name\r\n        }\r\n        starttime\r\n        endtime\r\n        details\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"itemname\":\"hololens2_1\",\r\n    \"upi\":\"rdav031\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T14:00:00Z\",\r\n    \"endtime\":\"2022-11-29T16:00:00Z\"\r\n}"
+								"variables": "{\r\n    \"itemname\":\"hololens2_1\",\r\n    \"upi\":\"fdag123\",\r\n    \"details\":\"{}\",\r\n    \"starttime\":\"2022-11-29T18:00:00Z\",\r\n    \"endtime\":\"2022-11-29T20:00:00Z\"\r\n}"
 							}
 						},
 						"url": {
