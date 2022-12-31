@@ -3,9 +3,10 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { mutation, getClient } from 'svelte-apollo';
-    import { Card, Divider, Input, Button, SimpleGrid } from '@svelteuidev/core';
+    import { Card, Divider, Input, Button, SimpleGrid, Text } from '@svelteuidev/core';
     import { ITEMCHANGEBOOKING, ITEMBOOK } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
+    import { convertErrorMessage } from './ErrorMessages.svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -25,6 +26,7 @@
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
+    let errorMessage : string = "";                         // Error message from attempted booking
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -42,6 +44,7 @@
         })
         .catch((error) => {
             console.log(error);
+            errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
         });
     }
 
@@ -57,6 +60,7 @@
         })
         .catch((error) => {
             console.log(error);
+            errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
         });
     }
 </script>
@@ -78,6 +82,13 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 <Card p="lg">
+    {#if errorMessage}
+        <Text size='md' color='red' align='center'>
+            {errorMessage}
+        </Text>
+        <Divider variant='dotted'/>
+    {/if}
+
     <Input placeholder='Start Time' value={newStartTime}/>
     <Divider variant='dotted'/>
     <Input placeholder='End Time' value={newEndTime} />
