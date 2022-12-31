@@ -34,6 +34,8 @@
     let newEndTime : Date;                      // A new ending date
     let updating : boolean = false;             // Whether updating or create a new booking
     let plugins = [TimeGrid, DayGrid, List, ResourceTimeGrid, Interaction]; // Active Plugns for the calendar
+    let ec : any;                               // Reference to the Calendar
+
 
     // The GraphQL query structure for login
     let item : any = query(ITEMGET, { variables: {name: itemName} });
@@ -72,10 +74,10 @@
     }
 
     // Close the dialog box (eg after cancel button pressed)
-    const closeDialog = () => { item.refetch(); opened = false; }
+    const closeDialog = () => { item.refetch(); ec.setOption("events", translateBookingsForCalendar($item.data.itemGet.bookings)); ec.unselect(); opened = false; }
 
     // Called when the update or new booking is successful (and sends the updated item)
-    const success = (updatedItem : Item) => { item.refetch(); opened = false; }
+    const success = (updatedItem : Item) => { closeDialog(); }
 
     const newEvent = (info : any) => {
         updating=false;
@@ -92,7 +94,6 @@
         endTime = createDate(info.oldEvent.end);
         opened = true;
     }
-
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -119,7 +120,7 @@ Layout
     <Modal {opened} on:close={closeDialog} title="Confirm" centered>
         <ConfirmBooking {sessionid} {closeDialog} {success} {updating} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
-    <Calendar {plugins} options = {{
+    <Calendar bind:this={ec} {plugins} options = {{
         headerToolbar: {
             start: 'prev,next today',
             center: 'title',
@@ -131,6 +132,7 @@ Layout
             dayGridMonth: {pointer: true}
         },
         events: translateBookingsForCalendar($item.data.itemGet.bookings),
+        // eventSources: eventSources,
         eventResize: updateEvent,
         eventDrop: updateEvent,
         select: newEvent,
