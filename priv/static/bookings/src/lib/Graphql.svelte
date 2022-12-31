@@ -88,12 +88,7 @@
         mutation itemChangebooking ($itemname:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!, $newstarttime: DateTime, $newendtime: DateTime, $details:Json)
         {
             itemChangebooking(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime, newstarttime:$newstarttime, newendtime:$newendtime) {
-                name url image 
-                bookings {
-                    person { name upi }
-                    item { name }
-                    starttime endtime details
-                }
+                name
             }
         }`;
 
@@ -101,12 +96,15 @@
         mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
         {
             itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
-                name url image 
-                bookings {
-                    person { name upi }
-                    item { name }
-                    starttime endtime details
-                }
+                name
+            }
+        }`;
+
+    export const ITEMUNBOOK = gql`
+        mutation itemUnbook ($itemname:String!, $starttime:DateTime!, $endtime:DateTime!)
+        {
+            itemUnbook(itemname:$itemname, starttime:$starttime, endtime:$endtime) {
+                name
             }
         }`;
 

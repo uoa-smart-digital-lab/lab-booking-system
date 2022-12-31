@@ -33,6 +33,7 @@
     let newStartTime : Date;                    // A new starting date
     let newEndTime : Date;                      // A new ending date
     let updating : boolean = false;             // Whether updating or create a new booking
+    let editing : boolean = false;              // Whether editing a booking
     let plugins = [TimeGrid, DayGrid, List, ResourceTimeGrid, Interaction]; // Active Plugns for the calendar
     let ec : any;                               // Reference to the Calendar
     let details : any;                          // Additional booking details
@@ -63,7 +64,7 @@
                 id: counter++,
                 start: booking.starttime,
                 end: booking.endtime,
-                title: booking.person.upi + " | " + booking.person.name,
+                title: booking.person.name + " (" + booking.person.upi + ") " + (booking.details.info ? (" - " + booking.details.info) : ""),
                 backgroundColor: loggedIn && (booking.person.upi === upi) ? '#2185d0' : '#cccccc',
                 editable: loggedIn && (booking.person.upi === upi),
                 startEditable: loggedIn && (booking.person.upi === upi),
@@ -82,23 +83,39 @@
     const success = (updatedItem : Item) => { closeDialog(); }
 
     const newEvent = (info : any) => {
-        updating=false;
-        newStartTime = startTime = createDate(info.start);
-        newEndTime = endTime = createDate(info.end);
-        details = {info:""};
-        ec.unselect(); 
-        opened = true;
+        if(loggedIn) {
+            ec.unselect(); 
+            updating=false;
+            editing=false;
+            newStartTime = startTime = createDate(info.start);
+            newEndTime = endTime = createDate(info.end);
+            details = {info:""};
+            opened = true;
+        }
     }
 
     const updateEvent = (info : any) => {
-        updating=true;
-        newStartTime = createDate(info.event.start);
-        startTime = createDate(info.oldEvent.start);
-        newEndTime = createDate(info.event.end);
-        endTime = createDate(info.oldEvent.end);
-        details = info.event.extendedProps;
-        ec.unselect(); 
-        opened = true;
+        if (loggedIn) {
+            updating=true;
+            editing=false;
+            newStartTime = createDate(info.event.start);
+            startTime = createDate(info.oldEvent.start);
+            newEndTime = createDate(info.event.end);
+            endTime = createDate(info.oldEvent.end);
+            details = info.event.extendedProps;
+            opened = true;
+        }
+    }
+
+    const editEvent = (info : any) => {
+        if (loggedIn) {
+            updating=false;
+            editing=true;
+            newStartTime = startTime = createDate(info.event.start);
+            newEndTime = endTime = createDate(info.event.end);
+            details = info.event.extendedProps;
+            opened = true;
+        }
     }
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -124,7 +141,7 @@ Layout
     Error: {$item.error.message}
 {:else}
     <Modal {opened} on:close={closeDialog} title="Confirm" centered>
-        <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
+        <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
     <Calendar bind:this={ec} {plugins} options = {{
         headerToolbar: {
@@ -140,6 +157,7 @@ Layout
         events: translateBookingsForCalendar($item.data.itemGet.bookings),
         eventResize: updateEvent,
         eventDrop: updateEvent,
+        eventClick: editEvent,
         select: newEvent,
         nowIndicator: true,
         editable: false,

@@ -2,9 +2,9 @@
   A login dialog box
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { mutation, getClient } from 'svelte-apollo';
+    import { mutation } from 'svelte-apollo';
     import { Card, Divider, TextInput, Button, SimpleGrid, Text } from '@svelteuidev/core';
-    import { ITEMCHANGEBOOKING, ITEMBOOK } from './Graphql.svelte';
+    import { ITEMCHANGEBOOKING, ITEMBOOK, ITEMUNBOOK } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
 
@@ -18,6 +18,7 @@
     export let newStartTime : string;                       // A new start time (when updating)
     export let newEndTime : string;                         // A new end time (when updating)
     export let updating : boolean;                          // Whether updating or creating new
+    export let editing : boolean;                           // Whether editing an existing booking
     export let sessionid : string;                          // Current sessionid
     export let details : any;                               // Additional booking details
 
@@ -65,6 +66,22 @@
             errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
         });
     }
+
+    // Functions for deleting a booking
+    const ItemUnbook = mutation(ITEMUNBOOK, {
+    context : { headers : { sessionid : sessionid } },
+    fetchPolicy: 'network-only'
+    });
+    const handleDelete = () => {
+        ItemUnbook({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime } })
+        .then((result : any) => {
+            success(result.data.itemBook);
+        })
+        .catch((error) => {
+            console.log(error);
+            errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
+        });
+    }
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -74,7 +91,7 @@
 Styles
 ------------------------------------------------------------------------------------------------------->
 <style>
-    
+
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -94,17 +111,22 @@ Layout
     <TextInput placeholder="Additional Booking Details" bind:value={bookingInfo}/>
     <Divider variant='dotted'/>
 
-    <SimpleGrid cols={2}>
+    <SimpleGrid cols={editing?3:2}>
+        {#if editing}
+            <Button on:click={handleDelete} variant='filled' color='red' fullSize>
+                Delete
+            </Button>        
+        {/if}
         <Button on:click={closeDialog} variant='filled' color='blue' fullSize>
             Cancel
         </Button>
-        {#if updating}
+        {#if updating || editing}
             <Button on:click={handleUpdate} variant='filled' color='green' fullSize>
-                Update Booking
+                Update
             </Button>
         {:else}
             <Button on:click={handleNew} variant='filled' color='green' fullSize>
-                New Booking
+                New
             </Button>
         {/if}
     </SimpleGrid>
