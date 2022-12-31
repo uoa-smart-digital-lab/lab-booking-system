@@ -4,6 +4,9 @@
 <script context="module" lang="ts">
     import { gql } from '@apollo/client';
 
+    //--------------------------------------------------------------------------------------------------
+    // Enums and Types
+    //--------------------------------------------------------------------------------------------------
     export enum Status {"USER", "POWERUSER", "ADMIN"};
     export enum Access {"FREE", "INDUCTION", "SUPERVISED"};
         
@@ -49,56 +52,35 @@
         details: BookingDetails
     };
 
+    //--------------------------------------------------------------------------------------------------
+    // The Querys and mutations
+    //--------------------------------------------------------------------------------------------------
     export const ITEMALL = gql`
-        query { itemAll {
-            url
-                name
-                image
-                details
-                cost
-                bookable
-                access
-                bookings { 
-                    person { name upi }
-                    starttime
-                    endtime
-                }
-                inductions {
-                    upi
-                }
+        query itemAll
+        {
+            itemAll {
+                url name image details cost bookable access
+                bookings { person { name upi } starttime endtime }
+                inductions { upi }
             }
-    } `;
-
+        } `;
     
     export const ITEMGET = gql`
         query itemGet($name: String!) 
         {
             itemGet (name: $name) {
-                url
-                name
-                image
-                details
-                cost
-                bookable
-                access
-                bookings { 
-                    person { name upi }
-                    starttime
-                    endtime
-                }
-                inductions {
-                    upi
-                }
+                url name image details cost bookable access
+                bookings { person { name upi } starttime endtime }
+                inductions { upi }
             }
-        }`;
+        } `;
 
 
     export const LOGIN = gql`
         mutation login ($upi:String!, $password:String!)
         {
-            login(upi:$upi, password:$password) {
-                sessionid
-                person { upi name }
+            login (upi:$upi, password:$password) {
+                sessionid person { upi name }
             }
         }`;
 
@@ -106,20 +88,11 @@
         mutation itemChangebooking ($itemname:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!, $newstarttime: DateTime, $newendtime: DateTime, $details:Json)
         {
             itemChangebooking(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime, newstarttime:$newstarttime, newendtime:$newendtime) {
-                name
-                url
-                image
+                name url image 
                 bookings {
-                    person {
-                        name
-                        upi
-                    }
-                    item {
-                        name
-                    }
-                    starttime
-                    endtime
-                    details
+                    person { name upi }
+                    item { name }
+                    starttime endtime details
                 }
             }
         }`;
@@ -128,20 +101,11 @@
         mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
         {
             itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
-                name
-                url
-                image
+                name url image 
                 bookings {
-                    person {
-                        name
-                        upi
-                    }
-                    item {
-                        name
-                    }
-                    starttime
-                    endtime
-                    details
+                    person { name upi }
+                    item { name }
+                    starttime endtime details
                 }
             }
         }`;
