@@ -43,9 +43,10 @@
     // -------------------------------------------------------------------------------------------------
     const getName = (details : ItemDetails, name : string) : string => details.name ? details.name : name;
 
+    // This is a bit of a hack to create a date that is independent of the timezone as the server itself operates at zero UTC
+    // Javascript date functions otherwise add the timezone which then puts the date in the wrong place in the server.
     const createDate = (date: Date) => {
         return (date.getFullYear().toString() + "-" + ((date.getMonth()<9)?"0":"") + (date.getMonth()+1).toString() + "-" + ((date.getDate()<10)?"0":"") + date.getDate().toString() + "T" + ((Math.floor(date.getHours().toString())<10)?"0":"") + Math.floor(date.getHours().toString()).toString() + ":00:00+00:00");
-        // return (theDate.getFullYear().toString() + "-" + ((theDate.getMonth()<9)?"0":"") + (theDate.getMonth()+1).toString() + "-" + ((theDate.getDate()<10)?"0":"") + theDate.getDate().toString() + "T" + "00:00:00+00:00");
     }
 
     // Convert the bookings from the API into a format that the calendar can use
@@ -53,6 +54,8 @@
         let calendarEvents = [];
         let counter : number = 0;
         bookings.forEach((booking : Booking) => {
+            let eventLength = (new Date(booking.endtime) - new Date(booking.starttime)) / (1000 * 3600);
+
             calendarEvents.push({
                 id: counter++,
                 start: booking.starttime,
@@ -62,6 +65,7 @@
                 editable: loggedIn && (booking.person.upi === upi),
                 startEditable: loggedIn && (booking.person.upi === upi),
                 durationEditable: loggedIn && (booking.person.upi === upi),
+                allDay: (eventLength > 23)
             });
         })
         return calendarEvents;
