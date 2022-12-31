@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { mutation, getClient } from 'svelte-apollo';
-    import { Card, Divider, Input, Button, SimpleGrid, Text } from '@svelteuidev/core';
+    import { Card, Divider, TextInput, Button, SimpleGrid, Text } from '@svelteuidev/core';
     import { ITEMCHANGEBOOKING, ITEMBOOK } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
@@ -19,6 +19,7 @@
     export let newEndTime : string;                         // A new end time (when updating)
     export let updating : boolean;                          // Whether updating or creating new
     export let sessionid : string;                          // Current sessionid
+    export let details : any;                               // Additional booking details
 
     export let success : (item : Item) => null;             // Called when success in updating or new
     export let closeDialog : () => null;                    // Close the dialog box (eg when cancel pressed)
@@ -26,7 +27,8 @@
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let errorMessage : string = "";                         // Error message from attempted booking
+    let errorMessage : string = "";                             // Error message from attempted booking
+    let bookingInfo : string = details.info ? details.info : "";
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -38,7 +40,7 @@
         fetchPolicy: 'network-only'
     });
     const handleUpdate = () => {
-        ItemChangebooking({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime, newstarttime:newStartTime, newendtime:newEndTime, details:"{}" } })
+        ItemChangebooking({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime, newstarttime:newStartTime, newendtime:newEndTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
         .then((result : any) => {
             success(result.data.itemChangebooking);
         })
@@ -89,11 +91,7 @@ Layout
         <Divider variant='dotted'/>
     {/if}
 
-    <Input placeholder='Start Time' value={newStartTime}/>
-    <Divider variant='dotted'/>
-    <Input placeholder='End Time' value={newEndTime} />
-    <Divider variant='dotted'/>
-    <Input placeholder='Item Name' value={itemName.toUpperCase()} />
+    <TextInput placeholder="Additional Booking Details" bind:value={bookingInfo}/>
     <Divider variant='dotted'/>
 
     <SimpleGrid cols={2}>
