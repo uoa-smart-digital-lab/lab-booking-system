@@ -28,6 +28,7 @@
     // The GraphQL query structure for login
     const items : any = query(ITEMALL, { variables: {} });
 
+    // Force reload of the data
     const reload = () => { items.refetch(); }
 
     // Get the name from the details if it exists, otherwise return an empty string rather than undefined
