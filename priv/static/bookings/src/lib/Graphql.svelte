@@ -60,7 +60,7 @@
         {
             itemAll {
                 url name image details cost bookable access
-                bookings { person { name upi } starttime endtime }
+                bookings { person { name upi } starttime endtime details }
                 inductions { upi }
             }
         } `;
@@ -70,7 +70,7 @@
         {
             itemGet (name: $name) {
                 url name image details cost bookable access
-                bookings { person { name upi } starttime endtime }
+                bookings { person { name upi } starttime endtime details }
                 inductions { upi }
             }
         } `;

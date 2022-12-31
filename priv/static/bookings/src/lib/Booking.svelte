@@ -35,6 +35,7 @@
     let updating : boolean = false;             // Whether updating or create a new booking
     let plugins = [TimeGrid, DayGrid, List, ResourceTimeGrid, Interaction]; // Active Plugns for the calendar
     let ec : any;                               // Reference to the Calendar
+    let details : any;                          // Additional booking details
 
 
     // The GraphQL query structure for login
@@ -67,7 +68,8 @@
                 editable: loggedIn && (booking.person.upi === upi),
                 startEditable: loggedIn && (booking.person.upi === upi),
                 durationEditable: loggedIn && (booking.person.upi === upi),
-                allDay: (eventLength > 23)
+                allDay: (eventLength > 23),
+                extendedProps: booking.details
             });
         })
         return calendarEvents;
@@ -83,6 +85,8 @@
         updating=false;
         newStartTime = startTime = createDate(info.start);
         newEndTime = endTime = createDate(info.end);
+        details = {info:""};
+        ec.unselect(); 
         opened = true;
     }
 
@@ -92,6 +96,8 @@
         startTime = createDate(info.oldEvent.start);
         newEndTime = createDate(info.event.end);
         endTime = createDate(info.oldEvent.end);
+        details = info.event.extendedProps;
+        ec.unselect(); 
         opened = true;
     }
 </script>
@@ -118,7 +124,7 @@ Layout
     Error: {$item.error.message}
 {:else}
     <Modal {opened} on:close={closeDialog} title="Confirm" centered>
-        <ConfirmBooking {sessionid} {closeDialog} {success} {updating} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
+        <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
     <Calendar bind:this={ec} {plugins} options = {{
         headerToolbar: {
@@ -132,7 +138,6 @@ Layout
             dayGridMonth: {pointer: true}
         },
         events: translateBookingsForCalendar($item.data.itemGet.bookings),
-        // eventSources: eventSources,
         eventResize: updateEvent,
         eventDrop: updateEvent,
         select: newEvent,
