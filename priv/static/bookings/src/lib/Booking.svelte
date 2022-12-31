@@ -43,6 +43,11 @@
     // -------------------------------------------------------------------------------------------------
     const getName = (details : ItemDetails, name : string) : string => details.name ? details.name : name;
 
+    const createDate = (date: Date) => {
+        return (date.getFullYear().toString() + "-" + ((date.getMonth()<9)?"0":"") + (date.getMonth()+1).toString() + "-" + ((date.getDate()<10)?"0":"") + date.getDate().toString() + "T" + ((Math.floor(date.getHours().toString())<10)?"0":"") + Math.floor(date.getHours().toString()).toString() + ":00:00+00:00");
+        // return (theDate.getFullYear().toString() + "-" + ((theDate.getMonth()<9)?"0":"") + (theDate.getMonth()+1).toString() + "-" + ((theDate.getDate()<10)?"0":"") + theDate.getDate().toString() + "T" + "00:00:00+00:00");
+    }
+
     // Convert the bookings from the API into a format that the calendar can use
     const translateBookingsForCalendar = (bookings : [Booking]) : any => {
         let calendarEvents = [];
@@ -70,17 +75,17 @@
 
     const newEvent = (info : any) => {
         updating=false;
-        newStartTime = startTime = info.start.toISOString();
-        newEndTime = endTime = info.end.toISOString();
+        newStartTime = startTime = createDate(info.start);
+        newEndTime = endTime = createDate(info.end);
         opened = true;
     }
 
     const updateEvent = (info : any) => {
         updating=true;
-        newStartTime = info.event.start.toISOString();
-        startTime = info.oldEvent.start.toISOString();
-        newEndTime = info.event.end.toISOString();
-        endTime = info.oldEvent.end.toISOString();
+        newStartTime = createDate(info.event.start);
+        startTime = createDate(info.oldEvent.start);
+        newEndTime = createDate(info.event.end);
+        endTime = createDate(info.oldEvent.end);
         opened = true;
     }
 
@@ -128,7 +133,8 @@ Layout
         nowIndicator: true,
         editable: false,
         selectable: loggedIn,
-        slotMinTime: "06:00:00"
+        slotMinTime: "06:00:00",
+        view: "dayGridMonth"
     }} />
 {/if}
 <!----------------------------------------------------------------------------------------------------->
