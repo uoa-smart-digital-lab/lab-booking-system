@@ -1,33 +1,50 @@
 <!------------------------------------------------------------------------------------------------------
-A login dialog box
+  A login dialog box
 ------------------------------------------------------------------------------------------------------->
-<script>
+<script lang="ts">
     // @ts-nocheck
+
     import { mutation } from 'svelte-apollo';
-    import { Card, Divider, Input, Button, SimpleGrid, Title } from '@svelteuidev/core';
+    import { Card, Divider, Input, Button, SimpleGrid, Text } from '@svelteuidev/core';
     import { LOGIN } from './Graphql.svelte';
+    import type { Session } from './Graphql.svelte';
+    import { convertErrorMessage } from './ErrorMessages.svelte';
 
-    export let successfullogin;
-    export let closelogindialog;
+    // -------------------------------------------------------------------------------------------------
+    // Parameters
+    // -------------------------------------------------------------------------------------------------
+    export let successfulLogin : (login_data: Session) => void; // Function to call when login success
+    export let closeLoginDialog : () => void;                   // Function to call to close dialog
 
-    let upi = "";
-    let password = "";
+    // -------------------------------------------------------------------------------------------------
+    // Variables
+    // -------------------------------------------------------------------------------------------------
+    let upi : string = "";                                      // UPI string being entered
+    let password : string = "";                                 // Password string being entered
+    let errorMessage : string = "";                             // Error message
 
-    function upichanged(event) { upi = event.target.value; }
-    function passwordchanged(event) { password = event.target.value; }
-
-    const Login = mutation(LOGIN);
-    async function handleSubmit()
-    {
-        try
-        {
-            let result = await Login({ variables: { upi, password } });
-            successfullogin(result.data.login);
+    // -------------------------------------------------------------------------------------------------
+    // Functions
+    // -------------------------------------------------------------------------------------------------
+    // Check for enter key and call submit when detected
+    const handleKeydown = (event:any) => {
+		if (event.key === 'Enter') {
+            handleSubmit();
         }
-        catch (error)
-        {
-            console.log(error);
-        }
+    }
+
+    // The GraphQL mutation structure for login
+    const doLogin = mutation(LOGIN);
+
+    // What do do when the enter key or login button is pressed
+    const handleSubmit = () => {
+        doLogin({ variables: { upi, password } })
+        .then((result:any) => {
+            successfulLogin(result.data.login);
+        })
+        .catch((error : { graphQLErrors : [{ message : string }]}) => {
+            errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
+        });
     }
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -47,17 +64,22 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Card>
-    <Input placeholder='UPI' on:input={upichanged} />
+<Card p='md'>
+    {#if errorMessage}
+        <Text size='md' color='red' align='center'>
+            {errorMessage}
+        </Text>
+        <Divider variant='dotted'/>
+    {/if}
 
+    <Input placeholder='UPI' bind:value={upi} on:keydown={handleKeydown} />
     <Divider variant='dotted'/>
-
-    <Input placeholder='Password' on:input={passwordchanged} type="password" />
-
+        
+    <Input placeholder='Password' bind:value={password} on:keydown={handleKeydown} type='password' />
     <Divider variant='dotted'/>
 
     <SimpleGrid cols={2}>
-        <Button on:click={closelogindialog} variant='filled' color='blue' fullSize>
+        <Button on:click={closeLoginDialog} variant='filled' color='blue' fullSize>
             Cancel
         </Button>
         <Button on:click={handleSubmit} variant='filled' color='green' fullSize>

@@ -1,9 +1,7 @@
 <!------------------------------------------------------------------------------------------------------
 The main App
 ------------------------------------------------------------------------------------------------------->
-<script>
-  // @ts-nocheck
-
+<script lang="ts">
     import { ApolloClient, InMemoryCache } from '@apollo/client';
     import { setClient } from 'svelte-apollo';
     import Items from './lib/Items.svelte';
@@ -13,70 +11,88 @@ The main App
     import Booking from './lib/Booking.svelte';
     import { SvelteUIProvider, Divider, Modal } from '@svelteuidev/core';
     import { getQueryStringVal } from './lib/Querystring.svelte';
+    import type { Item, Session } from './lib/Graphql.svelte';
 
-    let logindialogopen = false;
-    let loading = true;
-    let searchvalue = "";
-    let inducted = false;
-    let availability = true;
-    let daybookingvalue = true;
-    let upi = "";
-    let sessionid = "";
-    let loggedin = false;
-    let name = "";
-    let qrcode = "";
-    let qrsearch = "";
-    let itemname = "";
+    // -------------------------------------------------------------------------------------------------
+    // Variables
+    // -------------------------------------------------------------------------------------------------
+    let loginDialogOpen : boolean = false;
+    let searchValue : string = "";
+    let inducted : boolean = false;
+    let availability : boolean = true;
+    let upi : string = "";
+    let sessionid : string = "";
+    let loggedIn : boolean = false;
+    let name : string = "";
+    let qrcode : string = "";
+    let qrsearch : string = "";
+    let itemName : string = "";
+    let message : string = "";
 
-    itemname = getQueryStringVal("item");
+    // -------------------------------------------------------------------------------------------------
+    // Query strings
+    // -------------------------------------------------------------------------------------------------
+    itemName = getQueryStringVal("item");
     qrcode = getQueryStringVal("qrcode");
-    searchvalue = getQueryStringVal("search");
+    searchValue = getQueryStringVal("search");
     qrsearch = getQueryStringVal("qrsearch");
 
-    $: search = searchvalue?searchvalue:"";
-    $: daybooking = daybookingvalue;
+    $: search = searchValue?searchValue:"";
+    $: message = (itemName && loggedIn) ? "Use the calendar to make a booking or edit existing bookings." : ((loggedIn) ? "Choose an item to see or edit bookings" : "Log in to see and edit bookings.")
 
+    // -------------------------------------------------------------------------------------------------
+    // Functions
+    // -------------------------------------------------------------------------------------------------
+    // GraphQL client setup 
     const client = new ApolloClient({
       uri:  '/api',
       cache: new InMemoryCache()
     });
     setClient(client);
 
-    // const doneloading = () => { loading = false; return (""); }
-    const dologin = () => {
+    // Log in or out
+    const doLoginOrLogout = () => {
       if (sessionid === "") {
-        logindialogopen = true;
+        loginDialogOpen = true;
       }
       else {
         sessionid = "";
-        loggedin = false;
+        loggedIn = false;
         name = "";
-        itemname = "";
+        itemName = "";
         upi = "";
         inducted = false;
         availability = true;
-        logindialogopen = false;
+        loginDialogOpen = false;
       }
     }
-    const closelogindialog = () => { logindialogopen = false; }
-    const cancelbooking = () => {itemname = "";}
-    const bookitem = (theItem) => { itemname = theItem.name; }
-    const changevar = (name, newvalue) => {
+
+    // Close the login dialog box like with the cancel button
+    const closeLoginDialog = () => { loginDialogOpen = false; }
+
+    // Cancel the booking calendar view and come back to the list
+    const cancelBooking = () => {itemName = "";}
+
+    // Use the item chosen to go to the booking calendar
+    const bookItem = (item: Item) => { itemName = item.name; }
+
+    // Given a variable name, change the corresponding variable (this is clunky - there has to be a better way)
+    const changeVar = (name: string, newvalue: any) => {
       switch (name) {
-        case "search" : searchvalue = newvalue; break;
+        case "search" : searchValue = newvalue; break;
         case "availability" : availability = newvalue; break;
         case "inducted" : inducted = newvalue; break;
-        case "daybooking" : daybookingvalue = newvalue; break;
         default: break;
       }
     }
 
-    const successfullogin = (data) => {
+    // After logging in successfully, use the Session to set up various parameters
+    const successfulLogin = (data : Session) => {
       upi = data.person.upi;
       name = data.person.name;
       sessionid = data.sessionid;
-      loggedin = true;
-      logindialogopen = false;
+      loggedIn = true;
+      loginDialogOpen = false;
     }
 
 </script>
@@ -101,16 +117,16 @@ Layout
       {#if qrsearch}
         <QRcode {qrsearch}/>
       {:else if qrcode}
-        <QRcode itemname={qrcode}/>
+        <QRcode itemName={qrcode}/>
       {:else}
-        <Navbar context={itemname?"booking":"main"} {name} {itemname} {search} {dologin} {loggedin} {changevar} {cancelbooking} {availability} {inducted} {daybooking}/>
-        <Modal opened={logindialogopen} on:close={closelogindialog} title="Log In" centered>
-          <Login {closelogindialog} {successfullogin} />
+        <Navbar {message} context={itemName?"booking":"main"} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
+        <Modal opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered>
+          <Login {closeLoginDialog} {successfulLogin} />
         </Modal>
-        {#if itemname}
-          <Booking {itemname} {daybooking} />
+        {#if itemName}
+          <Booking {sessionid} {itemName} {upi} {loggedIn}/>
         {:else}
-          <Items {bookitem} {search} {inducted} {availability} {upi} {loggedin}/>
+          <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn}/>
         {/if}
       {/if}
     </SvelteUIProvider>

@@ -1,27 +1,31 @@
 <!------------------------------------------------------------------------------------------------------
-An individual Item's qrcode
+  An individual Item's qrcode or qr qrcode for a group of items
 ------------------------------------------------------------------------------------------------------->
-<script>
-    // @ts-nocheck
-
-	import { SimpleGrid, Button, Card, Image, Text, Divider } from '@svelteuidev/core';
+<script lang="ts">
+	import { Card, Text, Divider } from '@svelteuidev/core';
     import QrCode from "svelte-qrcode";
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
+    import type { Item } from './Graphql.svelte';
 
-    export let itemname;            // Details about the item itself
-    export let qrsearch;            // QR Code for a qrsearch instead of a specific item
+    // -------------------------------------------------------------------------------------------------
+    // Parameters
+    // -------------------------------------------------------------------------------------------------
+    export let itemName : string = "";               // Details about the item itself
+    export let qrsearch : string = "";               // QR Code for a group of items
 
-    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (qrsearch?"search=" + qrsearch:"item=" + itemname);
+    // -------------------------------------------------------------------------------------------------
+    // Variables
+    // -------------------------------------------------------------------------------------------------
+    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (qrsearch?"search=" + qrsearch:"item=" + itemName);
 
-    let item;
-    if (!qrsearch) {
-        item = query(ITEMGET, {
-            variables: {name: itemname}
-        });
-    }
+    // -------------------------------------------------------------------------------------------------
+    // Functions
+    // -------------------------------------------------------------------------------------------------
+    let item : any;
+    if (!qrsearch) { item = query(ITEMGET, { variables: {name: itemName} }); }
 
-    const getname = (details, name) => details.name ? details.name : name;
+    const getname = (details : Item, name : string) : string => details.name ? details.name : name;
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -40,22 +44,8 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-{#if qrsearch}
-    <a href = {qrlink}>
-        <QrCode value={qrlink} alt={qrlink}/>
-    </a>
-
-    <Divider variant='dotted'/>
-
-    <Text align='center' size='sm'>
-        {qrsearch}
-    </Text>
-{:else}
-    {#if $item.loading}
-        Loading...
-    {:else if $item.error}
-        Error: {$item.error.message}
-    {:else}
+<Card class="qrcard" p="lg">
+    {#if qrsearch}
         <a href = {qrlink}>
             <QrCode value={qrlink} alt={qrlink}/>
         </a>
@@ -63,14 +53,30 @@ Layout
         <Divider variant='dotted'/>
 
         <Text align='center' size='lg' weight={500}>
-            {getname($item.data.itemGet.details, $item.data.itemGet.name)}
+            Scan this for a list of {qrsearch} items.
         </Text>
+    {:else}
+        {#if $item.loading}
+            Loading...
+        {:else if $item.error}
+            Error: {$item.error.message}
+        {:else}
+            <a href = {qrlink}>
+                <QrCode value={qrlink} alt={qrlink}/>
+            </a>
 
-        <Divider variant='dotted'/>
+            <Divider variant='dotted'/>
 
-        <Text align='center' size='sm'>
-            {itemname.toUpperCase()}
-        </Text>
+            <Text align='center' size='lg' weight={500}>
+                Scan this for {getname($item.data.itemGet.details, $item.data.itemGet.name)}.
+            </Text>
+
+            <Divider variant='dotted'/>
+
+            <Text align='center' size='sm'>
+                {itemName.toUpperCase()}
+            </Text>
+        {/if}
     {/if}
-{/if}
+</Card>
 <!----------------------------------------------------------------------------------------------------->
