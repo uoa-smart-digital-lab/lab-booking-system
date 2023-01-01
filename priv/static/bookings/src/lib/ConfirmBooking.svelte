@@ -110,13 +110,15 @@ Layout
 
     <TextInput placeholder="Additional Booking Details" bind:value={bookingInfo}/>
     <Divider variant='dotted'/>
-
-    <SimpleGrid cols={editing?3:2}>
-        {#if editing}
+    {#if editing}
+        <SimpleGrid cols={1}>
             <Button on:click={handleDelete} variant='filled' color='red' fullSize>
                 Delete
             </Button>        
-        {/if}
+        </SimpleGrid>
+        <Divider variant='dotted'/>
+    {/if}
+    <SimpleGrid cols={2}>
         <Button on:click={closeDialog} variant='filled' color='blue' fullSize>
             Cancel
         </Button>

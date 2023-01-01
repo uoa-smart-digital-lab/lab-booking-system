@@ -132,6 +132,13 @@ Styles
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
+<!-- start: 'prev,next today',
+center: 'title',
+end: 'dayGridMonth,timeGridDay'
+
+start: 'prev,next today',
+center: 'title',
+end: 'dayGridMonth,timeGridWeek' -->
 
 
 <!------------------------------------------------------------------------------------------------------
@@ -147,11 +154,6 @@ Layout
     </Modal>
     <DeviceDetector showInDevice="mobile">
         <Calendar bind:this={ec} {plugins} options = {{
-            headerToolbar: {
-                start: 'prev,next today',
-                center: 'title',
-                end: 'dayGridMonth,timeGridDay'
-            },
             scrollTime: '09:00:00',
             views: {
                 timeGridDay: {pointer: true},
@@ -171,11 +173,6 @@ Layout
     </DeviceDetector>
     <DeviceDetector showInDevice="desktop">
         <Calendar bind:this={ec} {plugins} options = {{
-            headerToolbar: {
-                start: 'prev,next today',
-                center: 'title',
-                end: 'dayGridMonth,timeGridWeek'
-            },
             scrollTime: '09:00:00',
             views: {
                 timeGridWeek: {pointer: true},
