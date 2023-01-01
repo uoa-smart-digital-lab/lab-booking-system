@@ -15,6 +15,8 @@
     import ResourceTimeGrid from '@event-calendar/resource-time-grid';
     import ConfirmBooking from './ConfirmBooking.svelte';
     import type { Booking, ItemDetails, Item } from './Graphql.svelte';
+    import DeviceDetector from "svelte-device-detector";
+
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -140,30 +142,56 @@ Layout
 {:else if $item.error}
     Error: {$item.error.message}
 {:else}
-    <Modal {opened} on:close={closeDialog} title="Confirm" centered>
-        <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
+    <Modal size="xs" {opened} on:close={closeDialog} title="Confirm" centered>
+        <ConfirmBooking size="xs" {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
-    <Calendar bind:this={ec} {plugins} options = {{
-        headerToolbar: {
-            start: 'prev,next today',
-            center: 'title',
-            end: 'dayGridMonth,timeGridWeek listWeek'
-        },
-        scrollTime: '09:00:00',
-        views: {
-            timeGridWeek: {pointer: true},
-            dayGridMonth: {pointer: true}
-        },
-        events: translateBookingsForCalendar($item.data.itemGet.bookings),
-        eventResize: updateEvent,
-        eventDrop: updateEvent,
-        eventClick: editEvent,
-        select: newEvent,
-        nowIndicator: true,
-        editable: false,
-        selectable: loggedIn,
-        slotMinTime: "06:00:00",
-        view: "dayGridMonth"
-    }} />
+    <DeviceDetector showInDevice="mobile">
+        <Calendar bind:this={ec} {plugins} options = {{
+            headerToolbar: {
+                start: 'prev,next today',
+                center: 'title',
+                end: 'dayGridMonth,timeGridDay'
+            },
+            scrollTime: '09:00:00',
+            views: {
+                timeGridDay: {pointer: true},
+                dayGridMonth: {pointer: true}
+            },
+            events: translateBookingsForCalendar($item.data.itemGet.bookings),
+            eventResize: updateEvent,
+            eventDrop: updateEvent,
+            eventClick: editEvent,
+            select: newEvent,
+            nowIndicator: true,
+            editable: false,
+            selectable: loggedIn,
+            slotMinTime: "06:00:00",
+            view: "dayGridMonth"
+        }} />
+    </DeviceDetector>
+    <DeviceDetector showInDevice="desktop">
+        <Calendar bind:this={ec} {plugins} options = {{
+            headerToolbar: {
+                start: 'prev,next today',
+                center: 'title',
+                end: 'dayGridMonth,timeGridWeek'
+            },
+            scrollTime: '09:00:00',
+            views: {
+                timeGridWeek: {pointer: true},
+                dayGridMonth: {pointer: true}
+            },
+            events: translateBookingsForCalendar($item.data.itemGet.bookings),
+            eventResize: updateEvent,
+            eventDrop: updateEvent,
+            eventClick: editEvent,
+            select: newEvent,
+            nowIndicator: true,
+            editable: false,
+            selectable: loggedIn,
+            slotMinTime: "06:00:00",
+            view: "dayGridMonth"
+        }} />
+    </DeviceDetector>
 {/if}
 <!----------------------------------------------------------------------------------------------------->

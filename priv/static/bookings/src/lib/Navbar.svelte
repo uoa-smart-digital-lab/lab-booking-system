@@ -49,14 +49,16 @@ Layout
         paddingTop: '6px',
         borderRadius: '$sm'
     }}>
-    <h2>Smart Digital Lab{name?" | "+name:""}{itemName?" | "+itemName.toUpperCase():""}</h2>
+    <h2>Smart Digital Lab</h2>
+    {#if itemName}<h3>{itemName}</h3>{/if}
+    {#if name}<h4>{name}</h4>{/if}
 </Box>
 <Divider variant='dotted'/>
 <b>{message}</b>
 <Divider variant='dotted'/>
-<SimpleGrid cols={4} 
+<SimpleGrid cols={2} 
     breakpoints={[
-        { maxWidth: 980, cols: 3, spacing: 'md' },
+        { maxWidth: 980, cols: 2, spacing: 'md' },
         { maxWidth: 755, cols: 2, spacing: 'sm' },
         { maxWidth: 600, cols: 1, spacing: 'sm' }
     ]}>
@@ -68,23 +70,21 @@ Layout
             on:input={changeSearch}
             bind:value={search}
         />
-        <!-- <Checkbox label="Available now" color="gray" on:click={(event) => { changeVar("availability", event.target.checked); }} bind:checked={availability} />
-        <Checkbox label="Allowed to book" color="gray" on:click={(event) => { changeVar("inducted", event.target.checked); }} disabled={!loggedIn} bind:checked={inducted}/> -->
+        <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+            Log {loggedIn?"out":"in"}
+        </Button>
         <Checkbox label="Available now" color="gray" on:click={changeAvailability} bind:checked={availability} />
         {#if loggedIn}       
             <Checkbox label="Allowed to book" color="gray" on:click={changeInducted} bind:checked={inducted}/>
         {:else}
             <Space />
         {/if}
-        <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
-            Log {loggedIn?"out":"in"}
-        </Button>
     {:else}
         <Button on:click={cancelBooking} variant='light' color='green'>
             Item List
         </Button>
-        <Space />
-        <Space />
+        <!-- <Space />
+        <Space /> -->
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
             Log {loggedIn?"out":"in"}
         </Button>

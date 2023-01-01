@@ -120,7 +120,7 @@ Layout
         <QRcode itemName={qrcode}/>
       {:else}
         <Navbar {message} context={itemName?"booking":"main"} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
-        <Modal opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered>
+        <Modal size="xs" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
           <Login {closeLoginDialog} {successfulLogin} />
         </Modal>
         {#if itemName}
