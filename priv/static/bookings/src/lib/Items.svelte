@@ -17,6 +17,7 @@
     export let inducted : boolean;                  // Whether to show only items the user is inducted for, or all items.
     export let availability : boolean;              // Whether to show only items that are currently available for booking.
     export let bookItem : (item : Item) => void;    // A function to call when a specific item is to be booked.
+    export let showItem : (url : string) => void;   // The funcion to call when the item details button is pressed
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -76,7 +77,7 @@ Layout
         ]}>
         {#each $items.data.itemAll as item}
             {#if (checkSearch(item, search) && (checkInducted(item, inducted, upi)) && checkAvailability(item, availability))}
-                <ItemObj {item} {bookItem} {loggedIn} {upi}/>
+                <ItemObj {item} {bookItem} {showItem} {loggedIn} {upi}/>
             {/if}  
         {/each}
     </SimpleGrid>

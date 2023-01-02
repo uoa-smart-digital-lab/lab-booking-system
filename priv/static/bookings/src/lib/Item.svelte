@@ -6,7 +6,6 @@
 
 	import { SimpleGrid, Button, Card, Image, Text, Divider } from '@svelteuidev/core';
     import type { Item, ItemDetails, Person } from './Graphql.svelte';
-    import { Access } from './Graphql.svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -14,7 +13,8 @@
     export let item : Item                          // Details about the item
     export let loggedIn : boolean;                  // Whether the user is logged in or not
     export let upi : string;                        // Logged in user's UPI
-    export let bookItem: (item : Item) => void      // The funcion to call when the book item button is pressed
+    export let bookItem : (item : Item) => void;    // The funcion to call when the book item button is pressed
+    export let showItem : (url : string) => void;   // The funcion to call when the item details button is pressed
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -82,7 +82,7 @@ Layout
     </Card.Section>
 
     <SimpleGrid cols={loggedIn?2:1}>
-        <Button variant='filled' color='blue' fullSize>
+        <Button on:click={() => {showItem(item.url)}} variant='filled' color='blue' fullSize>
             Details
         </Button>
         {#if loggedIn}

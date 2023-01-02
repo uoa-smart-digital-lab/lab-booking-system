@@ -9,6 +9,7 @@ The main App
     import Login from './lib/Login.svelte';
     import QRcode from './lib/QRcode.svelte';
     import Booking from './lib/Booking.svelte';
+    import Details from './lib/Details.svelte';
     import { SvelteUIProvider, Divider, Modal } from '@svelteuidev/core';
     import { getQueryStringVal } from './lib/Querystring.svelte';
     import type { Item, Session } from './lib/Graphql.svelte';
@@ -28,6 +29,7 @@ The main App
     let qrsearch : string = "";
     let itemName : string = "";
     let message : string = "";
+    let link : string = "";
 
     // -------------------------------------------------------------------------------------------------
     // Query strings
@@ -76,6 +78,12 @@ The main App
     // Use the item chosen to go to the booking calendar
     const bookItem = (item: Item) => { itemName = item.name; }
 
+    // Use the item chosen to go to the booking calendar
+    const showItem = (url: string) => { link = url; }//window.open (url, '_blank'); }
+
+    // Done showing the details for an item
+    const doneDetails = () => { link = ""; }
+
     // Given a variable name, change the corresponding variable (this is clunky - there has to be a better way)
     const changeVar = (name: string, newvalue: any) => {
       switch (name) {
@@ -119,14 +127,16 @@ Layout
       {:else if qrcode}
         <QRcode itemName={qrcode}/>
       {:else}
-        <Navbar {message} context={itemName?"booking":"main"} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
+        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {doneDetails} {availability} {inducted}/>
         <Modal size="xs" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
           <Login {closeLoginDialog} {successfulLogin} />
         </Modal>
-        {#if itemName}
+        {#if link}
+          <Details {link} />
+        {:else if itemName}
           <Booking {sessionid} {itemName} {upi} {loggedIn}/>
         {:else}
-          <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn}/>
+          <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn} {showItem}/>
         {/if}
       {/if}
     </SvelteUIProvider>

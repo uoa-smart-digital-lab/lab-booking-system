@@ -2,7 +2,7 @@
   A simple navbar
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-	import { SimpleGrid, Box, Checkbox, Button, Input, Divider, Space } from '@svelteuidev/core';
+	import { SimpleGrid, Box, Center, Button, Input, Divider, Switch } from '@svelteuidev/core';
     import { MagnifyingGlass } from 'radix-icons-svelte';
 
     // -------------------------------------------------------------------------------------------------
@@ -18,6 +18,7 @@
     export let message : string;                                        // A message to show under the bar
     export let doLoginOrLogout : () => void;                            // Function to call when log in button pressed
     export let cancelBooking : () => void;                              // Go back to the main app
+    export let doneDetails : () => void;                                // Go back to the main app
     export let changeVar : (name: string, newvalue: any) => void;       // Change variable in the main app
 
     const changeAvailability = (event:any) : void => { changeVar("availability", event.target.checked); }
@@ -58,8 +59,6 @@ Layout
 <Divider variant='dotted'/>
 <SimpleGrid cols={2} 
     breakpoints={[
-        { maxWidth: 980, cols: 2, spacing: 'md' },
-        { maxWidth: 755, cols: 2, spacing: 'sm' },
         { maxWidth: 600, cols: 1, spacing: 'sm' }
     ]}>
     {#if context === "main"}
@@ -73,18 +72,21 @@ Layout
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
             Log {loggedIn?"out":"in"}
         </Button>
-        <Checkbox label="Available now" color="gray" on:click={changeAvailability} bind:checked={availability} />
+        <Center><Switch label="Available now" color="gray" on:click={changeAvailability} bind:checked={availability} /></Center>
         {#if loggedIn}       
-            <Checkbox label="Allowed to book" color="gray" on:click={changeInducted} bind:checked={inducted}/>
-        {:else}
-            <Space />
+            <Center><Switch label="Allowed to book" color="gray" on:click={changeInducted} bind:checked={inducted}/></Center>
         {/if}
+    {:else if context === "details"}
+        <Button on:click={doneDetails} variant='light' color='green'>
+            Item List
+        </Button>
+        <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+            Log {loggedIn?"out":"in"}
+        </Button>
     {:else}
         <Button on:click={cancelBooking} variant='light' color='green'>
             Item List
         </Button>
-        <!-- <Space />
-        <Space /> -->
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
             Log {loggedIn?"out":"in"}
         </Button>

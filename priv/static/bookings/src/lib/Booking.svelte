@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck - known error with Calendar
 
-	import { Modal } from '@svelteuidev/core';
+	import { Center, Modal } from '@svelteuidev/core';
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
     import Calendar from '@event-calendar/core';
@@ -119,6 +119,10 @@
             opened = true;
         }
     }
+
+    const changeView = (info : any) => {
+        console.log(info);
+    }
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -132,13 +136,6 @@ Styles
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
-<!-- start: 'prev,next today',
-center: 'title',
-end: 'dayGridMonth,timeGridDay'
-
-start: 'prev,next today',
-center: 'title',
-end: 'dayGridMonth,timeGridWeek' -->
 
 
 <!------------------------------------------------------------------------------------------------------
@@ -149,7 +146,7 @@ Layout
 {:else if $item.error}
     Error: {$item.error.message}
 {:else}
-    <Modal size="xs" {opened} on:close={closeDialog} title="Confirm" centered>
+    <Modal size="xs" {opened} on:close={closeDialog} title={(updating || editing)?"Change or Delete":"Create"} centered>
         <ConfirmBooking size="xs" {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
     <DeviceDetector showInDevice="mobile">
@@ -159,11 +156,12 @@ Layout
                 timeGridDay: {pointer: true},
                 dayGridMonth: {pointer: true}
             },
-            events: translateBookingsForCalendar($item.data.itemGet.bookings),
+            headerToolbar: {start: 'title', center: '', end: 'prev,today,next'},
             eventResize: updateEvent,
             eventDrop: updateEvent,
             eventClick: editEvent,
             select: newEvent,
+            dateClick: changeView,
             nowIndicator: true,
             editable: false,
             selectable: loggedIn,
@@ -178,11 +176,13 @@ Layout
                 timeGridWeek: {pointer: true},
                 dayGridMonth: {pointer: true}
             },
+            headerToolbar: {start: 'title', center: '', end: 'prev,today,next'},
             events: translateBookingsForCalendar($item.data.itemGet.bookings),
             eventResize: updateEvent,
             eventDrop: updateEvent,
             eventClick: editEvent,
             select: newEvent,
+            dateClick: changeView,
             nowIndicator: true,
             editable: false,
             selectable: loggedIn,
