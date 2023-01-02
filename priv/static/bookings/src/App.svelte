@@ -127,8 +127,8 @@ Layout
       {:else if qrcode}
         <QRcode itemName={qrcode}/>
       {:else}
-        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {doneDetails} {availability} {inducted}/>
-        <Modal size="xs" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
+        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {doneDetails} {cancelBooking} {availability} {inducted}/>
+        <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
           <Login {closeLoginDialog} {successfulLogin} />
         </Modal>
         {#if link}

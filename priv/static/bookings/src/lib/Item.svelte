@@ -23,13 +23,15 @@
     // -------------------------------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------------------------------
+    const allowed = () : boolean => (item.inductions.reduce((acc : boolean, curr : Person) => acc || (curr.upi === upi), false));
+
     const getName = (details : ItemDetails, name : string) : string => details.name ? details.name : name;
 
-    const getAccessMessage = (access : string, inductions : [ Person ], upi : string) : string => {
-        switch (access) {
+    const getAccessMessage = () : string => {
+        switch (item.access.toString()) {
             case "FREE" : return "You can book this item without induction."; break;
             case "INDUCTION" : 
-                if (inductions.reduce((acc, curr) => acc || (curr.upi === upi), false)){
+                if (allowed()) {
                     return "You are allowed to book this item.";
                 }else{
                     return "You must be inducted to book this item";
@@ -69,7 +71,7 @@ Layout
         <Divider variant='dotted'/>
 
         <Text align='center' size='sm'>
-            {getAccessMessage(item.access.toString(), item.inductions, upi)}
+            {getAccessMessage()}
         </Text>
         
         <Divider variant='dotted'/>
@@ -81,15 +83,13 @@ Layout
         <Divider variant='dotted'/>
     </Card.Section>
 
-    <SimpleGrid cols={loggedIn?2:1}>
+    <SimpleGrid cols={2}>
         <Button on:click={() => {showItem(item.url)}} variant='filled' color='blue' fullSize>
             Details
         </Button>
-        {#if loggedIn}
-            <Button on:click={() => {bookItem(item)}} variant='filled' color='green' fullSize>
-                Booking
-            </Button>
-        {/if}
+        <Button on:click={() => {bookItem(item)}} variant='filled' color={(loggedIn && allowed() && (item.access.toString() == "FREE")) ? 'green' : 'yellow'} fullSize>
+            {(loggedIn && allowed() && (item.access.toString() == "FREE")))? "Booking" : "Availability"}
+        </Button>
     </SimpleGrid>
 </Card>
 <!----------------------------------------------------------------------------------------------------->

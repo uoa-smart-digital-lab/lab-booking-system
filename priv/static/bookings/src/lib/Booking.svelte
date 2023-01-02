@@ -15,7 +15,6 @@
     import ResourceTimeGrid from '@event-calendar/resource-time-grid';
     import ConfirmBooking from './ConfirmBooking.svelte';
     import type { Booking, ItemDetails, Item } from './Graphql.svelte';
-    import DeviceDetector from "svelte-device-detector";
 
 
     // -------------------------------------------------------------------------------------------------
@@ -121,6 +120,8 @@
     }
 
     const changeView = (info : any) => {
+        ec.setOption("date", info.date);
+        ec.setOption("view", "timeGridDay");
         console.log(info);
     }
 </script>
@@ -146,49 +147,28 @@ Layout
 {:else if $item.error}
     Error: {$item.error.message}
 {:else}
-    <Modal size="xs" {opened} on:close={closeDialog} title={(updating || editing)?"Change or Delete":"Create"} centered>
-        <ConfirmBooking size="xs" {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
+    <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered>
+        <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
-    <DeviceDetector showInDevice="mobile">
-        <Calendar bind:this={ec} {plugins} options = {{
-            scrollTime: '09:00:00',
-            views: {
-                timeGridDay: {pointer: true},
-                dayGridMonth: {pointer: true}
-            },
-            headerToolbar: {start: 'title', center: '', end: 'prev,today,next'},
-            eventResize: updateEvent,
-            eventDrop: updateEvent,
-            eventClick: editEvent,
-            select: newEvent,
-            dateClick: changeView,
-            nowIndicator: true,
-            editable: false,
-            selectable: loggedIn,
-            slotMinTime: "06:00:00",
-            view: "dayGridMonth"
-        }} />
-    </DeviceDetector>
-    <DeviceDetector showInDevice="desktop">
-        <Calendar bind:this={ec} {plugins} options = {{
-            scrollTime: '09:00:00',
-            views: {
-                timeGridWeek: {pointer: true},
-                dayGridMonth: {pointer: true}
-            },
-            headerToolbar: {start: 'title', center: '', end: 'prev,today,next'},
-            events: translateBookingsForCalendar($item.data.itemGet.bookings),
-            eventResize: updateEvent,
-            eventDrop: updateEvent,
-            eventClick: editEvent,
-            select: newEvent,
-            dateClick: changeView,
-            nowIndicator: true,
-            editable: false,
-            selectable: loggedIn,
-            slotMinTime: "06:00:00",
-            view: "dayGridMonth"
-        }} />
-    </DeviceDetector>
+
+    <Calendar bind:this={ec} {plugins} options = {{
+        scrollTime: '09:00:00',
+        views: {
+            timeGridDay: {pointer: true},
+            dayGridMonth: {pointer: true}
+        },
+        headerToolbar: {start: 'title', center: '', end: 'dayGridMonth,timeGridWeek,timeGridDay prev,today,next'},
+        events: translateBookingsForCalendar($item.data.itemGet.bookings),
+        eventResize: updateEvent,
+        eventDrop: updateEvent,
+        eventClick: editEvent,
+        select: newEvent,
+        dateClick: changeView,
+        nowIndicator: true,
+        editable: false,
+        selectable: loggedIn,
+        view: "dayGridMonth",
+        slotDuration: '01:00:00'
+    }} />
 {/if}
 <!----------------------------------------------------------------------------------------------------->

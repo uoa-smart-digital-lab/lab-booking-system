@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { mutation } from 'svelte-apollo';
-    import { Card, Divider, TextInput, Button, SimpleGrid, Text } from '@svelteuidev/core';
+    import { Card, Divider, Center, TextInput, Button, SimpleGrid, Text } from '@svelteuidev/core';
     import { ITEMCHANGEBOOKING, ITEMBOOK, ITEMUNBOOK } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
@@ -57,7 +57,7 @@
         fetchPolicy: 'network-only'
     });
     const handleNew = () => {
-        ItemBook({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime, details:"{}" } })
+        ItemBook({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
         .then((result : any) => {
             success(result.data.itemBook);
         })
@@ -110,14 +110,6 @@ Layout
 
     <TextInput placeholder="Additional Booking Details" bind:value={bookingInfo}/>
     <Divider variant='dotted'/>
-    {#if editing}
-        <SimpleGrid cols={1}>
-            <Button on:click={handleDelete} variant='filled' color='red' fullSize>
-                Delete
-            </Button>        
-        </SimpleGrid>
-        <Divider variant='dotted'/>
-    {/if}
     <SimpleGrid cols={2}>
         <Button on:click={closeDialog} variant='filled' color='blue' fullSize>
             Cancel
@@ -132,5 +124,15 @@ Layout
             </Button>
         {/if}
     </SimpleGrid>
+    {#if editing}
+        <Divider variant='dotted'/>
+        <Center>or</Center>
+        <Divider variant='dotted'/>
+        <SimpleGrid cols={1}>
+            <Button on:click={handleDelete} variant='filled' color='red' fullSize>
+                Delete
+            </Button>        
+        </SimpleGrid>
+    {/if}
 </Card>
 <!----------------------------------------------------------------------------------------------------->

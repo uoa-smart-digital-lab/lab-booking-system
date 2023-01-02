@@ -44,14 +44,14 @@ Layout
 ------------------------------------------------------------------------------------------------------->
 <Box
     css={{
-        backgroundColor: '$dark100',
+        backgroundColor: '$blue200',
         textAlign: 'center',
         padding: '3px',
         paddingTop: '6px',
         borderRadius: '$sm'
     }}>
     <h2>Smart Digital Lab</h2>
-    {#if itemName}<h3>{itemName}</h3>{/if}
+    {#if itemName}<h3>{itemName.toUpperCase()}</h3>{/if}
     {#if name}<h4>{name}</h4>{/if}
 </Box>
 <Divider variant='dotted'/>
