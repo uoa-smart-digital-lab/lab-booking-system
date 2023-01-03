@@ -39,5 +39,6 @@
     "svelte-device-detector": "^0.2.2",
     "svelte-material-ui": "^7.0.0-beta.0",
     "svelte-qrcode": "^1.0.0"
-  }
+  },
+  "packageManager": "yarn@3.3.1"
 }
