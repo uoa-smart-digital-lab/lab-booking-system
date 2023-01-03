@@ -7,23 +7,23 @@
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
+    import type { QueryVars } from './Types.svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
-    export let itemName : string = "";               // Details about the item itself
-    export let qrsearch : string = "";               // QR Code for a group of items
+    export let queryVars : QueryVars;                                   // QR Code for a group of items
 
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (qrsearch?"search=" + qrsearch:"item=" + itemName);
+    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (queryVars.qrsearch?"search=" + queryVars.qrsearch:"item=" + queryVars.itemName);
 
     // -------------------------------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------------------------------
     let item : any;
-    if (!qrsearch) { item = query(ITEMGET, { variables: {name: itemName} }); }
+    if (!queryVars.qrsearch) { item = query(ITEMGET, { variables: {name: queryVars.itemName} }); }
 
     const getname = (details : Item, name : string) : string => details.name ? details.name : name;
 </script>
@@ -45,7 +45,7 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 <Card p="lg">
-    {#if qrsearch}
+    {#if queryVars.qrsearch}
         <a href = {qrlink}>
             <QrCode value={qrlink} alt={qrlink}/>
         </a>
@@ -53,7 +53,7 @@ Layout
         <Divider variant='dotted'/>
 
         <Text align='center' size='lg' weight={500}>
-            Scan this for a list of {qrsearch} items.
+            Scan this for a list of {queryVars.qrsearch} items.
         </Text>
     {:else}
         {#if $item.loading}
@@ -74,7 +74,7 @@ Layout
             <Divider variant='dotted'/>
 
             <Text align='center' size='sm'>
-                {itemName.toUpperCase()}
+                {queryVars.itemName.toUpperCase()}
             </Text>
         {/if}
     {/if}

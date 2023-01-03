@@ -13,6 +13,7 @@ The main App
     import { SvelteUIProvider, Divider, Modal } from '@svelteuidev/core';
     import { getQueryStringVal } from './lib/Querystring.svelte';
     import type { Item, Session } from './lib/Graphql.svelte';
+    import type { QueryVars } from './lib/Types.svelte';
     import Automation from './lib/FiniteStateMachine';
     // import Item from './lib/Item.svelte';
 
@@ -34,35 +35,41 @@ The main App
     let link : string = "";
     let theItem : Item;
 
-    enum pages { QRSEARCH, QRCODE, MAIN_DETAILS, MAIN_BOOKING, MAIN_LIST };
+    let queryVars : QueryVars;
+
+    enum pages { QRSEARCH = "qrsearch", QRCODE = "qrcode", MAIN_DETAILS = "main_details", MAIN_BOOKING = "main_booking", MAIN_LIST = "main_list" };
     let tick : number = 0;
     let page : pages = pages.MAIN_LIST;
+
+    enum states { _ = "_", LOAD = "load", INIT = "init", VIEW = "view" };
+    enum events { LOAD_QUERY_STRINGS = "load_query_strings", SET_PAGE = "set_page"}
 
     // -------------------------------------------------------------------------------------------------
     // Controller Functions
     // -------------------------------------------------------------------------------------------------
-    const loadQueryStrings = ( _args : {} ) => {
-        itemName = getQueryStringVal("item");
-        qrcode = getQueryStringVal("qrcode");
-        searchValue = getQueryStringVal("search");
-        qrsearch = getQueryStringVal("qrsearch");
+    // Load the initial query strings
+    const loadQueryStrings = ( _ : {} ) => {
+        queryVars.itemName = getQueryStringVal("item");
+        queryVars.qrcode = getQueryStringVal("qrcode");
+        queryVars.searchValue = getQueryStringVal("search");
+        queryVars.qrsearch = getQueryStringVal("qrsearch");
 
-        Controller.step('init', {});
+        Controller.step(events.SET_PAGE, {});
     }
 
-
-    const setPage = (_args : {}) => {
-        if (qrsearch) {
+    // Based on the query strings, set which page to show
+    const setPage = ( _ : {} ) => {
+        if (queryVars.qrsearch) {
             page = pages.QRSEARCH;
         }
-        else if (qrcode) {
+        else if (queryVars.qrcode) {
             page = pages.QRCODE;
         }
         else {
           if (link) {
               page = pages.MAIN_DETAILS;
           }
-          else if (itemName) {
+          else if (queryVars.itemName) {
               page = pages.MAIN_BOOKING;
           }
           else {
@@ -71,32 +78,33 @@ The main App
         }
     }
 
+    // Do nothing (just refresh the page)
     function doNothing (_args : {}) { tick ++; };
 
 
     // -------------------------------------------------------------------------------------------------
     // Create the main UX / App Controller
     // -------------------------------------------------------------------------------------------------
-    let createKey = (currentState : string, triggerEvent : string) => currentState + '|' + triggerEvent;
-    let Controller = new Automation ('load', createKey);
+    let createKey = (currentState : states, triggerEvent : events) => currentState + '|' + triggerEvent;
+    let Controller = new Automation<states, events> (states.LOAD, createKey, states._);
 
 
     // -------------------------------------------------------------------------------------------------
     // Create the Transitions
     // -------------------------------------------------------------------------------------------------
-    Controller.add_transition('load',     'loadQueryStrings',     'init',         loadQueryStrings);        // Load the query strings
-    Controller.add_transition('init',     'setPage',              'loadepage'     setPage);
+    Controller.add_transition(states.LOAD,      events.LOAD_QUERY_STRINGS,      states.INIT,            loadQueryStrings);        // Load the query strings
+    Controller.add_transition(states.INIT,      events.SET_PAGE,                states.VIEW,            setPage);
 
 
     // Start with the first event
-    Controller.step('loadQueryStrings', {});
+    Controller.step(events.LOAD_QUERY_STRINGS, {});
     // -------------------------------------------------------------------------------------------------
     // Query strings
     // -------------------------------------------------------------------------------------------------
-    itemName = getQueryStringVal("item");
-    qrcode = getQueryStringVal("qrcode");
-    searchValue = getQueryStringVal("search");
-    qrsearch = getQueryStringVal("qrsearch");
+    // itemName = getQueryStringVal("item");
+    // qrcode = getQueryStringVal("qrcode");
+    // searchValue = getQueryStringVal("search");
+    // qrsearch = getQueryStringVal("qrsearch");
 
     $: search = searchValue?searchValue:"";
     $: message = (itemName && loggedIn) ? "Use the calendar to make a booking or edit existing bookings." : ((loggedIn) ? "Choose an item to see or edit bookings" : "Log in to create and edit bookings.")
@@ -186,9 +194,9 @@ Layout
   <main>
       <SvelteUIProvider themeObserver="light" fluid>
           {#if      (page === pages.QRSEARCH)}
-              <QRcode {qrsearch}/>
+              <QRcode {queryVars}/>
           {:else if (page === pages.QRCODE)}
-              <QRcode itemName={qrcode}/>
+              <QRcode {queryVars}/>
           {:else}
               <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} item={theItem} {showItem} {doneDetails} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
               <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
