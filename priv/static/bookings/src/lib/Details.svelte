@@ -27,6 +27,6 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<iframe src={link} height={height} width='100%' frameborder=0 title='' scrolling=yes style="overflow: visible; min-width: fit-content;">
+<iframe src={link} height={height} width='100%' frameborder=0 title='' scrolling=yes >
 <p>Oops! Your browser does not support iframes.</p></iframe>
 <!----------------------------------------------------------------------------------------------------->

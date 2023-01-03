@@ -2,7 +2,7 @@
   A simple navbar
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-	import { SimpleGrid, Box, Center, Button, Input, Divider, Switch } from '@svelteuidev/core';
+	import { SimpleGrid, Box, Center, Button, Input, Divider, Switch, Space } from '@svelteuidev/core';
     import { MagnifyingGlass } from 'radix-icons-svelte';
     import { LockClosed, ArrowLeft } from 'radix-icons-svelte';
     import type { Item, ItemDetails } from './Graphql.svelte';
@@ -68,7 +68,7 @@ Layout
 <Divider variant='dotted'/>
 <b>{message}</b>
 <Divider variant='dotted'/>
-<SimpleGrid cols={3} 
+<SimpleGrid cols={(context==="main"?2:3)} 
     breakpoints={[
         { maxWidth: 600, cols: 1, spacing: 'sm' }
     ]}>
@@ -86,16 +86,17 @@ Layout
         </Button>
         <Center><Switch label="Currently available" color="gray" on:click={changeAvailability} bind:checked={availability} /></Center>
         {#if loggedIn}       
-            <Center><Switch label="I can book" color="gray" on:click={changeInducted} bind:checked={inducted}/></Center>
+            <Center><Switch label="Items I can book" color="gray" on:click={changeInducted} bind:checked={inducted}/></Center>
         {/if}
     {:else if item && context === "details"}
         <Button on:click={doneDetails} variant='light' color='blue'>
             <ArrowLeft slot="leftIcon" />
             Bookings
         </Button>
-        <Button on:click={() => {showItem(item.url)}} variant="light" color="blue">
+        <Space />
+        <!-- <Button on:click={() => {showItem(item.url)}} variant="light" color="blue">
             Details
-        </Button>
+        </Button> -->
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
             <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
@@ -103,11 +104,15 @@ Layout
     {:else}
         <Button on:click={cancelBooking} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
-            List Items
+            List of Items
         </Button>
-        <Button on:click={() => {showItem(item.url)}} variant="light" color="blue">
-            Details
-        </Button>
+        {#if context !== "details"}
+            <Button on:click={() => {showItem(item.url)}} variant="light" color="blue">
+                Details
+            </Button>
+        {:else}
+            <Space />
+        {/if}
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
             <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
