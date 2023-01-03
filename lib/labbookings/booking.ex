@@ -79,7 +79,7 @@ defmodule Labbookings.Booking do
 
   # ------------------------------------------------------------------------------------------------------
   # Get the bookings by the itemname and whether they overlap the optional start and end times
-  # TODO: This could get quite inefficient as the number of bookings in the system increase
+  # TODO: This could get quite inefficient as the number of bookings in the system increases
   # ------------------------------------------------------------------------------------------------------
   def get_bookings_by_itemname(itemname), do: get_bookings_by_itemname(itemname, nil, nil)
   def get_bookings_by_itemname(itemname, nil, nil) do

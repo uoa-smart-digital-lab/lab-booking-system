@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck - known error with Calendar
 
-	import { Center, Modal } from '@svelteuidev/core';
+	import { Button, Modal } from '@svelteuidev/core';
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
     import Calendar from '@event-calendar/core';
@@ -15,6 +15,7 @@
     import ResourceTimeGrid from '@event-calendar/resource-time-grid';
     import ConfirmBooking from './ConfirmBooking.svelte';
     import type { Booking, ItemDetails, Item } from './Graphql.svelte';
+    import { onMount } from 'svelte';
 
 
     // -------------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@
     export let upi : string;                    // Logged in user's UPI
     export let loggedIn : boolean;              // Whether a user is currently logged in
     export let sessionid : string;              // Logged in user's SessionID
+    export let showItem : (url : string) => void;   // The funcion to call when the item details button is pressed
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -48,10 +50,14 @@
     // -------------------------------------------------------------------------------------------------
     const getName = (details : ItemDetails, name : string) : string => details.name ? details.name : name;
 
+    onMount = (() => {
+        setItem (item);
+    });
+
     // This is a bit of a hack to create a date that is independent of the timezone as the server itself operates at zero UTC
     // Javascript date functions otherwise add the timezone which then puts the date in the wrong place in the server.
     const createDate = (date: Date) => {
-        return (date.getFullYear().toString() + "-" + ((date.getMonth()<9)?"0":"") + (date.getMonth()+1).toString() + "-" + ((date.getDate()<10)?"0":"") + date.getDate().toString() + "T" + ((Math.floor(date.getHours().toString())<10)?"0":"") + Math.floor(date.getHours().toString()).toString() + ":00:00+00:00");
+        return (date.getFullYear().toString() + "-" + ((date.getMonth()<9)?"0":"") + (date.getMonth()+1).toString() + "-" + ((date.getDate()<10)?"0":"") + date.getDate().toString() + "T" + ((Math.floor(date.getHours())<10)?"0":"") + Math.floor(date.getHours()).toString() + ":00:00+00:00");
     }
 
     // Convert the bookings from the API into a format that the calendar can use
@@ -122,7 +128,6 @@
     const changeView = (info : any) => {
         ec.setOption("date", info.date);
         ec.setOption("view", "timeGridDay");
-        console.log(info);
     }
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -150,7 +155,9 @@ Layout
     <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered>
         <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
-
+    <Button fullSize on:click={() => {showItem($item.data.itemGet.url)}} variant='light' color='blue'>
+        Details
+    </Button>
     <Calendar bind:this={ec} {plugins} options = {{
         scrollTime: '09:00:00',
         views: {

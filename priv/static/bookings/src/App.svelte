@@ -13,6 +13,7 @@ The main App
     import { SvelteUIProvider, Divider, Modal } from '@svelteuidev/core';
     import { getQueryStringVal } from './lib/Querystring.svelte';
     import type { Item, Session } from './lib/Graphql.svelte';
+    // import Item from './lib/Item.svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -20,7 +21,7 @@ The main App
     let loginDialogOpen : boolean = false;
     let searchValue : string = "";
     let inducted : boolean = false;
-    let availability : boolean = true;
+    let availability : boolean = false;
     let upi : string = "";
     let sessionid : string = "";
     let loggedIn : boolean = false;
@@ -30,6 +31,7 @@ The main App
     let itemName : string = "";
     let message : string = "";
     let link : string = "";
+    let theItem : Item;
 
     // -------------------------------------------------------------------------------------------------
     // Query strings
@@ -40,7 +42,7 @@ The main App
     qrsearch = getQueryStringVal("qrsearch");
 
     $: search = searchValue?searchValue:"";
-    $: message = (itemName && loggedIn) ? "Use the calendar to make a booking or edit existing bookings." : ((loggedIn) ? "Choose an item to see or edit bookings" : "Log in to see and edit bookings.")
+    $: message = (itemName && loggedIn) ? "Use the calendar to make a booking or edit existing bookings." : ((loggedIn) ? "Choose an item to see or edit bookings" : "Log in to create and edit bookings.")
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -76,10 +78,12 @@ The main App
     const cancelBooking = () => {itemName = "";}
 
     // Use the item chosen to go to the booking calendar
-    const bookItem = (item: Item) => { itemName = item.name; }
+    const bookItem = (item: Item) => { window.scrollTo(0,0); itemName = item.name; }
 
     // Use the item chosen to go to the booking calendar
-    const showItem = (url: string) => { link = url; }//window.open (url, '_blank'); }
+    const showItem = (url: string) => { window.scrollTo(0,0); link = url; }//window.open (url, '_blank'); }
+
+    const setItem = (item: Item) => {theItem = item; }
 
     // Done showing the details for an item
     const doneDetails = () => { link = ""; }
@@ -127,14 +131,14 @@ Layout
       {:else if qrcode}
         <QRcode itemName={qrcode}/>
       {:else}
-        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} {itemName} {search} {doLoginOrLogout} {loggedIn} {changeVar} {doneDetails} {cancelBooking} {availability} {inducted}/>
+        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} {itemName} {theItem} {search} {doLoginOrLogout} {loggedIn} {changeVar} {doneDetails} {cancelBooking} {availability} {inducted}/>
         <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
           <Login {closeLoginDialog} {successfulLogin} />
         </Modal>
         {#if link}
           <Details {link} />
         {:else if itemName}
-          <Booking {sessionid} {itemName} {upi} {loggedIn}/>
+          <Booking {sessionid} {itemName} {showItem} {setItem} {upi} {loggedIn}/>
         {:else}
           <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn} {showItem}/>
         {/if}

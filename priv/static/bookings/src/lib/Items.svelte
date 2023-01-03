@@ -6,7 +6,8 @@
     import ItemObj from './Item.svelte';
 	import { SimpleGrid } from '@svelteuidev/core';
     import { ITEMALL } from './Graphql.svelte';
-    import type { Item, ItemDetails, Person } from './Graphql.svelte';
+    import type { Item, ItemDetails, Person, Booking } from './Graphql.svelte';
+    import { beforeUpdate } from 'svelte';
     
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -22,6 +23,7 @@
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
+    let now : Date;
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -43,8 +45,28 @@
     const checkInducted = (item : Item, inducted : boolean, upi : string) : boolean => 
         ((item.access.toString() === "FREE") ? true : ((item.access.toString() === "INDUCTION") ? (item.inductions.reduce((acc : boolean, curr : Person) => acc || (curr.upi === upi), !inducted)) : !inducted));
 
-    // TODO: Check whether the current item is presently available (ie not currently booked by someone else.)
-    const checkAvailability = (item : Item, availability : boolean) : boolean => true;
+    const timeOverlaps = (startTime : Date, endTime : Date, testTime : Date) : boolean => {
+        // console.log({start:startTime, end:endTime, current:testTime, result: (testTime >= startTime && testTime <= endTime)});
+        return (testTime >= startTime && testTime <= endTime);
+    }
+
+    // Create a date time at zero time zone from the current time and date
+    const rightNow = () => {
+        let now = new Date();
+        let nowString = (now.getFullYear().toString() + "-" + ((now.getMonth()<9)?"0":"") + (now.getMonth()+1).toString() + "-" + ((now.getDate()<10)?"0":"") + now.getDate().toString() + "T" + ((now.getHours()<10)?"0":"") + now.getHours().toString() + ":" + ((now.getMinutes()<10)?"0":"") + now.getMinutes().toString() + ":00+00:00");
+        return (new Date(nowString));
+    }
+
+    // Check whether the current item is presently available (ie not currently booked by someone else.)
+    const checkAvailability = (item : Item, today : Date) : boolean => {     
+        return (!(item.bookings.reduce((acc : boolean, curr : Booking) => acc || timeOverlaps(new Date(curr.starttime), new Date(curr.endtime), today), false)));
+    }
+
+    // Get the current time and refetch the items
+    beforeUpdate(() => {
+        now = rightNow();
+		items.refetch();
+	});
 
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -76,10 +98,27 @@ Layout
             { maxWidth: 600, cols: 1, spacing: 'sm' }
         ]}>
         {#each $items.data.itemAll as item}
-            {#if (checkSearch(item, search) && (checkInducted(item, inducted, upi)) && checkAvailability(item, availability))}
-                <ItemObj {item} {bookItem} {showItem} {loggedIn} {upi}/>
-            {/if}  
+            {#if availability}
+                {#if checkAvailability(item, now)}
+                    {#if (checkSearch(item, search) && checkInducted(item, inducted, upi))}                
+                        <ItemObj {item} {bookItem} {showItem} {loggedIn} {upi} available={true}/>
+                    {/if}
+                {/if}
+            {:else}
+                {#if (checkSearch(item, search) && checkInducted(item, inducted, upi))}                
+                    <ItemObj {item} {bookItem} {showItem} {loggedIn} {upi} available={checkAvailability(item, now)}/>
+                {/if}
+            {/if}
         {/each}
     </SimpleGrid>
 {/if}
 <!----------------------------------------------------------------------------------------------------->
+
+<!--
+
+if the availability button is false, we show all items depending on search and inducted and we change the colour of the button depending on availability
+
+If the availability button is true, we also take into account whether the item is available or not
+
+
+-->

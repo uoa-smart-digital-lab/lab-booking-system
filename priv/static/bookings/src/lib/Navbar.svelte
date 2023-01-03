@@ -2,8 +2,9 @@
   A simple navbar
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-	import { SimpleGrid, Box, Center, Button, Input, Divider, Switch } from '@svelteuidev/core';
+	import { SimpleGrid, Box, Center, Button, Input, Divider, Switch, Image, Card } from '@svelteuidev/core';
     import { MagnifyingGlass } from 'radix-icons-svelte';
+    import { LockClosed, ArrowLeft } from 'radix-icons-svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -33,7 +34,11 @@
 Styles
 ------------------------------------------------------------------------------------------------------->
 <style>
-    
+    img {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+      }
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -50,7 +55,7 @@ Layout
         paddingTop: '6px',
         borderRadius: '$sm'
     }}>
-    <h2>Smart Digital Lab</h2>
+    <img src="/images/logo.png" alt="logo"/>
     {#if itemName}<h3>{itemName.toUpperCase()}</h3>{/if}
     {#if name}<h4>{name}</h4>{/if}
 </Box>
@@ -70,24 +75,29 @@ Layout
             bind:value={search}
         />
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+            <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
-        <Center><Switch label="Available now" color="gray" on:click={changeAvailability} bind:checked={availability} /></Center>
+        <Center><Switch label="Currently available" color="gray" on:click={changeAvailability} bind:checked={availability} /></Center>
         {#if loggedIn}       
-            <Center><Switch label="Allowed to book" color="gray" on:click={changeInducted} bind:checked={inducted}/></Center>
+            <Center><Switch label="I can book" color="gray" on:click={changeInducted} bind:checked={inducted}/></Center>
         {/if}
     {:else if context === "details"}
         <Button on:click={doneDetails} variant='light' color='green'>
-            Item List
+            <ArrowLeft slot="leftIcon" />
+            Back
         </Button>
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+            <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
     {:else}
         <Button on:click={cancelBooking} variant='light' color='green'>
-            Item List
+            <ArrowLeft slot="leftIcon" />
+            Back
         </Button>
         <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+            <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
     {/if}
