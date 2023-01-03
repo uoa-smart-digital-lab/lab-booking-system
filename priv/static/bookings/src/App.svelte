@@ -75,7 +75,7 @@ The main App
     const closeLoginDialog = () => { loginDialogOpen = false; }
 
     // Cancel the booking calendar view and come back to the list
-    const cancelBooking = () => {itemName = "";}
+    const cancelBooking = () => {itemName = ""; link = ""; theItem = null;}
 
     // Use the item chosen to go to the booking calendar
     const bookItem = (item: Item) => { window.scrollTo(0,0); itemName = item.name; }
@@ -83,10 +83,12 @@ The main App
     // Use the item chosen to go to the booking calendar
     const showItem = (url: string) => { window.scrollTo(0,0); link = url; }//window.open (url, '_blank'); }
 
-    const setItem = (item: Item) => {theItem = item; }
+    const setItem = (item: Item) => {console.log(item); theItem = item; }
 
     // Done showing the details for an item
-    const doneDetails = () => { link = ""; }
+    const doneDetails = () => { 
+      link = "";
+    }
 
     // Given a variable name, change the corresponding variable (this is clunky - there has to be a better way)
     const changeVar = (name: string, newvalue: any) => {
@@ -131,14 +133,14 @@ Layout
       {:else if qrcode}
         <QRcode itemName={qrcode}/>
       {:else}
-        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} {itemName} {theItem} {search} {doLoginOrLogout} {loggedIn} {changeVar} {doneDetails} {cancelBooking} {availability} {inducted}/>
+        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} item={theItem} {showItem} {doneDetails} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
         <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
           <Login {closeLoginDialog} {successfulLogin} />
         </Modal>
         {#if link}
           <Details {link} />
         {:else if itemName}
-          <Booking {sessionid} {itemName} {showItem} {setItem} {upi} {loggedIn}/>
+          <Booking {sessionid} {itemName} {setItem} {upi} {loggedIn}/>
         {:else}
           <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn} {showItem}/>
         {/if}

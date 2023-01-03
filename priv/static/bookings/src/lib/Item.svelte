@@ -86,7 +86,7 @@ Layout
     </Card.Section>
  
     <SimpleGrid cols={2}>
-        <Button on:click={() => {showItem(item.url)}} variant='filled' color='blue' fullSize>
+        <Button on:click={() => {showItem(item.url, "list")}} variant='filled' color='blue' fullSize>
             Details
         </Button>
         {#if (loggedIn && available && (allowed() || (item.access.toString() == "FREE")))}
