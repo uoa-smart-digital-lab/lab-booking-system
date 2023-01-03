@@ -12,7 +12,7 @@ config :labbookings,
 
 # Configures the endpoint
 config :labbookings, LabbookingsWeb.Endpoint,
-  url: [host: "192.168.1.170"],
+  url: [host: "0.0.0.0"],
   render_errors: [view: LabbookingsWeb.ErrorView, accepts: ~w(json), layout: false],
   pubsub_server: Labbookings.PubSub,
   live_view: [signing_salt: "fIf/Po82"]

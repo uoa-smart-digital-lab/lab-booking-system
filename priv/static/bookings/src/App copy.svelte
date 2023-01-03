@@ -34,9 +34,8 @@ The main App
     let link : string = "";
     let theItem : Item;
 
-    enum pages { QRSEARCH, QRCODE, MAIN_DETAILS, MAIN_BOOKING, MAIN_LIST };
     let tick : number = 0;
-    let page : pages = pages.MAIN_LIST;
+    let page : string = "default";
 
     // -------------------------------------------------------------------------------------------------
     // Controller Functions
@@ -50,23 +49,22 @@ The main App
         Controller.step('init', {});
     }
 
-
     const setPage = (_args : {}) => {
         if (qrsearch) {
-            page = pages.QRSEARCH;
+            page = "qrsearch";
         }
         else if (qrcode) {
-            page = pages.QRCODE;
+            page = "qrcode";
         }
         else {
           if (link) {
-              page = pages.MAIN_DETAILS;
+              page = 'main_details';
           }
           else if (itemName) {
-              page = pages.MAIN_BOOKING;
+              page = 'main_booking';
           }
           else {
-              page = pages.MAIN_LIST;
+              page = 'main_list';
           }
         }
     }
@@ -184,24 +182,24 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
   <main>
-      <SvelteUIProvider themeObserver="light" fluid>
-          {#if      (page === pages.QRSEARCH)}
-              <QRcode {qrsearch}/>
-          {:else if (page === pages.QRCODE)}
-              <QRcode itemName={qrcode}/>
-          {:else}
-              <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} item={theItem} {showItem} {doneDetails} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
-              <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
-                  <Login {closeLoginDialog} {successfulLogin} />
-              </Modal>
-              {#if      (page === pages.MAIN_DETAILS)}
-                  <Details {link} />
-              {:else if (page === pages.MAIN_BOOKING)}
-                  <Booking {sessionid} {itemName} {setItem} {upi} {loggedIn}/>
-              {:else}
-                  <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn} {showItem}/>
-              {/if}
-          {/if}
-      </SvelteUIProvider>
+    <SvelteUIProvider themeObserver="light" fluid>
+      {#if qrsearch}
+        <QRcode {qrsearch}/>
+      {:else if qrcode}
+        <QRcode itemName={qrcode}/>
+      {:else}
+        <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} item={theItem} {showItem} {doneDetails} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
+        <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
+          <Login {closeLoginDialog} {successfulLogin} />
+        </Modal>
+        {#if link}
+          <Details {link} />
+        {:else if itemName}
+          <Booking {sessionid} {itemName} {setItem} {upi} {loggedIn}/>
+        {:else}
+          <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn} {showItem}/>
+        {/if}
+      {/if}
+    </SvelteUIProvider>
   </main>
 <!----------------------------------------------------------------------------------------------------->
