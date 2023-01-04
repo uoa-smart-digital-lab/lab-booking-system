@@ -61,7 +61,7 @@ export default class Automation<S, E> {
     // Given the current State, and an event, check to see if a Transition is to occur, and if so,
     // do the action
     // ------------------------------------------------------------------------------------------------
-    step(triggerEvent : E, args : object)
+    step(triggerEvent : E, args : object = {})
     {
         // Create the key
         let theKey = this.key(this.currentState, triggerEvent);

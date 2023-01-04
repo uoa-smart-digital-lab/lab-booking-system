@@ -6,29 +6,38 @@
     import { MagnifyingGlass } from 'radix-icons-svelte';
     import { LockClosed, ArrowLeft } from 'radix-icons-svelte';
     import type { Item, ItemDetails } from './Graphql.svelte';
+    import type { QueryVars, AppVars } from './Types.svelte';
+    import { AppStates, AppEvents, LoginStates } from './Types.svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
-    export let loggedIn : boolean;                                      // Whether the user is presently logged in or not
-    export let name : string;                                           // The logged in user's name
-    export let item : Item;                                             // The current item being investigated
-    export let availability : boolean;                                  // Current value for availability checkbox
-    export let inducted : boolean;                                      // Current value for inducted checkbox
-    export let context : string;                                        // Current value for context checkbox
-    export let search : string;                                         // Current value for search field
-    export let message : string;                                        // A message to show under the bar
+    // export let loggedIn : boolean;                                      // Whether the user is presently logged in or not
+    // export let name : string;                                           // The logged in user's name
+    // export let item : Item;                                             // The current item being investigated
+    // export let availability : boolean;                                  // Current value for availability checkbox
+    // export let inducted : boolean;                                      // Current value for inducted checkbox
+    // export let context : string;                                        // Current value for context checkbox
+    // export let search : string;                                         // Current value for search field
+    // export let message : string;                                        // A message to show under the bar
+
+    export let updater : number;
+    export let appState : AppStates;
+    export let loginState : LoginStates;
+    export let appVars : AppVars;
+    export let queryVars : QueryVars;
+
     export let doLoginOrLogout : () => void;                            // Function to call when log in button pressed
     export let cancelBooking : () => void;                              // Go back to the main app
     export let changeVar : (name: string, newvalue: any) => void;       // Change variable in the main app
     export let showItem : (url : string) => void;                       // The function to call when the item details button is pressed
     export let doneDetails : () => void;                                // Done showing the current Item Details
 
-    const changeAvailability = (event:any) : void => { changeVar("availability", event.target.checked); }
-    const changeInducted = (event:any) : void => { changeVar("inducted", event.target.checked); }
-    const changeSearch = (event:any) : void => { changeVar("search", event.target.value); }
+    // const changeAvailability = (event:any) : void => { changeVar("availability", event.target.checked); }
+    // const changeInducted = (event:any) : void => { changeVar("inducted", event.target.checked); }
+    const changeSearch = (event:any) : void => { queryVars.search = event.target.value }; //changeVar("search", event.target.value); }
 
-    const getName = (details : ItemDetails, name : string) : string => details.name ? details.name + " (" + name.toLocaleUpperCase() + ")" : name.toUpperCase();
+    const getName = (details : ItemDetails, name : string) : string => details.name ? details.name + " (" + name.toUpperCase() + ")" : name.toUpperCase();
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -60,62 +69,61 @@ Layout
         borderRadius: '$sm'
     }}>
     <img src="/images/logo.png" alt="logo"/>
-    {#if item}
-        <h3>{getName(item.details, item.name)}</h3>
+    {#if appVars.item}
+        <h3>{getName(appVars.item.details, appVars.item.name)}</h3>
     {/if}
-    {#if name}<h4>{name}</h4>{/if}
+    {#if appVars.session}<h4>{appVars.session.person.name}</h4>{/if}
 </Box>
+
 <Divider variant='dotted'/>
-<b>{message}</b>
+<b>{appVars.message}</b>
 <Divider variant='dotted'/>
-<SimpleGrid cols={(context==="main"?2:3)} 
+
+<SimpleGrid cols={(appState === AppStates.MAIN_LIST)?2:3} 
     breakpoints={[
         { maxWidth: 600, cols: 1, spacing: 'sm' }
     ]}>
-    {#if context === "main"}
+    {#if (appState === AppStates.MAIN_LIST)}
         <Input
             icon={MagnifyingGlass}
             placeholder='Refine'
             rightSectionWidth={70}
             on:input={changeSearch}
-            bind:value={search}
+            bind:value={queryVars.search}
         />
-        <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+        <Button on:click={doLoginOrLogout} variant='light' color='{(loginState === LoginStates.LOGGED_IN)?"red":"blue"}'>
             <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
+            Log {(loginState === LoginStates.LOGGED_IN)?"out":"in"}
         </Button>
-        <Center><Switch label="Currently available" color="gray" on:click={changeAvailability} bind:checked={availability} /></Center>
-        {#if loggedIn}       
+        <!-- <Center><Switch label="Currently available" color="gray" on:click={changeAvailability} bind:checked={availability} /></Center>
+        {#if (loginState === LoginStates.LOGGED_IN)}       
             <Center><Switch label="Items I can book" color="gray" on:click={changeInducted} bind:checked={inducted}/></Center>
-        {/if}
-    {:else if item && context === "details"}
+        {/if} -->
+    {:else if (appVars.item && (appState === AppStates.MAIN_DETAILS))}
         <Button on:click={doneDetails} variant='light' color='blue'>
             <ArrowLeft slot="leftIcon" />
             Bookings
         </Button>
         <Space />
-        <!-- <Button on:click={() => {showItem(item.url)}} variant="light" color="blue">
-            Details
-        </Button> -->
-        <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+        <Button on:click={doLoginOrLogout} variant='light' color='{(loginState === LoginStates.LOGGED_IN)?"red":"blue"}'>
             <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
+            Log {(loginState === LoginStates.LOGGED_IN)?"out":"in"}
         </Button>
     {:else}
         <Button on:click={cancelBooking} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             List of Items
         </Button>
-        {#if context !== "details"}
-            <Button on:click={() => {showItem(item.url)}} variant="light" color="blue">
+        {#if appState === AppStates.MAIN_DETAILS}
+            <Button on:click={() => {showItem(appVars.item.url)}} variant="light" color="blue">
                 Details
             </Button>
         {:else}
             <Space />
         {/if}
-        <Button on:click={doLoginOrLogout} variant='light' color='{loggedIn?"red":"blue"}'>
+        <Button on:click={doLoginOrLogout} variant='light' color='{(loginState === LoginStates.LOGGED_IN)?"red":"blue"}'>
             <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
+            Log {(loginState === LoginStates.LOGGED_IN)?"out":"in"}
         </Button>
     {/if}
 </SimpleGrid>

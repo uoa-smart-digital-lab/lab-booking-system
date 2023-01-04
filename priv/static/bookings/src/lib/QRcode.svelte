@@ -12,20 +12,22 @@
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
-    export let queryVars : QueryVars;                                   // QR Code for a group of items
+    export let queryVars : QueryVars;                               // Details about the item itself
 
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (queryVars.qrsearch?"search=" + queryVars.qrsearch:"item=" + queryVars.itemName);
+    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (queryVars.qrsearch?"search=" + queryVars.qrsearch:"item=" + queryVars.qrcode);
 
     // -------------------------------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------------------------------
     let item : any;
-    if (!queryVars.qrsearch) { item = query(ITEMGET, { variables: {name: queryVars.itemName} }); }
+    if (queryVars.qrcode) { item = query(ITEMGET, { variables: {name: queryVars.qrcode} }); }
 
-    const getname = (details : Item, name : string) : string => details.name ? details.name : name;
+    const getname = (details : Item, name : string) : string => details.name ? details.name : name.toUpperCase();
+
+    console.log (queryVars);
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -74,7 +76,7 @@ Layout
             <Divider variant='dotted'/>
 
             <Text align='center' size='sm'>
-                {queryVars.itemName.toUpperCase()}
+                {$item.data.itemGet.name.toUpperCase()}
             </Text>
         {/if}
     {/if}

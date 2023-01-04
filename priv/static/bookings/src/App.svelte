@@ -15,129 +15,180 @@ The main App
     import type { Item, Session } from './lib/Graphql.svelte';
     import type { QueryVars } from './lib/Types.svelte';
     import Automation from './lib/FiniteStateMachine';
-    // import Item from './lib/Item.svelte';
+    import type { QueryVars, AppVars } from './lib/Types.svelte';
+    import { AppStates, AppEvents, LoginStates, LoginEvents } from './lib/Types.svelte';
+    import { Person } from 'radix-icons-svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let loginDialogOpen : boolean = false;
-    let searchValue : string = "";
     let inducted : boolean = false;
     let availability : boolean = false;
-    let upi : string = "";
-    let sessionid : string = "";
     let loggedIn : boolean = false;
     let name : string = "";
-    let qrcode : string = "";
-    let qrsearch : string = "";
+    let sessionid : string = "";
     let itemName : string = "";
-    let message : string = "";
     let link : string = "";
+    let upi : string = "";
     let theItem : Item;
 
-    let queryVars : QueryVars;
+    let opened : boolean;
 
-    enum pages { QRSEARCH = "qrsearch", QRCODE = "qrcode", MAIN_DETAILS = "main_details", MAIN_BOOKING = "main_booking", MAIN_LIST = "main_list" };
-    let tick : number = 0;
-    let page : pages = pages.MAIN_LIST;
+    let queryVars : QueryVars = { 
+        item : "", 
+        qrcode : "",
+        search : "", 
+        qrsearch : ""
+    };
 
-    enum states { _ = "_", LOAD = "load", INIT = "init", VIEW = "view" };
-    enum events { LOAD_QUERY_STRINGS = "load_query_strings", SET_PAGE = "set_page"}
+    let appVars : AppVars = {
+        session : null,
+        message : "",
+        item : null
+    }
+
+    let updater : number = 0;
 
     // -------------------------------------------------------------------------------------------------
-    // Controller Functions
+    // The main UX / App App Controller
     // -------------------------------------------------------------------------------------------------
-    // Load the initial query strings
-    const loadQueryStrings = ( _ : {} ) => {
-        queryVars.itemName = getQueryStringVal("item");
+    let createAppKey = (currentState : AppStates, triggerEvent : AppEvents) => currentState + '|' + triggerEvent;
+    let AppC = new Automation<AppStates, AppEvents> (AppStates.LOAD, createAppKey, AppStates._);
+
+    // -------------------------------------------------------------------------------------------------
+    // Transitions
+    // -------------------------------------------------------------------------------------------------
+    // Check and load the query strings as these define which page to then show
+    AppC.add_transition(AppStates.LOAD,                     AppEvents.LOAD_QUERY_STRINGS,       AppStates.INIT,                         loadQueryStrings);
+
+    // Initialisation and choosing which page to show based on the query strings
+    AppC.add_transition(AppStates.INIT,                     AppEvents.SHOW_QRCODE,              AppStates.QRCODE,                       DoNothing);
+    AppC.add_transition(AppStates.INIT,                     AppEvents.SHOW_QRSEARCH,            AppStates.QRSEARCH,                     DoNothing);
+    AppC.add_transition(AppStates.INIT,                     AppEvents.SHOW_MAIN_DETAILS,        AppStates.MAIN_DETAILS,                 DoNothing);
+    AppC.add_transition(AppStates.INIT,                     AppEvents.SHOW_MAIN_BOOKING,        AppStates.MAIN_BOOKING,                 DoNothing);
+    AppC.add_transition(AppStates.INIT,                     AppEvents.SHOW_MAIN_LIST,           AppStates.MAIN_LIST,                    DoNothing);
+
+    // -------------------------------------------------------------------------------------------------
+    // Actions
+    // -------------------------------------------------------------------------------------------------
+
+    // Load the values from the query strings
+    function loadQueryStrings (_ : {}) {
+        queryVars.item = getQueryStringVal("item");
         queryVars.qrcode = getQueryStringVal("qrcode");
-        queryVars.searchValue = getQueryStringVal("search");
+        queryVars.search = getQueryStringVal("search");
         queryVars.qrsearch = getQueryStringVal("qrsearch");
 
-        Controller.step(events.SET_PAGE, {});
-    }
-
-    // Based on the query strings, set which page to show
-    const setPage = ( _ : {} ) => {
-        if (queryVars.qrsearch) {
-            page = pages.QRSEARCH;
-        }
-        else if (queryVars.qrcode) {
-            page = pages.QRCODE;
-        }
+        if (queryVars.qrcode) AppC.step(AppEvents.SHOW_QRCODE);
+        else if (queryVars.qrsearch) AppC.step(AppEvents.SHOW_QRSEARCH);
         else {
-          if (link) {
-              page = pages.MAIN_DETAILS;
-          }
-          else if (queryVars.itemName) {
-              page = pages.MAIN_BOOKING;
-          }
-          else {
-              page = pages.MAIN_LIST;
-          }
-        }
+            if (link) AppC.step(AppEvents.SHOW_MAIN_DETAILS);
+            else if (queryVars.item) AppC.step(AppEvents.SHOW_MAIN_BOOKING);
+            else AppC.step(AppEvents.SHOW_MAIN_LIST);
+        }        
     }
 
-    // Do nothing (just refresh the page)
-    function doNothing (_args : {}) { tick ++; };
+    // Do nothing
+    function DoNothing (_ : {} = {}) { }
+    // Force the UI to update (and update a few variables)
+    function updateUI (_ : {} = {}) { 
+        opened = (LoginC.currentState === LoginStates.LOGIN_DIALOG_OPEN);
+        appVars.message = (
+            (LoginC.currentState === LoginStates.LOGGED_IN) ?
+                (
+                    (itemName) ? 
+                        "Use the calendar to make a booking or edit existing bookings."
+                    :
+                        "Choose an item to see or edit bookings"
+                )
+            :
+                "Log in to create and edit bookings."
+        );
+        loggedIn = appVars.session ? true : false;
+    };
+    // -------------------------------------------------------------------------------------------------
+
 
 
     // -------------------------------------------------------------------------------------------------
-    // Create the main UX / App Controller
+    // The login dialog box Controller
     // -------------------------------------------------------------------------------------------------
-    let createKey = (currentState : states, triggerEvent : events) => currentState + '|' + triggerEvent;
-    let Controller = new Automation<states, events> (states.LOAD, createKey, states._);
+    let createLoginKey = (currentState : LoginStates, triggerEvent : LoginEvents) => currentState + '|' + triggerEvent;
+    let LoginC = new Automation<LoginStates, LoginEvents> (LoginStates.LOAD, createLoginKey, LoginStates._);
+
+    // -------------------------------------------------------------------------------------------------
+    // Transitions
+    // -------------------------------------------------------------------------------------------------
+    LoginC.add_transition(LoginStates.LOAD,                 LoginEvents.INITIALISE,             LoginStates.LOGIN_DIALOG_CLOSED,        initialise);
+    LoginC.add_transition(LoginStates._,                    LoginEvents.OPEN_DIALOG,            LoginStates.LOGIN_DIALOG_OPEN,          updateUI);
+    LoginC.add_transition(LoginStates._,                    LoginEvents.CLOSE_DIALOG,           LoginStates.LOGIN_DIALOG_CLOSED,        updateUI);
+    LoginC.add_transition(LoginStates._,                    LoginEvents.LOG_OUT,                LoginStates.LOGGED_OUT,                 resetLoginVariables);
+    LoginC.add_transition(LoginStates.LOGIN_DIALOG_OPEN,    LoginEvents.LOG_IN,                 LoginStates.LOGGED_IN,                  updateUI);
+
+    // -------------------------------------------------------------------------------------------------
+    // Actions
+    // -------------------------------------------------------------------------------------------------
+    // Set up variables
+    function initialise(_:{}={}) {
+        appVars.session = null; appVars.message = ""; appVars.item = null;
+        opened = false;
+    }
+    // After logging in successfully, use the Session to set up various parameters
+    function successfulLogin(session : Session) {
+        appVars.session = session;
+        LoginC.step(LoginEvents.LOG_IN);
+        updateUI();
+    }
+    function resetLoginVariables(_:{}={}) {
+        appVars.session = null;
+        updateUI();
+    }
+    // -------------------------------------------------------------------------------------------------
+
 
 
     // -------------------------------------------------------------------------------------------------
-    // Create the Transitions
-    // -------------------------------------------------------------------------------------------------
-    Controller.add_transition(states.LOAD,      events.LOAD_QUERY_STRINGS,      states.INIT,            loadQueryStrings);        // Load the query strings
-    Controller.add_transition(states.INIT,      events.SET_PAGE,                states.VIEW,            setPage);
-
-
     // Start with the first event
-    Controller.step(events.LOAD_QUERY_STRINGS, {});
     // -------------------------------------------------------------------------------------------------
-    // Query strings
+    AppC.step(AppEvents.LOAD_QUERY_STRINGS);
+    LoginC.step(LoginEvents.INITIALISE);
     // -------------------------------------------------------------------------------------------------
-    // itemName = getQueryStringVal("item");
-    // qrcode = getQueryStringVal("qrcode");
-    // searchValue = getQueryStringVal("search");
-    // qrsearch = getQueryStringVal("qrsearch");
 
-    $: search = searchValue?searchValue:"";
-    $: message = (itemName && loggedIn) ? "Use the calendar to make a booking or edit existing bookings." : ((loggedIn) ? "Choose an item to see or edit bookings" : "Log in to create and edit bookings.")
+
 
     // -------------------------------------------------------------------------------------------------
-    // Functions
+    // Some Reactive elemnts
+    // -------------------------------------------------------------------------------------------------
+    $: search = queryVars.search?queryVars.search:"";
+    // -------------------------------------------------------------------------------------------------
+
+
+
+    // -------------------------------------------------------------------------------------------------
+    // GraphQL
     // -------------------------------------------------------------------------------------------------
     // GraphQL client setup 
     const client = new ApolloClient({
-      uri:  '/api',
-      cache: new InMemoryCache()
+        uri:  '/api',
+        cache: new InMemoryCache()
     });
     setClient(client);
+    // -------------------------------------------------------------------------------------------------
+
+
 
     // Log in or out
     const doLoginOrLogout = () => {
-      if (sessionid === "") {
-        loginDialogOpen = true;
-      }
-      else {
-        sessionid = "";
-        loggedIn = false;
-        name = "";
-        itemName = "";
-        upi = "";
-        inducted = false;
-        availability = true;
-        loginDialogOpen = false;
-      }
+        if (LoginC.currentState === LoginStates.LOGGED_IN) {
+            LoginC.step(LoginEvents.LOG_OUT);
+        }
+        else {
+            LoginC.step(LoginEvents.OPEN_DIALOG);
+        }
     }
 
     // Close the login dialog box like with the cancel button
-    const closeLoginDialog = () => { loginDialogOpen = false; }
+    const closeLoginDialog = () => { LoginC.step(LoginEvents.CLOSE_DIALOG); }
 
     // Cancel the booking calendar view and come back to the list
     const cancelBooking = () => {itemName = ""; link = ""; theItem = null;}
@@ -157,23 +208,13 @@ The main App
 
     // Given a variable name, change the corresponding variable (this is clunky - there has to be a better way)
     const changeVar = (name: string, newvalue: any) => {
-      switch (name) {
-        case "search" : searchValue = newvalue; break;
-        case "availability" : availability = newvalue; break;
-        case "inducted" : inducted = newvalue; break;
-        default: break;
-      }
+        switch (name) {
+            case "search" : queryVars.search = newvalue; break;
+            case "availability" : availability = newvalue; break;
+            case "inducted" : inducted = newvalue; break;
+            default: break;
+        }
     }
-
-    // After logging in successfully, use the Session to set up various parameters
-    const successfulLogin = (data : Session) => {
-      upi = data.person.upi;
-      name = data.person.name;
-      sessionid = data.sessionid;
-      loggedIn = true;
-      loginDialogOpen = false;
-    }
-
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -193,18 +234,21 @@ Layout
 ------------------------------------------------------------------------------------------------------->
   <main>
       <SvelteUIProvider themeObserver="light" fluid>
-          {#if      (page === pages.QRSEARCH)}
+          {#if (AppC.currentState === AppStates.QRSEARCH)}
               <QRcode {queryVars}/>
-          {:else if (page === pages.QRCODE)}
+          {:else if (AppC.currentState === AppStates.QRCODE)}
               <QRcode {queryVars}/>
           {:else}
-              <Navbar {message} context={link?"details":(itemName?"booking":"main")} {name} item={theItem} {showItem} {doneDetails} {search} {doLoginOrLogout} {loggedIn} {changeVar} {cancelBooking} {availability} {inducted}/>
-              <Modal size="sm" opened={loginDialogOpen} on:close={closeLoginDialog} title="Log In" centered >
+
+              <Navbar {updater} {queryVars} {appVars} appState={AppC.currentState} loginState={LoginC.currentState} {showItem} {doneDetails} {doLoginOrLogout} {changeVar} {cancelBooking}/>
+
+              <Modal size="sm" {opened} on:close={closeLoginDialog} title="Log In" centered >
                   <Login {closeLoginDialog} {successfulLogin} />
               </Modal>
-              {#if      (page === pages.MAIN_DETAILS)}
+
+              {#if      (AppC.currentState === AppStates.MAIN_DETAILS)}
                   <Details {link} />
-              {:else if (page === pages.MAIN_BOOKING)}
+              {:else if (AppC.currentState === AppStates.MAIN_BOOKING)}
                   <Booking {sessionid} {itemName} {setItem} {upi} {loggedIn}/>
               {:else}
                   <Items {bookItem} {search} {inducted} {availability} {upi} {loggedIn} {showItem}/>
