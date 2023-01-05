@@ -4,6 +4,7 @@
 defmodule LabbookingsWeb.PersonResolver do
   alias Labbookings.Person
   alias Labbookings.Induction
+  alias Labbookings.Booking
 
 
   # ------------------------------------------------------------------------------------------------------
@@ -173,7 +174,7 @@ defmodule LabbookingsWeb.PersonResolver do
                   {:ok, result} ->
                     # Get rid of references to the user in the inductions and bookings databases.
                     Induction.delete_inductions_by_upi(args.upi)
-                    # Booking.delete_bookings_by_upi(args.upi)
+                    Booking.delete_bookings_by_upi(args.upi)
                     {:ok, result |> Map.replace(:password, "")}
                   _ ->
                     {:error, :internalerror}
