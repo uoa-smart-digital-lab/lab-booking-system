@@ -3,7 +3,7 @@
     import type { Item, Session } from './Graphql.svelte';
 
     export type QueryVars = {
-        item : string,
+        name : string,
         qrcode : string,
         qrsearch : string,
         search : string
@@ -24,16 +24,17 @@
         QRCODE='qrCode', 
         MAIN_DETAILS='mainDetails', 
         MAIN_BOOKING='mainBooking', 
-        MAIN_LIST='mainList'
+        MAIN_LIST='mainList',
+        ITEM_DETAILS='itemDetails'
     };
     export enum AppEvents {
         LOAD_QUERY_STRINGS='loadQueryStrings', 
         SHOW_QRCODE='showQRCode',
         SHOW_QRSEARCH='showQRSearch',
         SHOW_SEARCH='showSearch',
-        SHOW_MAIN_LIST='showMainList',
-        SHOW_MAIN_BOOKING='showMainBooking',
-        SHOW_MAIN_DETAILS='showMainDetails'
+        SHOW_LIST='showList',
+        SHOW_BOOKING='showBooking',
+        SHOW_DETAILS='showDetails'
     };
 
     export enum LoginStates {

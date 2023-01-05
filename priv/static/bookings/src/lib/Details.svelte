@@ -2,12 +2,13 @@
   Show a webpage inside an iframe
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
+    import type { AppVars } from './Types.svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
  
-    export let link : string = "";
+    export let appVars : AppVars;
 
     let height = screen.height;
 </script>
@@ -27,6 +28,6 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<iframe src={link} height={height} width='100%' frameborder=0 title='' scrolling=yes >
+<iframe src={appVars.item.url} height={height} width='100%' frameborder=0 title='' scrolling=yes >
 <p>Oops! Your browser does not support iframes.</p></iframe>
 <!----------------------------------------------------------------------------------------------------->

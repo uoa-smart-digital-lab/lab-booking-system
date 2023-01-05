@@ -15,16 +15,18 @@
     import ResourceTimeGrid from '@event-calendar/resource-time-grid';
     import ConfirmBooking from './ConfirmBooking.svelte';
     import type { Booking, ItemDetails, Item } from './Graphql.svelte';
+    import type { AppVars, QueryVars } from './Types.svelte';
+    import Item from './Item.svelte';
+	import { createEventDispatcher } from 'svelte';
 
+    const dispatch = createEventDispatcher();
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
-    export let itemName : string;               // Details about the item itself
-    export let upi : string;                    // Logged in user's UPI
+    export let appVars : AppVars;
+    export let queryVars : QueryVars;
     export let loggedIn : boolean;              // Whether a user is currently logged in
-    export let sessionid : string;              // Logged in user's SessionID
-    export let setItem : ( item : Item) => void; 
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -42,14 +44,12 @@
 
 
     // The GraphQL query structure for login
-    let item : any = query(ITEMGET, { variables: {name: itemName} });
+    let item : any = query(ITEMGET, { variables: {name: appVars.item ? appVars.item.name : ( queryVars.name ? queryVars.name : "" ) } });
 
     // -------------------------------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------------------------------
-    const getName = (details : ItemDetails, name : string) : string => details.name ? details.name : name;
-
-    const setTheItem = (item : Item) => { setItem(item); return "";};
+    function setItem (item : Item) { dispatch ( 'setItem', { item : item } ); return(""); }
 
     // This is a bit of a hack to create a date that is independent of the timezone as the server itself operates at zero UTC
     // Javascript date functions otherwise add the timezone which then puts the date in the wrong place in the server.
@@ -69,10 +69,10 @@
                 start: booking.starttime,
                 end: booking.endtime,
                 title: booking.person.name + " (" + booking.person.upi + ") " + (booking.details.info ? (" - " + booking.details.info) : ""),
-                backgroundColor: loggedIn && (booking.person.upi === upi) ? '#2185d0' : '#cccccc',
-                editable: loggedIn && (booking.person.upi === upi),
-                startEditable: loggedIn && (booking.person.upi === upi),
-                durationEditable: loggedIn && (booking.person.upi === upi),
+                backgroundColor: loggedIn && (booking.person.upi === appVars.session.person.upi) ? '#2185d0' : '#cccccc',
+                editable: loggedIn && (booking.person.upi === appVars.session.person.upi),
+                startEditable: loggedIn && (booking.person.upi === appVars.session.person.upi),
+                durationEditable: loggedIn && (booking.person.upi === appVars.session.person.upi),
                 allDay: (eventLength > 23),
                 extendedProps: booking.details
             });
@@ -147,12 +147,12 @@ Layout
 {#if $item.loading}
     Loading...
 {:else if $item.error}
-    Error: {$item.error.message}
+    There is no item called \'{queryVars.name}\' in the system.
 {:else}
     <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered>
-        <ConfirmBooking {details} {sessionid} {closeDialog} {success} {updating} {editing} {upi} {itemName} {startTime} {endTime} {newStartTime} {newEndTime} />
+        <ConfirmBooking {details} sessionid={appVars.session.sessionid} {closeDialog} {success} {updating} {editing} upi={appVars.session.person.upi} itemName={appVars.item.name} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
-    {setTheItem ($item.data.itemGet)}
+    {setItem ($item.data.itemGet)}
     <Calendar bind:this={ec} {plugins} options = {{
         scrollTime: '09:00:00',
         views: {

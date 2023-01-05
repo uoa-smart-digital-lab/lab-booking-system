@@ -26,8 +26,6 @@
     if (queryVars.qrcode) { item = query(ITEMGET, { variables: {name: queryVars.qrcode} }); }
 
     const getname = (details : Item, name : string) : string => details.name ? details.name : name.toUpperCase();
-
-    console.log (queryVars);
 </script>
 <!----------------------------------------------------------------------------------------------------->
 

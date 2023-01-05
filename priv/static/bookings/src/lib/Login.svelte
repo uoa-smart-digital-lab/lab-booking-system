@@ -9,12 +9,15 @@
     import { LOGIN } from './Graphql.svelte';
     import type { Session } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
+	import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
-    export let successfulLogin : (login_data: Session) => void; // Function to call when login success
-    export let closeLoginDialog : () => void;                   // Function to call to close dialog
+    // export let successfulLogin : (login_data: Session) => void; // Function to call when login success
+    // export let closeLoginDialog : () => void;                   // Function to call to close dialog
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -40,11 +43,15 @@
     const handleSubmit = () => {
         doLogin({ variables: { upi, password } })
         .then((result:any) => {
-            successfulLogin(result.data.login);
+            dispatch ('login', { message : 'success', data : result.data.login });
         })
         .catch((error : { graphQLErrors : [{ message : string }]}) => {
             errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
         });
+    }
+
+    function closeLogin () {
+        dispatch ('login', { message : 'close', data : {}})
     }
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -79,7 +86,7 @@ Layout
     <Divider variant='dotted'/>
 
     <SimpleGrid cols={2}>
-        <Button on:click={closeLoginDialog} variant='filled' color='blue' fullSize>
+        <Button on:click={closeLogin} variant='filled' color='blue' fullSize>
             Cancel
         </Button>
         <Button on:click={handleSubmit} variant='filled' color='green' fullSize>
