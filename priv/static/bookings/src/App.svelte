@@ -115,7 +115,8 @@ The main App
                         "Choose an item to see or edit bookings"
                 )
             :
-                "Log in to create and edit bookings."
+                "Welcome to the SDL Booking System.  This is still under heavy development, so for now, this is only test data.  \
+                Please try this out and send comments to roy.davies@auckland.ac.nz.  Log in to create and edit bookings."
         );
         loggedIn = (LoginC.currentState === LoginStates.LOGGED_IN);
         appState = AppC.currentState;
