@@ -107,7 +107,7 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation itemCreate ($name:String!, $url:String!, $image:String!, $details:Json!, $cost:Int!, $bookable:Boolean!, $access:Itemtype!)\r\n{\r\n  itemCreate(name:$name, url:$url, image:$image, details:$details, cost:$cost, bookable:$bookable, access:$access) {\r\n    name\r\n    url\r\n    image\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"optitrack_2\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/optitrack.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Optitrack VR\\\"}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"SUPERVISED\"\r\n}"
+								"variables": "{\r\n    \"name\":\"quest2_b_10\",\r\n    \"url\":\"/pages/quest2.html\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Meta Quest 2\\\"}\",\r\n    \"cost\": 0,\r\n    \"bookable\": true,\r\n    \"access\": \"FREE\"\r\n}"
 							}
 						},
 						"url": {
@@ -152,8 +152,8 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "mutation itemUpdate ($name:String!, $url:String, $image:String, $details:Json, $access:Itemtype)\r\n{\r\n  itemUpdate(name:$name, url:$url, image:$image, details:$details, access:$access) {\r\n    name\r\n    url\r\n    image\r\n    access\r\n    inductions {\r\n        upi\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n  }\r\n}",
-								"variables": "{\r\n    \"name\":\"quest2_b_4\",\r\n    \"url\":\"test\",\r\n    \"image\":\"/images/quest2.jpg\",\r\n    \"details\":\"{\\\"name\\\":\\\"Oculus Quest 2\\\"}\",\r\n    \"access\":\"FREE\"\r\n}"
+								"query": "mutation itemUpdate ($name:String!, $url:String, $image:String, $details:Json, $access:Itemtype, $bookable:Boolean)\r\n{\r\n  itemUpdate(name:$name, url:$url, image:$image, details:$details, access:$access, bookable:$bookable) {\r\n    name\r\n    bookable\r\n    url\r\n    image\r\n    access\r\n    inductions {\r\n        upi\r\n        inductions {\r\n            name\r\n        }\r\n    }\r\n  }\r\n}",
+								"variables": "{\r\n    \"name\":\"quest2_b_1\",\r\n    \"details\":\"{\\\"name\\\":\\\"Meta Quest 2\\\"}\",\r\n    \"access\":\"FREE\"\r\n}"
 							}
 						},
 						"url": {
