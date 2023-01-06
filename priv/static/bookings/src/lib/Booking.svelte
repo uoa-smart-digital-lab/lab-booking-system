@@ -41,6 +41,8 @@
     let plugins = [TimeGrid, DayGrid, List, ResourceTimeGrid, Interaction]; // Active Plugns for the calendar
     let ec : any;                               // Reference to the Calendar
     let details : any;                          // Additional booking details
+    let bookingupi : string;                    // The booking upi
+    let bookerStatus : string;                  // The booking person's status
 
 
     // The GraphQL query structure for login
@@ -74,7 +76,7 @@
                 startEditable: loggedIn && (booking.person.upi === appVars.session.person.upi),
                 durationEditable: loggedIn && (booking.person.upi === appVars.session.person.upi),
                 allDay: (eventLength > 23),
-                extendedProps: booking.details
+                extendedProps: {upi: booking.person.upi, details: booking.details}
             });
         })
         return calendarEvents;
@@ -94,6 +96,8 @@
             newStartTime = startTime = createDate(info.start);
             newEndTime = endTime = createDate(info.end);
             details = {info:""};
+            bookingupi = appVars.session.person.upi;
+            bookerStatus = appVars.session.person.status.toString();
             opened = true;
         }
     }
@@ -106,7 +110,9 @@
             startTime = createDate(info.oldEvent.start);
             newEndTime = createDate(info.event.end);
             endTime = createDate(info.oldEvent.end);
-            details = info.event.extendedProps;
+            details = info.event.extendedProps.details;
+            bookingupi = info.event.extendedProps.upi;
+            bookerStatus = appVars.session.person.status.toString();
             opened = true;
         }
     }
@@ -117,7 +123,9 @@
             editing=true;
             newStartTime = startTime = createDate(info.event.start);
             newEndTime = endTime = createDate(info.event.end);
-            details = info.event.extendedProps;
+            details = info.event.extendedProps.details;
+            bookingupi = info.event.extendedProps.upi;
+            bookerStatus = appVars.session.person.status.toString();
             opened = true;
         }
     }
@@ -150,7 +158,7 @@ Layout
     There is no item called \'{queryVars.name}\' in the system.
 {:else}
     <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered>
-        <ConfirmBooking {details} sessionid={appVars.session.sessionid} {closeDialog} {success} {updating} {editing} upi={appVars.session.person.upi} itemName={appVars.item.name} {startTime} {endTime} {newStartTime} {newEndTime} />
+        <ConfirmBooking {details} sessionid={appVars.session.sessionid} {closeDialog} {success} {updating} {editing} {bookingupi} {bookerStatus} upi={appVars.session.person.upi} itemName={appVars.item.name} {startTime} {endTime} {newStartTime} {newEndTime} />
     </Modal>
     {setItem ($item.data.itemGet)}
     <Calendar bind:this={ec} {plugins} options = {{

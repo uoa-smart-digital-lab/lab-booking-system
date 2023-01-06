@@ -21,6 +21,8 @@
     export let editing : boolean;                           // Whether editing an existing booking
     export let sessionid : string;                          // Current sessionid
     export let details : any;                               // Additional booking details
+    export let bookingupi : string;                         // The upi to book for
+    export let bookerStatus : string;                       // The status of the person booking
 
     export let success : (item : Item) => null;             // Called when success in updating or new
     export let closeDialog : () => null;                    // Close the dialog box (eg when cancel pressed)
@@ -41,7 +43,7 @@
         fetchPolicy: 'network-only'
     });
     const handleUpdate = () => {
-        ItemChangebooking({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime, newstarttime:newStartTime, newendtime:newEndTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
+        ItemChangebooking({ variables: { itemname:itemName, upi:bookingupi, starttime:startTime, endtime:endTime, newstarttime:newStartTime, newendtime:newEndTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
         .then((result : any) => {
             success(result.data.itemChangebooking);
         })
@@ -57,7 +59,7 @@
         fetchPolicy: 'network-only'
     });
     const handleNew = () => {
-        ItemBook({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
+        ItemBook({ variables: { itemname:itemName, upi:bookingupi, starttime:startTime, endtime:endTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
         .then((result : any) => {
             success(result.data.itemBook);
         })
@@ -73,7 +75,7 @@
     fetchPolicy: 'network-only'
     });
     const handleDelete = () => {
-        ItemUnbook({ variables: { itemname:itemName, upi, starttime:startTime, endtime:endTime } })
+        ItemUnbook({ variables: { itemname:itemName, upi:bookingupi, starttime:startTime, endtime:endTime } })
         .then((result : any) => {
             success(result.data.itemBook);
         })
@@ -108,6 +110,10 @@ Layout
         <Divider variant='dotted'/>
     {/if}
 
+    {#if bookerStatus === "ADMIN" || bookerStatus === "POWERUSER"}
+        <TextInput placeholder="Booking for..." bind:value={bookingupi}/>
+        <Divider variant='dotted'/>
+    {/if}
     <TextInput placeholder="Additional Booking Details" bind:value={bookingInfo}/>
     <Divider variant='dotted'/>
     <SimpleGrid cols={2}>

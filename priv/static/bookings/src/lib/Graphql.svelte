@@ -80,7 +80,7 @@
         mutation login ($upi:String!, $password:String!)
         {
             login (upi:$upi, password:$password) {
-                sessionid person { upi name }
+                sessionid person { upi name status }
             }
         }`;
 
