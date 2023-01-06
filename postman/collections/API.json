@@ -1,0 +1,469 @@
+{
+	"info": {
+		"_postman_id": "abed9291-fb4a-4be4-84eb-e4e4b0d33178",
+		"name": "API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "17645294-abed9291-fb4a-4be4-84eb-e4e4b0d33178"
+	},
+	"item": [
+		{
+			"name": "mutations",
+			"item": [
+				{
+					"name": "personCreate",
+					"id": "932a4c3b-0c2c-4838-80b7-91e878f13306",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "personUpdate",
+					"id": "b3a47b09-344b-42a0-9437-72ffc48a2d33",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}?sessionid={{sessionid}}",
+							"host": [
+								"{{url}}"
+							],
+							"query": [
+								{
+									"key": "sessionid",
+									"value": "{{sessionid}}",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "personDelete",
+					"id": "fd112e93-1e52-493f-95b4-ebc8d6caff5d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}?sessionid={{sessionid}}",
+							"host": [
+								"{{url}}"
+							],
+							"query": [
+								{
+									"key": "sessionid",
+									"value": "{{sessionid}}",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "personInduct",
+					"id": "59382773-0367-4252-bc0d-6754a68b1bc3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "personUninduct",
+					"id": "0b4a5e3a-72ec-4587-b097-5853db4d9a95",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "personAdjustTokens",
+					"id": "a27578a3-4c9f-4c27-b8ab-33cad73475a6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "166312f8-7eea-4232-a6c3-4c268e52c433",
+								"exec": [
+									"const jsonResponse = pm.response.json();",
+									"pm.environment.set(\"sessionid\", jsonResponse.data.login.sessionid);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"id": "43144f37-0d8b-48c4-a099-67bac55e7115",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"id": "6f2d7971-ab2c-4549-ab23-0f323a535ffc",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemCreate",
+					"id": "3156afe4-65c0-4321-a3ef-a8cb9e87ab8f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemUpdate",
+					"id": "b95c5e0a-776b-4239-aac8-96df8e9226d3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemDelete",
+					"id": "0eb9a271-9c43-4c3c-b401-eb85bf78b8a5",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemBook",
+					"id": "5d873c5e-077b-4590-8caf-dfa627875089",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemUnbook",
+					"id": "cdf59a5e-5257-43de-bd85-55c4836263ee",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemChangebooking",
+					"id": "512f12b5-0c54-41e6-92e0-4de6aacfd918",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "5377a584-76f5-4ff3-b4da-c0ff26f7ef7d"
+		},
+		{
+			"name": "queries",
+			"item": [
+				{
+					"name": "personGet",
+					"id": "814e00c2-812f-4b16-b270-72ceab4570dd",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "personAll",
+					"id": "a12de07f-25a0-48f2-9b66-f51cecd1d8c6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemGet",
+					"id": "a996ad41-6aec-44d8-85da-d676406df679",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "itemAll",
+					"id": "d80e772a-c8d3-4551-88af-edbf43228535",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql"
+						},
+						"url": {
+							"raw": "{{url}}",
+							"host": [
+								"{{url}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "704c36fe-fc3e-4c99-9681-c8cd4408c21a"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "a221cbd9-dc37-49dc-8fcf-c3bea57625f9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9eec1ba5-2ad1-4c87-b5f7-67f0073b3c54",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "1a92c3ee-d8cb-4561-8f10-3e614204b23a",
+			"key": "url",
+			"value": "https://130.216.239.48:3001/api",
+			"type": "any"
+		}
+	]
+}
