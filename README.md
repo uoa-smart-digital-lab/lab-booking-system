@@ -11,20 +11,18 @@ To start your Phoenix server:
   * Create and migrate your database with `mix ecto.setup`
   * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
-To setup and build the React WebApps:
+To setup and build the Svelte WebApps:
 
-  * Ensure that npm is install (eg `sudo apt-get install npm`) 
-  * cd into the main directory for each React App (priv/static/[React App])
-  * ensure that react-scripts is installed (eg `npm install react-scripts`)
-  * There will be other packages requiring installation, but each you try building, it will show what is missing.
-  * To build the development release, use `npm run build` or `yarn build`
+  * Ensure that yarn is install (https://yarnpkg.com) 
+  * cd into the main directory for each Svelte App (priv/static/[Svelte App])
+  * 
+  * To build the development release, use `yarn build`
 
-  * Note there is an issue with reactscripts that the following command should fix:
-    * sed -i 's/;;/;/g' ./node_modules/semantic-ui-css/semantic.min.css
+For the server to serve the static files from the right place, links have to be created to the build folders:
+  * cd into the build folder, then
+  * ln -s ../[Svelte App]/dist ./[Svelte App]  eg ln -s ../admin/dist ./admin
 
-For the server to serve the static files from the right place, either links have to be created to the build folders or the build folders have to copied in under the priv/static/builds folder
-
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Now you can visit [`https://[URL]:3001`](https://[URL]:3001) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
