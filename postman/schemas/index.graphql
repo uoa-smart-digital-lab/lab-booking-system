@@ -13,13 +13,13 @@ enum Status {
   USER,                   # An ordinary person
   POWERUSER,              # A person with some delegated responsibility
   ADMIN                   # Overall administrator who can do anything
-}
+} 
 
 enum Access {
   FREE,                   # Anybody can book, no induction required
   INDUCTION,              # Must be inducted to book and use
   SUPERVISED              # Requires a supervisor for use (eg Lab Technician)
-}
+} 
 
 # Used to represent JSON data.  Sent in as stringified JSON, but returned as actual JSON.
 scalar Json
@@ -30,7 +30,7 @@ scalar DateTime
 # ******************************************************************************************************************************************************
 # A person who can use the lab and book items.
 # Note that a person who is a poweruser can alter the inductions of persons for items they themselves are inducted for, and alter the bookings for any
-# person.
+# person of items they are inducted for.
 # ******************************************************************************************************************************************************
 type Person {
   upi: String!            # The unique University Personal ID
@@ -43,20 +43,20 @@ type Person {
 
   inductions: [Item]!     # A list of items this person is inducted for
   bookings: [Booking]!    # A list of current bookings for this person
-}
+} 
 
 # ******************************************************************************************************************************************************
-# A persistant session ID.
+# A persistent session ID.
 # ******************************************************************************************************************************************************
 type Session {
   sessionid: String!      # A GUID representing a sessionid
   person: Person!         # The person logged in
-}
+} 
 
 # ******************************************************************************************************************************************************
 # A bookable item.
 # ******************************************************************************************************************************************************
-type Item {
+type Item { 
   name: String!           # The unique name of the item
   image: String!          # A link to an image - can be to the images folder, eg /images/hololens2.jpg
   url: String!            # A link to further information about the item (on another webserver, eg canvas)
@@ -67,9 +67,9 @@ type Item {
   bookable: Boolean!      # Whether bookable at all
   access: Access!         # Level of access use
 
-  inductions: [Person]!   # A list of people for whom this item is inducted.  List will be empty of induction not required (status).
+  inductions: [Person]!   # A list of people for whom this item is inducted.  List will be empty if induction not required (status).
   bookings: [Booking]!    # A list of bookings for this item
-}
+} 
 
 # ******************************************************************************************************************************************************
 # A bookable item.  Local time is assumed.
@@ -80,18 +80,18 @@ type Booking {
   starttime: DateTime!    # The starting time
   endtime: DateTime!      # The ending time
   details: Json!          # Any other relevant details
-}
+} 
 
 type Query {
   # ******************************************************************************************************************************************************
   # Person
   # ******************************************************************************************************************************************************
 
-  # Get the specified person's details.  Admin and Poweruser can get anyone, but ordinary user can only get self.
+  # Get the specified person's details.
   # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header)
   personGet (upi: String!): Person
 
-  # Get all the people.  Admin and Poweruser can get anyone, but ordinary user can only get self.
+  # Get all the people.
   # Errors: notadmin (You are not admin), nosession (No session ID sent in header)
   personAll: [Person]
 
@@ -124,7 +124,7 @@ type Mutation {
   # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
   personDelete (upi: String!): Person
 
-  # Add or remove an item to or from a person's list of inducted items.  Can only be done by admins and powerusers who are themselves inducted to the
+  # Add or remove an item to or from a person's list of inducted items.  Can only be done by admins, and powerusers who are themselves inducted to the
   # item they are inducting someone else to.  So, powerusers can only be inducted by admins (for any item) or other powerusers who are inducted to the item.
   personInduct (upi: String!, itemName: String!): Person
   personUninduct (upi: String!, itemName: String!): Person
@@ -137,7 +137,7 @@ type Mutation {
   # ******************************************************************************************************************************************************
 
   # Log in.  Set sessionid returned as a header for subsequent API calls.
-  # Errors: badpassword (Password incorrect), nosession (upi not given), noparam (noupi or password given)
+  # Errors: badpassword (Password incorrect), nosession (upi not given), noparam (no upi or password given)
   login (upi: String!, password: String!): Session
 
   # Log out.  Uses sessionid in the header to know which person to log out.
