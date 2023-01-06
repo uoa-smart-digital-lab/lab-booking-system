@@ -20,7 +20,7 @@ To setup and build the Svelte WebApps:
 
 For the server to serve the static files from the right place, links have to be created to the build folders:
   * cd into the build folder, then
-  * ln -s ../[Svelte App]/dist ./[Svelte App]  eg ln -s ../admin/dist ./admin
+  * `ln -s ../[Svelte App]/dist ./[Svelte App]`  eg `ln -s ../admin/dist ./admin`
 
 Now you can visit [`https://[URL]:3001`](https://[URL]:3001) from your browser.
 
