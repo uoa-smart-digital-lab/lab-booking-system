@@ -44,21 +44,20 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
 						"url": {
-							"raw": "{{url}}?sessionid={{sessionid}}",
+							"raw": "{{url}}",
 							"host": [
 								"{{url}}"
-							],
-							"query": [
-								{
-									"key": "sessionid",
-									"value": "{{sessionid}}",
-									"type": "text"
-								}
 							]
 						}
 					},
@@ -72,21 +71,20 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
 						"url": {
-							"raw": "{{url}}?sessionid={{sessionid}}",
+							"raw": "{{url}}",
 							"host": [
 								"{{url}}"
-							],
-							"query": [
-								{
-									"key": "sessionid",
-									"value": "{{sessionid}}",
-									"type": "text"
-								}
 							]
 						}
 					},
@@ -100,7 +98,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -121,7 +125,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -142,7 +152,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -191,13 +207,31 @@
 				},
 				{
 					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ffc202b0-6a0a-4eb3-bcb0-cad4a68b7d7c",
+								"exec": [
+									"pm.environment.set(\"sessionid\", \"\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"id": "6f2d7971-ab2c-4549-ab23-0f323a535ffc",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -218,7 +252,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -239,14 +279,27 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
 						"url": {
-							"raw": "{{url}}",
+							"raw": "{{url}}?",
 							"host": [
 								"{{url}}"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"type": "text"
+								}
 							]
 						}
 					},
@@ -260,7 +313,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -281,7 +340,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -302,7 +367,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -323,7 +394,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -377,7 +454,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -398,7 +481,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
@@ -419,7 +508,13 @@
 					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "sessionid",
+								"value": "{{sessionid}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "graphql"
 						},
