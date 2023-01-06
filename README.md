@@ -15,7 +15,7 @@ To setup and build the Svelte WebApps:
 
   * Ensure that yarn is install (https://yarnpkg.com) 
   * cd into the main directory for each Svelte App (priv/static/[Svelte App])
-  * 
+  * The first time, run `yarn` to set up the libraries.
   * To build the development release, use `yarn build`
 
 For the server to serve the static files from the right place, links have to be created to the build folders:
