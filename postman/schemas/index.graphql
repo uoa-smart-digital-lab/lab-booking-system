@@ -15,7 +15,7 @@ enum Status {
   ADMIN                   # Overall administrator who can do anything
 } 
 
-enum Access {
+enum Itemtype {
   FREE,                   # Anybody can book, no induction required
   INDUCTION,              # Must be inducted to book and use
   SUPERVISED              # Requires a supervisor for use (eg Lab Technician)
@@ -65,7 +65,7 @@ type Item {
   cost: Int!              # Cost in tokens per time period
 
   bookable: Boolean!      # Whether bookable at all
-  access: Access!         # Level of access use
+  access: Itemtype!       # Level of access use
 
   inductions: [Person]!   # A list of people for whom this item is inducted.  List will be empty if induction not required (status).
   bookings: [Booking]!    # A list of bookings for this item
@@ -150,11 +150,11 @@ type Mutation {
 
   # Create a new item.  Can only be done by admins and powerusers.
   # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), itemexists (Item already exists), internalerror (Internal error)
-  itemCreate (name: String!, image: String!, url: String!, details: Json!): Item
+  itemCreate (name: String!, image: String!, url: String!, details: Json!, cost: Int!, bookable: Boolean!, access: Itemtype!): Item
 
   # Update an item.  Can only be done by admins.
   # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), noitem (Item doesn't exists), internalerror (Internal error)
-  itemUpdate (name: String!, image: String, url: String, details: Json): Item
+  itemUpdate (name: String!, image: String, url: String, details: Json, cost: Int, bookable: Boolean, access: Itemtype): Item
 
   # Delete an item.  Can only be done by admins.
   # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), noitem (Item doesn't exists), internalerror (Internal error)
