@@ -64,7 +64,7 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 <Box
-    css={{ backgroundColor: '$blue200', textAlign: 'center', padding: '3px', paddingTop: '6px', borderRadius: '$sm' }}>
+    css={{ backgroundColor: '$yellow400', textAlign: 'center', padding: '3px', paddingTop: '6px', borderRadius: '$sm' }}>
     <img src="/images/logo.png" alt="logo"/>
     {#if appVars.item}
         <h3>{getName(appVars.item.details, appVars.item.name)}</h3>

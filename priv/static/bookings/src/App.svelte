@@ -16,7 +16,7 @@ The main App
     import Automation from './lib/FiniteStateMachine';
     import type { QueryVars, AppVars } from './lib/Types.svelte';
     import { AppStates, AppEvents, LoginStates, LoginEvents } from './lib/Types.svelte';
-    import { Person } from 'radix-icons-svelte';
+    import { CounterClockwiseClock, Person } from 'radix-icons-svelte';
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -43,8 +43,6 @@ The main App
         message : "",
         item : null
     }
-
-    let updater : number = 0;
 
     // -------------------------------------------------------------------------------------------------
     // The main UX / App App Controller
@@ -115,7 +113,7 @@ The main App
                         "Choose an item to see or edit bookings"
                 )
             :
-                "Welcome to the SDL Booking System.  This is still under heavy development, so for now, this is only test data.  \
+                "Welcome to the SDL / TTL Booking System.  This is still under heavy development, so for now, this is only test data.  \
                 Please try this out and send comments to roy.davies@auckland.ac.nz.  Log in to create and edit bookings."
         );
         loggedIn = (LoginC.currentState === LoginStates.LOGGED_IN);
@@ -263,34 +261,36 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-  <main>
-      <SvelteUIProvider themeObserver="light" fluid>
-          {#if ((appState === AppStates.QRSEARCH) || (appState === AppStates.QRCODE))}
-              <QRcode {queryVars}/>
-          {:else}
+<!-- <svelte:window on:popstate={()=>{alert("HERE")}}/> -->
+    
+<main>
+    <SvelteUIProvider themeObserver="light" fluid>
+        {#if ((appState === AppStates.QRSEARCH) || (appState === AppStates.QRCODE))}
+            <QRcode {queryVars}/>
+        {:else}
 
-              <Navbar 
-                bind:searchString={searchString}
-                bind:availability={availability}
-                bind:inducted={inducted}
-                on:login={login}
-                on:doneBooking={doneBooking}
-                on:showDetails={showDetails}
-                on:doneDetails={doneDetails}
-                {queryVars} {appVars} {appState} {loggedIn} />
+            <Navbar 
+            bind:searchString={searchString}
+            bind:availability={availability}
+            bind:inducted={inducted}
+            on:login={login}
+            on:doneBooking={doneBooking}
+            on:showDetails={showDetails}
+            on:doneDetails={doneDetails}
+            {queryVars} {appVars} {appState} {loggedIn} />
 
-              <Modal size="sm" {opened} on:close={closeLogin} title="Log In" centered >
-                  <Login on:login={login} />
-              </Modal>
+            <Modal size="sm" {opened} on:close={closeLogin} title="Log In" centered >
+                <Login on:login={login} />
+            </Modal>
 
-              {#if (appState === AppStates.MAIN_DETAILS) || (appState === AppStates.ITEM_DETAILS)}
-                  <Details {appVars} />
-              {:else if (appState === AppStates.MAIN_BOOKING)}
-                  <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
-              {:else}
-                  <Items {qrcode} on:book={bookItem} on:showDetails={showDetails} {searchString} {inducted} {availability} upi={appVars.session?appVars.session.person.upi:""} {loggedIn}  />
-              {/if}
-          {/if}
-      </SvelteUIProvider>
-  </main>
+            {#if (appState === AppStates.MAIN_DETAILS) || (appState === AppStates.ITEM_DETAILS)}
+                <Details {appVars} />
+            {:else if (appState === AppStates.MAIN_BOOKING)}
+                <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
+            {:else}
+                <Items {qrcode} on:book={bookItem} on:showDetails={showDetails} {searchString} {inducted} {availability} upi={appVars.session?appVars.session.person.upi:""} {loggedIn}  />
+            {/if}
+        {/if}
+    </SvelteUIProvider>
+</main>
 <!----------------------------------------------------------------------------------------------------->

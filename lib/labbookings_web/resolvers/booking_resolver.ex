@@ -85,6 +85,8 @@ defmodule LabbookingsWeb.BookingResolver do
       |> check_start_is_before_end(args.newstarttime, args.newendtime)
       # Ensure the item actually exists
       |> check_item_exists(Item.get_item_by_name(args.itemname))
+      # Ensure the person the item is to be booked for actually exists
+      |> check_person_exists(Person.get_person_by_upi(args.upi))
       # Get the existing booking
       |> get_existing_booking(Booking.get_bookings_by_itemname_and_date(args.itemname, args.starttime, args.endtime))
       # Get the person on the existing booking

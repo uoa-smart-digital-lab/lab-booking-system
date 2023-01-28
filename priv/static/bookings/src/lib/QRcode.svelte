@@ -44,7 +44,7 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Card p="lg">
+<Card p="lg" shadow="sm" style="border-color:black">
     {#if queryVars.qrsearch}
         <a href = {qrlink}>
             <QrCode value={qrlink} alt={qrlink}/>
@@ -73,7 +73,7 @@ Layout
 
             <Divider variant='dotted'/>
 
-            <Text align='center' size='sm'>
+            <Text weight={'bold'} align='center' size='lg'>
                 {$item.data.itemGet.name.toUpperCase()}
             </Text>
         {/if}
