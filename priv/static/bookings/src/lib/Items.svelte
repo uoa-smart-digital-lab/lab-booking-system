@@ -18,7 +18,8 @@
     export let inducted : boolean;                  // Whether to show only items the user is inducted for, or all items.
     export let availability : boolean;              // Whether to show only items that are currently available for booking.
     export let qrcode: boolean;
-
+    export let list: boolean;
+    
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
@@ -88,22 +89,22 @@ Layout
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    <SimpleGrid cols={4} 
+    <SimpleGrid cols={list?1:4} 
         breakpoints={[
-            { maxWidth: 980, cols: 3, spacing: 'md' },
-            { maxWidth: 755, cols: 2, spacing: 'sm' },
+            { maxWidth: 980, cols: list?1:3, spacing: 'md' },
+            { maxWidth: 755, cols: list?1:2, spacing: 'sm' },
             { maxWidth: 600, cols: 1, spacing: 'sm' }
         ]}>
         {#each $items.data.itemAll as item}
             {#if availability}
                 {#if checkAvailability(item, now)}
                     {#if (checkSearch(item, searchString) && checkInducted(item, inducted, upi))}                
-                        <ItemObj {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={true}/>
+                        <ItemObj {list} {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={true}/>
                     {/if}
                 {/if}
             {:else}
                 {#if (checkSearch(item, searchString) && checkInducted(item, inducted, upi))}                
-                    <ItemObj {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={checkAvailability(item, now)}/>
+                    <ItemObj {list} {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={checkAvailability(item, now)}/>
                 {/if}
             {/if}
         {/each}

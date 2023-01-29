@@ -24,6 +24,7 @@ The main App
 
     // UI Controlling Variales
     let inducted : boolean = false;
+    let list : boolean = true;
     let availability : boolean = false;
     let loggedIn : boolean = false;
     let searchString : string;
@@ -270,14 +271,15 @@ Layout
         {:else}
 
             <Navbar 
-            bind:searchString={searchString}
-            bind:availability={availability}
-            bind:inducted={inducted}
-            on:login={login}
-            on:doneBooking={doneBooking}
-            on:showDetails={showDetails}
-            on:doneDetails={doneDetails}
-            {queryVars} {appVars} {appState} {loggedIn} />
+                bind:searchString={searchString}
+                bind:availability={availability}
+                bind:inducted={inducted}
+                bind:list={list}
+                on:login={login}
+                on:doneBooking={doneBooking}
+                on:showDetails={showDetails}
+                on:doneDetails={doneDetails}
+                {queryVars} {appVars} {appState} {loggedIn} />
 
             <Modal size="sm" {opened} on:close={closeLogin} title="Log In" centered >
                 <Login on:login={login} />
@@ -288,7 +290,7 @@ Layout
             {:else if (appState === AppStates.MAIN_BOOKING)}
                 <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
             {:else}
-                <Items {qrcode} on:book={bookItem} on:showDetails={showDetails} {searchString} {inducted} {availability} upi={appVars.session?appVars.session.person.upi:""} {loggedIn}  />
+                <Items {list} {qrcode} on:book={bookItem} on:showDetails={showDetails} {searchString} {inducted} {availability} upi={appVars.session?appVars.session.person.upi:""} {loggedIn}  />
             {/if}
         {/if}
     </SvelteUIProvider>

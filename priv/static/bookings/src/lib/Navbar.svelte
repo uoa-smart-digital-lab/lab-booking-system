@@ -24,6 +24,7 @@
     export let searchString : string;                                   // The search string to refine the search for items
     export let availability : boolean;
     export let inducted : boolean;
+    export let list : boolean;
 
     // Send a message to the App that the login / logout button has been pressed.
     function loginPressed () { dispatch ( 'login', { message : (loggedIn ? 'logout' : 'login'), data : {} } ) }
@@ -69,29 +70,35 @@ Layout
     {#if appVars.item}
         <h3>{getName(appVars.item.details, appVars.item.name)}</h3>
     {/if}
-    {#if loggedIn}<h4>{appVars.session.person.name}</h4>{/if}
+    {#if loggedIn}
+        <h4>{appVars.session.person.name}</h4>
+    {:else}
+        <h4>[ Please log in ]</h4>
+    {/if}
 </Box>
 
 <Divider variant='dotted'/>
 <b>{appVars.message}</b>
 <Divider variant='dotted'/>
 
-<SimpleGrid cols={(appState === AppStates.MAIN_LIST) ? 2 : 3} 
-    breakpoints={[
-        { maxWidth: 600, cols: 1, spacing: 'sm' }
-    ]}>
-
-    {#if (appState === AppStates.MAIN_LIST)}
+{#if (appState === AppStates.MAIN_LIST)}
+    <SimpleGrid cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Input bind:value={searchString} icon={MagnifyingGlass} placeholder='Refine' rightSectionWidth={70}/>
         <Button on:click={loginPressed} variant='light' color='{loggedIn?"red":"blue"}'>
             <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
-        <Center><Switch bind:checked={availability} label="Currently available" color="gray" /></Center>
+    </SimpleGrid>
+    <Divider variant='dotted'/>
+    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
+        <Center><b>grid</b>&nbsp;<Switch color='blue' bind:checked={list} />&nbsp;<b>list</b></Center>
+        <Center><Switch bind:checked={availability} />&nbsp;<b>available</b></Center>
         {#if loggedIn}       
-            <Center><Switch label="Items I can book" color="gray" bind:checked={inducted}/></Center>
+            <Center><b>all</b>&nbsp;<Switch bind:checked={inducted}/>&nbsp;<b>bookable</b></Center>
         {/if}
-    {:else if (appState === AppStates.MAIN_BOOKING)}
+    </SimpleGrid>
+{:else if (appState === AppStates.MAIN_BOOKING)}
+    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Button on:click={doneBooking} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             List of Items
@@ -103,7 +110,9 @@ Layout
             <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
-    {:else if (appState === AppStates.MAIN_DETAILS)}
+    </SimpleGrid>
+{:else if (appState === AppStates.MAIN_DETAILS)}
+    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Button on:click={doneDetails} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             Bookings
@@ -113,7 +122,9 @@ Layout
             <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
-    {:else if (appState === AppStates.ITEM_DETAILS)}
+    </SimpleGrid>
+{:else if (appState === AppStates.ITEM_DETAILS)}
+    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Button on:click={doneDetails} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             List of Items
@@ -123,7 +134,7 @@ Layout
             <LockClosed slot="rightIcon" />
             Log {loggedIn?"out":"in"}
         </Button>
-    {/if}
-</SimpleGrid>
+    </SimpleGrid>
+{/if}
 <Divider variant='dotted'/>
 <!----------------------------------------------------------------------------------------------------->
