@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck
 
-	import { SimpleGrid, Button, Card, Image, Text, Divider, Grid } from '@svelteuidev/core';
+	import { SimpleGrid, Button, Card, Image, Text, Divider, Grid, Badge } from '@svelteuidev/core';
     import type { Item, ItemDetails, Person } from './Graphql.svelte';
     import QRcode from './QRcode.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -90,9 +90,12 @@ Layout
                 <Text align='left' weight='bold' size='lg'>
                     {getName(item.details, item.name)}
                 </Text>
-                <Text align='left' size='xs'>
+                <!-- <Text align='left' size='xs'>
                     {item.name.toUpperCase()}
-                </Text>
+                </Text> -->
+                <Badge>
+                    {item.name.toUpperCase()}
+                </Badge>
             </SimpleGrid>
             {:else}
                 <Text override={{display:'grid', 'align-items':'center'}} align='left' weight='bold'>
