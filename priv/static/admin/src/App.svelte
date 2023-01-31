@@ -26,7 +26,7 @@ The main App
   let inducted : boolean = false;
   let list : boolean = true;
   let availability : boolean = false;
-  let loggedIn : boolean = true;
+  let loggedIn : boolean = false;
   let searchString : string;
   let opened : boolean;
   let appState : AppStates;
@@ -94,8 +94,12 @@ The main App
       else if (queryVars.qrsearch) AppC.step(AppEvents.SHOW_QRSEARCH);
       else {
           if (queryVars.name) AppC.step(AppEvents.SHOW_BOOKING);
-          else AppC.step(AppEvents.SHOW_LIST);
+          else 
+          {
+            AppC.step(AppEvents.SHOW_LIST);
+          }
       };
+      LoginC.step(LoginEvents.OPEN_DIALOG);
       updateUI;     
   }
 
@@ -151,7 +155,8 @@ The main App
   // -------------------------------------------------------------------------------------------------
   // Set up variables
   function initialise(_:{}={}) {
-      appVars.session = null; appVars.item = null;
+      appVars.session = null; 
+      appVars.item = null;
       updateUI();
   }
   function resetLoginVariables(_:{}={}) {
@@ -169,8 +174,8 @@ The main App
   // -------------------------------------------------------------------------------------------------
   // Start with the first event
   // -------------------------------------------------------------------------------------------------
-  AppC.step(AppEvents.LOAD_QUERY_STRINGS);
   LoginC.step(LoginEvents.INITIALISE);
+  AppC.step(AppEvents.LOAD_QUERY_STRINGS);
   // -------------------------------------------------------------------------------------------------
 
 
@@ -261,15 +266,12 @@ Styles
 
 <!------------------------------------------------------------------------------------------------------
 Layout
-------------------------------------------------------------------------------------------------------->
-<!-- <svelte:window on:popstate={()=>{alert("HERE")}}/> -->
-  
+------------------------------------------------------------------------------------------------------->  
 <main>
   <SvelteUIProvider themeObserver="light" fluid>
       {#if ((appState === AppStates.QRSEARCH) || (appState === AppStates.QRCODE))}
           <QRcode {queryVars}/>
       {:else}
-
           <Navbar 
               bind:searchString={searchString}
               bind:availability={availability}
@@ -290,7 +292,11 @@ Layout
           {:else if (appState === AppStates.MAIN_BOOKING)}
               <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
           {:else}
-              <Items {list} {qrcode} on:book={bookItem} on:showDetails={showDetails} {searchString} {inducted} {availability} upi={appVars.session?appVars.session.person.upi:""} {loggedIn}  />
+              <Items 
+                on:book={bookItem} 
+                on:showDetails={showDetails}  
+                upi={appVars.session?appVars.session.person.upi:""} 
+                {list} {qrcode} {loggedIn} {searchString} {inducted} {availability}/>
           {/if}
       {/if}
   </SvelteUIProvider>
