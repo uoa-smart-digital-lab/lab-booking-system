@@ -1857,6 +1857,8 @@ __metadata:
     "@tsconfig/svelte": ^3.0.0
     dayjs: ^1.11.7
     graphql: ^16.6.0
+    gridjs: ^6.0.6
+    gridjs-svelte: ^2.1.1
     radix-icons-svelte: ^1.2.1
     react: ^18.2.0
     svelte: ^3.55.0
@@ -2410,6 +2412,25 @@ __metadata:
   version: 16.6.0
   resolution: "graphql@npm:16.6.0"
   checksum: bf1d9e3c1938ce3c1a81e909bd3ead1ae4707c577f91cff1ca2eca474bfbc7873d5d7b942e1e9777ff5a8304421dba57a4b76d7a29eb19de8711cb70e3c2415e
+  languageName: node
+  linkType: hard
+
+"gridjs-svelte@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "gridjs-svelte@npm:2.1.1"
+  peerDependencies:
+    gridjs: ">=5.0.0"
+    svelte: ">=3.30.0"
+  checksum: 0352408ba181433d972151edc7f90981960df4b303969b923cd9ab7bf941f551ee35a97add7f9b15dc5e6c06f26f6ad7f3821c8884f08a10cc0a75de97573285
+  languageName: node
+  linkType: hard
+
+"gridjs@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "gridjs@npm:6.0.6"
+  dependencies:
+    preact: ^10.11.3
+  checksum: 87899856c7fd88e7cd19014b1db1ba87f9d4dbf84001df08962b4448edae31c6acd0167711f9d59f3b645eb2d836fb3f54ab2ec45f43a0c7496dbc63e4203622
   languageName: node
   linkType: hard
 
@@ -3061,6 +3082,13 @@ __metadata:
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
   checksum: e39ac60ccd1542d4f9d93d894048aac0d686b3bb38e927d8386005718e6793dbbb46930f0a523fe382f1bbd843c6d980aaea791252bf5e176180e5a4336d9679
+  languageName: node
+  linkType: hard
+
+"preact@npm:^10.11.3":
+  version: 10.11.3
+  resolution: "preact@npm:10.11.3"
+  checksum: 9387115aa0581e8226309e6456e9856f17dfc0e3d3e63f774de80f3d462a882ba7c60914c05942cb51d51e23e120dcfe904b8d392d46f29ad15802941fe7a367
   languageName: node
   linkType: hard
 

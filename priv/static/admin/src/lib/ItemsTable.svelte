@@ -4,26 +4,40 @@
 <script lang="ts">
     import { query } from 'svelte-apollo';
     import ItemObj from './Item.svelte';
-	import { SimpleGrid, Loader } from '@svelteuidev/core';
+	import { SimpleGrid } from '@svelteuidev/core';
     import { ITEMALL } from './Graphql.svelte';
     import type { Item, ItemDetails, Person, Booking } from './Graphql.svelte';
     import { beforeUpdate } from 'svelte';
+    import Grid from "gridjs-svelte"
     
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
-    export let searchString : string;               // A string to match against to show only the items being searched for.
-    export let loggedIn : boolean;                  // Whether a user is logged in or not
-    export let upi : string;                        // Currently logged in user's UPI
-    export let inducted : boolean;                  // Whether to show only items the user is inducted for, or all items.
-    export let availability : boolean;              // Whether to show only items that are currently available for booking.
-    export let qrcode: boolean;
-    export let list: boolean;
+    // export let searchString : string;               // A string to match against to show only the items being searched for.
+    // export let loggedIn : boolean;                  // Whether a user is logged in or not
+    // export let upi : string;                        // Currently logged in user's UPI
+    // export let inducted : boolean;                  // Whether to show only items the user is inducted for, or all items.
+    // export let availability : boolean;              // Whether to show only items that are currently available for booking.
+    // export let qrcode: boolean;
+    // export let list: boolean;
     
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
     let now : Date;
+
+    function data (graphqlData: any) {
+        let returnData = [];
+        graphqlData.forEach(element => {
+            returnData.push({name:element.name, url:element.url, image:element.image, bookable:element.bookable?"TRUE":"FALSE", cost:element.cost, access:element.access})
+        });
+        return returnData;
+    }
+
+    // const data = [
+    //     { name: "John", email: "john@example.com" },
+    //     { name: "Mark", email: "mark@gmail.com" },
+    // ]
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -74,8 +88,8 @@
 <!------------------------------------------------------------------------------------------------------
 Styles
 ------------------------------------------------------------------------------------------------------->
-<style>
-
+<style global>
+  @import "https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css";
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -85,29 +99,37 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 {#if $items.loading}
-    <Loader variant='dots' />
+    Loading...
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    <SimpleGrid cols={list?1:4} 
-        breakpoints={[
-            { maxWidth: 980, cols: list?1:3, spacing: 'md' },
-            { maxWidth: 755, cols: list?1:2, spacing: 'sm' },
-            { maxWidth: 600, cols: 1, spacing: 'xs' }
-        ]}>
-        {#each $items.data.itemAll as item}
-            {#if availability}
-                {#if checkAvailability(item, now)}
-                    {#if (checkSearch(item, searchString) && checkInducted(item, inducted, upi))}                
-                        <ItemObj {list} {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={true}/>
-                    {/if}
-                {/if}
-            {:else}
-                {#if (checkSearch(item, searchString) && checkInducted(item, inducted, upi))}                
-                    <ItemObj {list} {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={checkAvailability(item, now)}/>
-                {/if}
-            {/if}
-        {/each}
-    </SimpleGrid>
+    <Grid
+    columns={[{
+            id:"nicename",
+            name: "Name",
+            sort: true
+        }, {
+            id:"name",
+            name: "ID",
+            sort: true
+        }, {
+            id: "url",
+            name: "URL"
+        }, {
+            id: "image",
+            name: "Image"
+        }, {
+            id: "bookable",
+            name: "Bookable",
+            sort: true
+        }, {
+            id: "cost",
+            name: "Cost"
+        }, {
+            id: "access",
+            name: "Access",
+            sort: true
+        }]}
+        data={data($items.data.itemAll)} />
 {/if}
 <!----------------------------------------------------------------------------------------------------->

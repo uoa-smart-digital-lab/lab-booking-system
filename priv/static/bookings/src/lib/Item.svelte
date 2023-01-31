@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck
 
-	import { SimpleGrid, Button, Card, Image, Text, Divider, Grid, Badge, Box } from '@svelteuidev/core';
+	import { SimpleGrid, Button, Card, Image, Text, Divider, Grid, Badge, Box, Paper } from '@svelteuidev/core';
     import type { Item, ItemDetails, Person } from './Graphql.svelte';
     import QRcode from './QRcode.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -80,7 +80,7 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 {#if list}
-    <Box css={{ backgroundColor: '$white', borderRadius: '$sm' }}>
+    <Paper radius="xs">
         <Grid override={{padding:'10px'}} >
             <Grid.Col span={2}>
                 <Image src={item.image} alt={item.name} fit=contain/>
@@ -131,7 +131,7 @@ Layout
                 </SimpleGrid>
             </Grid.Col>
         </Grid>
-    </Box>
+    </Paper>
 {:else if qrcode}
     <Card p="lg">
         <QRcode queryVars={{qrcode: item.name}}/>
