@@ -2,7 +2,7 @@
   A simple navbar
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-	import { SimpleGrid, Box, Center, Button, Input, Divider, Switch, Space } from '@svelteuidev/core';
+	import { SimpleGrid, Box, Center, Button, Input, InputWrapper, TextInput, Divider, Switch, Space, Text, Group, Checkbox } from '@svelteuidev/core';
     import { MagnifyingGlass } from 'radix-icons-svelte';
     import { LockClosed, ArrowLeft } from 'radix-icons-svelte';
     import type { ItemDetails, Item } from './Graphql.svelte';
@@ -68,13 +68,13 @@ Layout
     css={{ backgroundColor: '$yellow400', textAlign: 'center', padding: '3px', paddingTop: '6px', borderRadius: '$sm' }}>
     <img src="/images/logo.png" alt="logo"/>
     {#if appVars.item}
-        <h3>{getName(appVars.item.details, appVars.item.name)}</h3>
+        <Text root='p' size='lg' align='center' weight={'bold'}>{getName(appVars.item.details, appVars.item.name)}</Text>
     {/if}
-    {#if loggedIn}
-        <h4>{appVars.session.person.name}</h4>
-    {:else}
-        <h4>[ Please log in ]</h4>
-    {/if}
+
+    <Center><Button on:click={loginPressed} variant='light' color='{loggedIn?"red":"blue"}'>
+        <LockClosed slot="rightIcon" />
+        Log {loggedIn?"out " + appVars.session.person.name:"in"}
+    </Button></Center><br/>
 </Box>
 
 <Divider variant='dotted'/>
@@ -82,23 +82,24 @@ Layout
 <Divider variant='dotted'/>
 
 {#if (appState === AppStates.MAIN_LIST)}
-    <SimpleGrid cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
-        <Input bind:value={searchString} icon={MagnifyingGlass} placeholder='Refine' rightSectionWidth={70}/>
-        <Button on:click={loginPressed} variant='light' color='{loggedIn?"red":"blue"}'>
-            <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
-        </Button>
-    </SimpleGrid>
-    <Divider variant='dotted'/>
-    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
-        <Center><b>grid</b>&nbsp;<Switch color='blue' bind:checked={list} />&nbsp;<b>list</b></Center>
-        <Center><Switch bind:checked={availability} />&nbsp;<b>available</b></Center>
-        {#if loggedIn}       
-            <Center><b>all</b>&nbsp;<Switch bind:checked={inducted}/>&nbsp;<b>bookable</b></Center>
-        {/if}
+    <SimpleGrid spacing="xs" cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
+        <SimpleGrid spacing="xs" cols={loggedIn?3:2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
+            <Group position="center">
+                <TextInput bind:value={searchString} icon={MagnifyingGlass} placeholder='Filter by' rightSectionWidth={70}/>
+            </Group>
+            <Group position="center">
+                <Checkbox color="gray" bind:checked={availability}/>&nbsp;<b>available</b>
+            </Group>
+            {#if loggedIn}
+                <Group position="center">
+                    <Checkbox color="gray" bind:checked={inducted}/>&nbsp;<b>bookable</b>
+                </Group>
+            {/if}
+        </SimpleGrid>
+        <Group position="center"><b>grid</b>&nbsp;<Switch color='blue' bind:checked={list} />&nbsp;<b>list</b></Group>
     </SimpleGrid>
 {:else if (appState === AppStates.MAIN_BOOKING)}
-    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
+    <SimpleGrid cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Button on:click={doneBooking} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             List of Items
@@ -106,33 +107,19 @@ Layout
         <Button on:click={showDetails} variant="light" color="blue">
             Details
         </Button>
-        <Button on:click={loginPressed} variant='light' color='{loggedIn?"red":"blue"}'>
-            <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
-        </Button>
     </SimpleGrid>
 {:else if (appState === AppStates.MAIN_DETAILS)}
-    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
+    <SimpleGrid cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Button on:click={doneDetails} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             Bookings
         </Button>
-        <Space />
-        <Button on:click={loginPressed} variant='light' color='{loggedIn?"red":"blue"}'>
-            <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
-        </Button>
     </SimpleGrid>
 {:else if (appState === AppStates.ITEM_DETAILS)}
-    <SimpleGrid cols={3} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
+    <SimpleGrid cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>
         <Button on:click={doneDetails} variant='light' color='green'>
             <ArrowLeft slot="leftIcon" />
             List of Items
-        </Button>
-        <Space />
-        <Button on:click={loginPressed} variant='light' color='{loggedIn?"red":"blue"}'>
-            <LockClosed slot="rightIcon" />
-            Log {loggedIn?"out":"in"}
         </Button>
     </SimpleGrid>
 {/if}

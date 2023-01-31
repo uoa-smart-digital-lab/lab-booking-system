@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck
 
-	import { SimpleGrid, Button, Card, Image, Text, Divider, Grid, Badge } from '@svelteuidev/core';
+	import { SimpleGrid, Button, Card, Image, Text, Divider, Grid, Badge, Box } from '@svelteuidev/core';
     import type { Item, ItemDetails, Person } from './Graphql.svelte';
     import QRcode from './QRcode.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -80,59 +80,58 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 {#if list}
-    <Grid override={{padding:'10px'}} >
-        <Grid.Col span={2}>
-            <Image src={item.image} alt={item.name} fit=contain/>
-        </Grid.Col>
-        <Grid.Col override={{display:'flex', 'align-items':'center'}} span={3}>
-            {#if item.details.name}
-            <SimpleGrid spacing={2} cols={1}>
-                <Text align='left' weight='bold' size='lg'>
-                    {getName(item.details, item.name)}
-                </Text>
-                <!-- <Text align='left' size='xs'>
-                    {item.name.toUpperCase()}
-                </Text> -->
-                <Badge>
-                    {item.name.toUpperCase()}
-                </Badge>
-            </SimpleGrid>
-            {:else}
-                <Text override={{display:'grid', 'align-items':'center'}} align='left' weight='bold'>
-                    {item.name.toUpperCase()}
-                </Text>
-            {/if}
-        </Grid.Col>
-        <Grid.Col override={{display:'grid', 'align-items':'center'}} span={4}>
-            <Text override={{display:'grid', 'align-items':'center'}} align='left' size='sm'>
-                {getAccessMessage(loggedIn, available)}
-            </Text>
-        </Grid.Col>
-        <Grid.Col override={{display:'grid', 'align-items':'center'}} span={3}>
-            <SimpleGrid spacing={5} cols={1}>
-                <Button compact on:click={showDetails} variant='filled' color='blue' fullSize>
-                    Details
-                </Button>
-                {#if (loggedIn && available && (allowed || (item.access.toString() == "FREE")))}
-                    <Button compact on:click={bookItem} variant='filled' color='green' fullSize>
-                        Book
-                    </Button>
-                {:else if (loggedIn && !available && (allowed || (item.access.toString() == "FREE")))}
-                    <Button compact on:click={bookItem} variant='filled' color='yellow' fullSize>
-                        Book
-                    </Button> 
-                {:else if !available} 
-                    <Button compact on:click={bookItem} variant='filled' color='yellow' fullSize>
-                        Bookings
-                    </Button>
+    <Box css={{ backgroundColor: '$white', borderRadius: '$sm' }}>
+        <Grid override={{padding:'10px'}} >
+            <Grid.Col span={2}>
+                <Image src={item.image} alt={item.name} fit=contain/>
+            </Grid.Col>
+            <Grid.Col override={{display:'flex', 'align-items':'center'}} span={3}>
+                {#if item.details.name}
+                <SimpleGrid spacing={2} cols={1}>
+                    <Text align='left' weight='bold' size='lg'>
+                        {getName(item.details, item.name)}
+                    </Text>
+                    <Text align='left' size='xs'>
+                        {item.name.toUpperCase()}
+                    </Text>
+                </SimpleGrid>
                 {:else}
-                    <Button compact on:click={bookItem} variant='filled' color='orange' fullSize>
-                        Bookings
-                    </Button>
+                    <Text override={{display:'grid', 'align-items':'center'}} align='left' weight='bold'>
+                        {item.name.toUpperCase()}
+                    </Text>
                 {/if}
-            </SimpleGrid>
-        </Grid.Col>
-    </Grid>
+            </Grid.Col>
+            <Grid.Col override={{display:'grid', 'align-items':'center'}} span={4}>
+                <Text override={{display:'grid', 'align-items':'center'}} align='left' size='sm'>
+                    {getAccessMessage(loggedIn, available)}
+                </Text>
+            </Grid.Col>
+            <Grid.Col override={{display:'grid', 'align-items':'center'}} span={3}>
+                <SimpleGrid spacing={5} cols={1}>
+                    <Button compact on:click={showDetails} variant='filled' color='blue' fullSize>
+                        Details
+                    </Button>
+                    {#if (loggedIn && available && (allowed || (item.access.toString() == "FREE")))}
+                        <Button compact on:click={bookItem} variant='filled' color='green' fullSize>
+                            Book
+                        </Button>
+                    {:else if (loggedIn && !available && (allowed || (item.access.toString() == "FREE")))}
+                        <Button compact on:click={bookItem} variant='filled' color='yellow' fullSize>
+                            Book
+                        </Button> 
+                    {:else if !available} 
+                        <Button compact on:click={bookItem} variant='filled' color='yellow' fullSize>
+                            Bookings
+                        </Button>
+                    {:else}
+                        <Button compact on:click={bookItem} variant='filled' color='orange' fullSize>
+                            Bookings
+                        </Button>
+                    {/if}
+                </SimpleGrid>
+            </Grid.Col>
+        </Grid>
+    </Box>
 {:else if qrcode}
     <Card p="lg">
         <QRcode queryVars={{qrcode: item.name}}/>
@@ -143,7 +142,7 @@ Layout
         <Divider variant='dotted'/>
         <Card.Section>
 
-            <Text align='center' size='lg' weight={500}>
+            <Text align='center' weight='bold' size='lg'>
                 {getName(item.details, item.name)}
             </Text>
 
@@ -155,7 +154,7 @@ Layout
         
             <Divider variant='dotted'/>
 
-            <Text align='center' size='sm'>
+            <Text align='center' size='xs'>
                 {item.name.toUpperCase()}
             </Text>
         
