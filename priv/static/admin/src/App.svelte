@@ -5,6 +5,7 @@ The main App
   import { ApolloClient, InMemoryCache } from '@apollo/client';
   import { setClient } from 'svelte-apollo';
   import ItemsTable from './lib/ItemsTable.svelte';
+  import ItemButton from './lib/ItemButton.svelte';
   import Navbar from './lib/Navbar.svelte';
   import Login from './lib/Login.svelte';
   import QRcode from './lib/QRcode.svelte';
@@ -291,7 +292,8 @@ Layout
           {:else if (appState === AppStates.MAIN_BOOKING)}
               <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
           {:else}
-            <ItemsTable />
+            <ItemButton />
+            <!-- <ItemsTable /> -->
 
               <!-- <Items 
                 on:book={bookItem} 

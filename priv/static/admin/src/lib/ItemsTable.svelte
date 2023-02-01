@@ -3,14 +3,14 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { query } from 'svelte-apollo';
-    import ItemObj from './Item.svelte';
-	import { SimpleGrid } from '@svelteuidev/core';
+    import ItemButton from './ItemButton.svelte';
+	import { SimpleGrid, Button } from '@svelteuidev/core';
     import { ITEMALL } from './Graphql.svelte';
-    import type { Item, ItemDetails, Person, Booking, Input } from './Graphql.svelte';
-    import { beforeUpdate, onMount } from 'svelte';
-    import Grid from "gridjs-svelte"
-    import { html } from "gridjs";
-    import { RowSelection } from "gridjs/plugins/selection";
+    import type { Item, ItemDetails, Person, Booking } from './Graphql.svelte';
+    import { beforeUpdate } from 'svelte';
+
+    import { RevoGrid } from "@revolist/svelte-datagrid";
+
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -35,13 +35,27 @@
         graphqlData.forEach(element => {
             returnData.push({nicename: getname(element.details), name:element.name, url:element.url, image:element.image, bookable:element.bookable?"TRUE":"FALSE", cost:element.cost, access:element.access})
         });
+        console.log(returnData);
         return returnData;
     }
 
-    // const data = [
-    //     { name: "John", email: "john@example.com" },
-    //     { name: "Mark", email: "mark@gmail.com" },
-    // ]
+
+    let source = [
+        {
+            prop: "name",
+            name: "First",
+        },
+        {
+            prop: "details",
+            name: "Second",
+        }
+    ];
+    let columns = [
+        {
+            name: "1",
+            details: "Item 1",
+        }
+    ];
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -81,23 +95,10 @@
     // Get the current time and refetch the items
     beforeUpdate(() => {
         now = rightNow();
+        
 		items.refetch();
 	});
 
-    // onMount(() => {
-    //     // const grid = document.getElementsByClassName("gridjs-container");
-    //     // console.log(grid);
-    //     grid.config.store.subscribe( (state) => {
-    //         console.log('checkbox updated', state.rowSelection);
-    //     })
-	// });
-
-    function bindGrid () {
-        grid.config.store.subscribe( (state) => {
-            console.log('checkbox updated', state.rowSelection);
-        });
-        return "";
-    }
 
 
 </script>
@@ -108,8 +109,10 @@
 <!------------------------------------------------------------------------------------------------------
 Styles
 ------------------------------------------------------------------------------------------------------->
-<style global>
-  @import "https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css";
+<style>
+    revo-grid {
+	    height: 100%;
+	}
 </style>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -124,40 +127,48 @@ Layout
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    <Grid
-        bind:this={grid}
+    <RevoGrid source={[
+        {
+            prop: "name",
+            name: "First",
+        },
+        {
+            prop: "details",
+            name: "Second",
+        }
+    ]} resize="true" columns={[
+        {
+            name: "1",
+            details: "Item 1",
+        }
+    ]}/>
+
+
+    <!-- <RevoGrid
+        resize="true" 
         columns={[{
-            id: 'myCheckbox',
-            name: 'Select',
-            plugin: {
-                component: RowSelection,
-            }
+            prop:"nicename",
+            name: "Name"
         }, {
-            id:"nicename",
-            name: "Name",
-            sort: true
+            prop:"name",
+            name: "ID"
         }, {
-            id:"name",
-            name: "ID",
-            sort: true
-        }, {
-            id: "url",
+            prop: "url",
             name: "URL"
         }, {
-            id: "image",
+            prop: "image",
             name: "Image"
         }, {
-            id: "bookable",
-            name: "Bookable",
-            sort: true
+            prop: "bookable",
+            name: "Bookable"
         }, {
-            id: "cost",
+            prop: "cost",
             name: "Cost"
         }, {
-            id: "access",
-            name: "Access",
-            sort: true
+            prop: "access",
+            name: "Access"
         }]}
-        data={data($items.data.itemAll)} />
+        source={data($items.data.itemAll)} /> -->
 {/if}
+
 <!----------------------------------------------------------------------------------------------------->
