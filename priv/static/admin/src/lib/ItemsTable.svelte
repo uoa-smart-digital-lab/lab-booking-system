@@ -6,10 +6,12 @@
     import ItemObj from './Item.svelte';
 	import { SimpleGrid } from '@svelteuidev/core';
     import { ITEMALL } from './Graphql.svelte';
-    import type { Item, ItemDetails, Person, Booking } from './Graphql.svelte';
-    import { beforeUpdate } from 'svelte';
+    import type { Item, ItemDetails, Person, Booking, Input } from './Graphql.svelte';
+    import { beforeUpdate, onMount } from 'svelte';
     import Grid from "gridjs-svelte"
-    
+    import { html } from "gridjs";
+    import { RowSelection } from "gridjs/plugins/selection";
+
     // -------------------------------------------------------------------------------------------------
     // Parameters
     // -------------------------------------------------------------------------------------------------
@@ -24,12 +26,14 @@
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let now : Date;
+    let now: Date;
+
+    let grid: any;
 
     function data (graphqlData: any) {
         let returnData = [];
         graphqlData.forEach(element => {
-            returnData.push({name:element.name, url:element.url, image:element.image, bookable:element.bookable?"TRUE":"FALSE", cost:element.cost, access:element.access})
+            returnData.push({nicename: getname(element.details), name:element.name, url:element.url, image:element.image, bookable:element.bookable?"TRUE":"FALSE", cost:element.cost, access:element.access})
         });
         return returnData;
     }
@@ -80,6 +84,22 @@
 		items.refetch();
 	});
 
+    // onMount(() => {
+    //     // const grid = document.getElementsByClassName("gridjs-container");
+    //     // console.log(grid);
+    //     grid.config.store.subscribe( (state) => {
+    //         console.log('checkbox updated', state.rowSelection);
+    //     })
+	// });
+
+    function bindGrid () {
+        grid.config.store.subscribe( (state) => {
+            console.log('checkbox updated', state.rowSelection);
+        });
+        return "";
+    }
+
+
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -95,6 +115,7 @@ Styles
 
 
 
+
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
@@ -104,7 +125,14 @@ Layout
     Error: {$items.error.message}
 {:else}
     <Grid
-    columns={[{
+        bind:this={grid}
+        columns={[{
+            id: 'myCheckbox',
+            name: 'Select',
+            plugin: {
+                component: RowSelection,
+            }
+        }, {
             id:"nicename",
             name: "Name",
             sort: true

@@ -1858,6 +1858,7 @@ __metadata:
     dayjs: ^1.11.7
     graphql: ^16.6.0
     gridjs: ^6.0.6
+    gridjs-selection: ^4.0.0
     gridjs-svelte: ^2.1.1
     radix-icons-svelte: ^1.2.1
     react: ^18.2.0
@@ -2415,6 +2416,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"gridjs-selection@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "gridjs-selection@npm:4.0.0"
+  dependencies:
+    gridjs: ^4.0.0
+    preact: ^10.4.8
+    tslib: ^2.0.1
+  checksum: 4dac15b7c80e353437d9221e6f75c0d1b4572bea0e454652206bc3e58c401ebeabed3ea3a441c9b5e58229c4a47756a707f3c3c6ea1f78434704812c09c3b506
+  languageName: node
+  linkType: hard
+
 "gridjs-svelte@npm:^2.1.1":
   version: 2.1.1
   resolution: "gridjs-svelte@npm:2.1.1"
@@ -2422,6 +2434,16 @@ __metadata:
     gridjs: ">=5.0.0"
     svelte: ">=3.30.0"
   checksum: 0352408ba181433d972151edc7f90981960df4b303969b923cd9ab7bf941f551ee35a97add7f9b15dc5e6c06f26f6ad7f3821c8884f08a10cc0a75de97573285
+  languageName: node
+  linkType: hard
+
+"gridjs@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "gridjs@npm:4.0.0"
+  dependencies:
+    preact: ^10.5.12
+    tslib: ^2.0.1
+  checksum: 80e08bf88162157f739312caeea70fc849bd5410e7214b64aebdab840569a7fbd556c24f6a688bdf58ee378cd32416a1fc98a491e1a37be017871b1fa25038ad
   languageName: node
   linkType: hard
 
@@ -3085,7 +3107,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"preact@npm:^10.11.3":
+"preact@npm:^10.11.3, preact@npm:^10.4.8, preact@npm:^10.5.12":
   version: 10.11.3
   resolution: "preact@npm:10.11.3"
   checksum: 9387115aa0581e8226309e6456e9856f17dfc0e3d3e63f774de80f3d462a882ba7c60914c05942cb51d51e23e120dcfe904b8d392d46f29ad15802941fe7a367
@@ -3666,7 +3688,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.1":
+"tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.1":
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1

@@ -5,12 +5,12 @@ The main App
   import { ApolloClient, InMemoryCache } from '@apollo/client';
   import { setClient } from 'svelte-apollo';
   import ItemsTable from './lib/ItemsTable.svelte';
-//   import Navbar from './lib/Navbar.svelte';
+  import Navbar from './lib/Navbar.svelte';
   import Login from './lib/Login.svelte';
   import QRcode from './lib/QRcode.svelte';
   import Booking from './lib/Booking.svelte';
   import Details from './lib/Details.svelte';
-  import { Button, AppShell, Navbar, Header, Aside, Footer, ShellSection, Image, SvelteUIProvider, Modal } from '@svelteuidev/core';
+  import { Button, Image, SvelteUIProvider, Modal } from '@svelteuidev/core';
   import { getQueryStringVal } from './lib/Querystring.svelte';
   import type { Item, Session } from './lib/Graphql.svelte';
   import Automation from './lib/FiniteStateMachine';
@@ -117,7 +117,7 @@ The main App
                       "Choose an item to see or edit bookings"
               )
           :
-              "Welcome to the SDL / TTL Booking System.  This is still under heavy development, so for now, this is only test data.  \
+              "Welcome to the SDL / TTL Booking System Admin.  This is still under heavy development, so for now, this is only test data.  \
               Please try this out and send comments to roy.davies@auckland.ac.nz.  Log in to create and edit bookings."
       );
       loggedIn = (LoginC.currentState === LoginStates.LOGGED_IN);
@@ -266,46 +266,9 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->  
-<!-- <main> -->
+<main>
   <SvelteUIProvider themeObserver="light" fluid>
-
-    <AppShell>
-        <Navbar slot="navbar">
-            <Button size={200}>Items</Button>
-            <Button size={200}>People</Button>
-        </Navbar>
-
-        <Header height={80} slot="header">
-            <Image radius={10} height={"10px"} src="/images/logo.png" alt="logo"/> 
-        </Header>
-
-        <!-- Main content uses the default slot, so no need to explicitly declare it -->
-        <ShellSection grow>
-            <ItemsTable />
-        </ShellSection>
-
-        <!-- <Aside slot="aside">
-            aside...
-        </Aside> -->
-
-        <Footer height={80} slot="footer">
-            Footer...
-        </Footer>
-    </AppShell>
-
-    <!-- <AppShell>
-        <Navbar slot="navbar" hidden={!opened}>
-            <Button>Items</Button>
-        </Navbar>
-        <Header slot="header" height={80}>
-            <Image radius={10} height={80} src="/images/logo.png" alt="logo"/>            
-        </Header>
-    
-        <slot>
-            <ItemsTable />
-        </slot>
-    </AppShell> -->
-      <!-- {#if ((appState === AppStates.QRSEARCH) || (appState === AppStates.QRCODE))}
+      {#if ((appState === AppStates.QRSEARCH) || (appState === AppStates.QRCODE))}
           <QRcode {queryVars}/>
       {:else}
           <Navbar 
@@ -328,13 +291,15 @@ Layout
           {:else if (appState === AppStates.MAIN_BOOKING)}
               <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
           {:else}
-              <Items 
+            <ItemsTable />
+
+              <!-- <Items 
                 on:book={bookItem} 
                 on:showDetails={showDetails}  
                 upi={appVars.session?appVars.session.person.upi:""} 
-                {list} {qrcode} {loggedIn} {searchString} {inducted} {availability}/>
+                {list} {qrcode} {loggedIn} {searchString} {inducted} {availability}/> -->
           {/if}
-      {/if} -->
+      {/if}
   </SvelteUIProvider>
-<!-- </main> -->
+</main>
 <!----------------------------------------------------------------------------------------------------->
