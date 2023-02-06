@@ -5,7 +5,7 @@ The main App
   import { ApolloClient, InMemoryCache } from '@apollo/client';
   import { setClient } from 'svelte-apollo';
   import ItemsTable from './lib/ItemsTable.svelte';
-  import ItemButton from './lib/ItemButton.svelte';
+  import PersonTable from './lib/PersonTable.svelte';
   import Navbar from './lib/Navbar.svelte';
   import Login from './lib/Login.svelte';
   import QRcode from './lib/QRcode.svelte';
@@ -25,7 +25,7 @@ The main App
 
   // UI Controlling Variales
   let inducted : boolean = false;
-  let list : boolean = true;
+  let items : boolean = true;
   let availability : boolean = false;
   let loggedIn : boolean = false;
   let searchString : string;
@@ -272,35 +272,36 @@ Layout
       {#if ((appState === AppStates.QRSEARCH) || (appState === AppStates.QRCODE))}
           <QRcode {queryVars}/>
       {:else}
-          <Navbar 
-              bind:searchString={searchString}
-              bind:availability={availability}
-              bind:inducted={inducted}
-              bind:list={list}
-              on:login={login}
-              on:doneBooking={doneBooking}
-              on:showDetails={showDetails}
-              on:doneDetails={doneDetails}
-              {queryVars} {appVars} {appState} {loggedIn} />
+            <Navbar 
+                bind:searchString={searchString}
+                bind:availability={availability}
+                bind:inducted={inducted}
+                bind:items={items}
+                on:login={login}
+                on:doneBooking={doneBooking}
+                on:showDetails={showDetails}
+                on:doneDetails={doneDetails}
+                {queryVars} {appVars} {appState} {loggedIn} />
 
-          <Modal size="sm" {opened} on:close={closeLogin} title="Log In" centered >
-              <Login on:login={login} />
-          </Modal>
+            <Modal size="sm" {opened} on:close={closeLogin} title="Log In" centered >
+                <Login on:login={login} />
+            </Modal>
 
-          {#if (appState === AppStates.MAIN_DETAILS) || (appState === AppStates.ITEM_DETAILS)}
-              <Details {appVars} />
-          {:else if (appState === AppStates.MAIN_BOOKING)}
-              <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
-          {:else}
-            <ItemButton />
-            <!-- <ItemsTable /> -->
-
-              <!-- <Items 
-                on:book={bookItem} 
-                on:showDetails={showDetails}  
-                upi={appVars.session?appVars.session.person.upi:""} 
-                {list} {qrcode} {loggedIn} {searchString} {inducted} {availability}/> -->
-          {/if}
+            {#if (appState === AppStates.MAIN_DETAILS) || (appState === AppStates.ITEM_DETAILS)}
+                <Details {appVars} />
+            {:else if (appState === AppStates.MAIN_BOOKING)}
+                <Booking on:setItem={setTheItem} {queryVars} {appVars} {loggedIn}/>
+            {:else}
+                {#if loggedIn}
+                    {#if items}
+                        <ItemsTable on:book={bookItem} {loggedIn} sessionid={appVars.session?appVars.session.sessionid:""} {searchString}/>
+                    {:else}
+                        <PersonTable {loggedIn} sessionid={appVars.session?appVars.session.sessionid:""} {searchString}/>
+                    {/if}
+                {:else}
+                    Please log in...
+                {/if}
+            {/if}
       {/if}
   </SvelteUIProvider>
 </main>

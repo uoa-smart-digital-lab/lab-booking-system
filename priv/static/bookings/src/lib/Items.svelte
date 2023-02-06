@@ -39,7 +39,7 @@
 
     // Check whether the search string is in the name of the item or the details.name of the item. Or if the search string is empty, return true.
     const checkSearch = (item : Item, searchString : string) : boolean => 
-        (item.bookable && (item.name.includes(searchString.toLowerCase()) || getname(item.details).includes(searchString.toLowerCase()) || (searchString === "")));
+        (item.bookable && (item.name.toLowerCase().includes(searchString.toLowerCase()) || getname(item.details).toLowerCase().includes(searchString.toLowerCase()) || (searchString === "")));
 
     // Check whether the person can book the item.  Either it is free to use (so return true) or the user must be inducted, in which case they must be named in the inducted list to return true
     const checkInducted = (item : Item, inducted : boolean, upi : string) : boolean => 

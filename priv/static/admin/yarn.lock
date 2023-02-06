@@ -367,34 +367,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@revolist/revogrid@npm:^3.2.15":
-  version: 3.3.2
-  resolution: "@revolist/revogrid@npm:3.3.2"
-  dependencies:
-    lodash: ^4.17.20
-  checksum: cf17a4f17c2784e8885182cd4ec13a9e1b7cda77c1950f19659330b16c397942c90ba36c17e5cfa660a291430f9f305adf6135c96c5a494cf4301e0e789f7663
-  languageName: node
-  linkType: hard
-
-"@revolist/svelte-datagrid@npm:^3.2.16":
-  version: 3.2.16
-  resolution: "@revolist/svelte-datagrid@npm:3.2.16"
-  dependencies:
-    "@revolist/revogrid": ^3.2.15
-    "@stencil/core": 2.17.4
-  checksum: 6b894d4e7f7bd5d1456dffc8bf6ccc52ea80197a055cd7b553692ab7c55b9b86cb4674966c306af05ce62e65ccfbae2dfb00e498c7e3d7e2742b103d8bcd3692
-  languageName: node
-  linkType: hard
-
-"@stencil/core@npm:2.17.4":
-  version: 2.17.4
-  resolution: "@stencil/core@npm:2.17.4"
-  bin:
-    stencil: bin/stencil
-  checksum: cb7496a58fb040dd91ca451f3c54041bb387cf6e81fb60d17650646d1d1ee62fc0badea10d74b6ecc1ac3de5c36063c7ce556a860044727be7001a22a08660f2
-  languageName: node
-  linkType: hard
-
 "@stitches/core@npm:1.2.8":
   version: 1.2.8
   resolution: "@stitches/core@npm:1.2.8"
@@ -550,7 +522,6 @@ __metadata:
     "@event-calendar/list": ^0.14.1
     "@event-calendar/resource-time-grid": ^0.14.1
     "@event-calendar/time-grid": ^0.14.1
-    "@revolist/svelte-datagrid": ^3.2.16
     "@sveltejs/vite-plugin-svelte": ^2.0.0
     "@svelteuidev/composables": ^0.7.7
     "@svelteuidev/core": ^0.7.7
@@ -1328,13 +1299,6 @@ __metadata:
   version: 1.0.1
   resolution: "linenumber@npm:1.0.1"
   checksum: aca323b0ea930bef689c3d03b3521ef3915ce4fa5d1c85b62360b230ac10990f49f951d84cff8736db4d923d3fa501c68dbea5d54aca5d621e214fbf508c03ae
-  languageName: node
-  linkType: hard
-
-"lodash@npm:^4.17.20":
-  version: 4.17.21
-  resolution: "lodash@npm:4.17.21"
-  checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
   languageName: node
   linkType: hard
 

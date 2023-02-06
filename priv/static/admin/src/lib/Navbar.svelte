@@ -24,7 +24,7 @@
     export let searchString : string;                                   // The search string to refine the search for items
     export let availability : boolean;
     export let inducted : boolean;
-    export let list : boolean;
+    export let items : boolean;
 
     // Send a message to the App that the login / logout button has been pressed.
     function loginPressed () { dispatch ( 'login', { message : (loggedIn ? 'logout' : 'login'), data : {} } ) }
@@ -87,16 +87,8 @@ Layout
             <Group position="center">
                 <TextInput bind:value={searchString} icon={MagnifyingGlass} placeholder='Filter by' rightSectionWidth={70}/>
             </Group>
-            <Group position="center">
-                <Checkbox color="gray" bind:checked={availability}/>&nbsp;<b>available</b>
-            </Group>
-            {#if loggedIn}
-                <Group position="center">
-                    <Checkbox color="gray" bind:checked={inducted}/>&nbsp;<b>bookable</b>
-                </Group>
-            {/if}
         </SimpleGrid>
-        <Group position="center"><b>grid</b>&nbsp;<Switch color='blue' bind:checked={list} />&nbsp;<b>list</b></Group>
+        <Group position="center"><b>people</b>&nbsp;<Switch color='blue' bind:checked={items} />&nbsp;<b>items</b></Group>
     </SimpleGrid>
 {:else if (appState === AppStates.MAIN_BOOKING)}
     <SimpleGrid cols={2} breakpoints={[ { maxWidth: 600, cols: 1, spacing: 'sm' } ]}>

@@ -8,7 +8,9 @@
     // Enums and Types
     //--------------------------------------------------------------------------------------------------
     export enum Status {"USER", "POWERUSER", "ADMIN"};
+    export const StatusArray = ["USER", "POWERUSER", "ADMIN"]
     export enum Itemtype {"FREE", "INDUCTION", "SUPERVISED"};
+    export const ItemtypeArray = ["FREE", "INDUCTION", "SUPERVISED"]
         
     export type Session = {
         sessionid : string, 
@@ -63,7 +65,7 @@
                 bookings { person { name upi } starttime endtime details }
                 inductions { upi }
             }
-        } `;
+        }`;
     
     export const ITEMGET = gql`
         query itemGet($name: String!) 
@@ -73,7 +75,43 @@
                 bookings { person { name upi } starttime endtime details }
                 inductions { upi }
             }
-        } `;
+        }`;
+
+    export const ITEMCREATE = gql`
+        mutation itemCreate ($name: String!, $image: String!, $url: String!, $details: Json!, $cost: Int!, $bookable: Boolean!, $access: Itemtype!)
+        {
+            itemCreate (name: $name, image: $image, url: $url, details: $details, cost: $cost, bookable: $bookable, access: $access) {
+                name
+                image
+                url
+                details
+                cost
+                bookable
+                access
+            }
+        }`;
+
+    export const PERSONALL = gql`
+        query personAll {
+            personAll {
+                upi
+                name
+                status
+                details
+                tokens
+                inductions {
+                    name
+                }
+                bookings {
+                    item {
+                        name
+                    }
+                    starttime
+                    endtime
+                    details
+                }
+            }
+        }`;
 
 
     export const LOGIN = gql`

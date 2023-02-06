@@ -1,0 +1,209 @@
+<!------------------------------------------------------------------------------------------------------
+  All the items in the system
+------------------------------------------------------------------------------------------------------->
+<script lang="ts">
+	import { Image, Modal, Title, Divider, SimpleGrid, Button, Stack, TextInput, NativeSelect } from '@svelteuidev/core';
+    import TableRow from './TableRow.svelte';
+    import TableHeadings from './TableHeadings.svelte';
+    import type { ResultType, TableCell, TableColumns, TableDefinition } from './TableTypes';
+    import { TableColTypes, TableStates, TableButtonTypes } from './TableTypes';
+
+    // -------------------------------------------------------------------------------------------------
+    // Parameters
+    // -------------------------------------------------------------------------------------------------
+    export let definition: TableDefinition;
+    export let columns: TableColumns;
+    export let enums: object;
+    export let data: Array<object>;
+    export let searchString : string;
+    export let checkSearch: (cell: object, searchString: string)=>{};
+    export let processRow: (row: object) => {}
+    
+    // -------------------------------------------------------------------------------------------------
+    // Variables
+    // -------------------------------------------------------------------------------------------------
+    let sorted = data;
+    let sortkey: string = "";
+
+    let currentState: TableStates = TableStates.VIEWING;
+    let currentRow: object = null;
+    let currentCell: TableCell = null;
+    let currentMessage = "";
+
+    // -------------------------------------------------------------------------------------------------
+    // Functions
+    // -------------------------------------------------------------------------------------------------
+
+    $: {
+        if (sortkey !== "")
+        {
+            if (data[0].hasOwnProperty(sortkey)) {
+                sorted = data.concat().sort((a:any, b:any) => (a[sortkey] < b[sortkey] ? -1 : 1))
+            }
+        }
+    }
+
+    function buttonClick (event : any) {
+        console.log(event);
+        switch (event.detail.type)
+        {
+            case TableButtonTypes.CREATE : currentState = TableStates.CREATING; currentRow = {}; currentCell = event.detail.data.cell; break;
+            case TableButtonTypes.DELETE : currentState = TableStates.DELETING; currentRow = event.detail.data.row; currentCell = event.detail.data.cell; break;
+            case TableButtonTypes.EDIT :   currentState = TableStates.EDITING;  currentRow = event.detail.data.row; currentCell = event.detail.data.cell; break;
+            default: break;
+        }
+    }
+
+
+    function backToTable () {
+        currentState = TableStates.VIEWING;
+    }
+
+    function doDelete () {
+        currentCell.button.action(currentRow, (answer: ResultType) => {
+            if (answer.ok)
+            {
+                currentMessage = (answer.hasOwnProperty("name")?answer["name"]:"object") + " deleted";
+            }
+            else if (answer.error)
+            {
+                currentMessage = answer.error;
+            }
+            else
+            {
+                currentMessage = "something went wrong";
+            }
+            currentState = TableStates.FEEDBACK;
+        })
+    }
+
+    function doCreate () {
+        currentCell.button.action(currentRow, (answer: ResultType) => {
+            if (answer.ok)
+            {
+                currentMessage = (answer.hasOwnProperty("name")?answer["name"]:"object") + " created";
+            }
+            else if (answer.error)
+            {
+                currentMessage = answer.error;
+            }
+            else
+            {
+                currentMessage = "something went wrong";
+            }
+            currentState = TableStates.FEEDBACK;
+        })
+    }
+
+    function doEdit () {
+        currentCell.button.action(currentRow, (answer: ResultType) => {
+            if (answer.ok)
+            {
+                currentMessage = (answer.hasOwnProperty("name")?answer["name"]:"object") + " saved";
+            }
+            else if (answer.error)
+            {
+                currentMessage = answer.error;
+            }
+            else
+            {
+                currentMessage = "something went wrong";
+            }
+            currentState = TableStates.FEEDBACK;
+        })
+    }
+    
+</script>
+<!----------------------------------------------------------------------------------------------------->
+
+
+
+<!------------------------------------------------------------------------------------------------------
+Styles
+------------------------------------------------------------------------------------------------------->
+<style>
+
+</style>
+<!----------------------------------------------------------------------------------------------------->
+
+
+
+<!------------------------------------------------------------------------------------------------------
+Layout
+------------------------------------------------------------------------------------------------------->
+<Stack align="strech" override={{width:"100%", gap:"1px"}}>
+    {#if definition.showHeading}
+        <TableHeadings {definition} {columns} bind:sortkey={sortkey} on:buttonClick={buttonClick}/>
+    {/if}
+    {#each sorted as row, rowNumber }
+        {#if (checkSearch(row, searchString))}
+            <TableRow {rowNumber} {definition} {enums} {columns} {row} {processRow} on:buttonClick={buttonClick}/>
+        {/if}
+    {/each}
+</Stack>
+
+<Modal size="sm" opened={(currentState === TableStates.EDITING) || (currentState === TableStates.CREATING)} on:close={backToTable} withCloseButton={false}>
+    <SimpleGrid  cols={1} spacing="xs">
+        {#each columns as column}
+            {#if column.type === TableColTypes.STRING}
+                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+            {:else if column.type === TableColTypes.NUMBER}
+                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+            {:else if column.type === TableColTypes.LINK}
+                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+            {:else if column.type === TableColTypes.IMAGE}
+                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+            {:else if column.type === TableColTypes.ENUM}
+                <NativeSelect data={enums[column.enum.enumName]} placeholder={column.title} label={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+            {/if}
+        {/each}
+    </SimpleGrid>
+    <Divider variant='dotted'/>
+    <SimpleGrid cols={2}>
+        <Button on:click={backToTable} variant='filled' color='blue' fullSize>
+            Cancel
+        </Button>
+        {#if (currentState === TableStates.EDITING)}
+            <Button on:click={doEdit} variant='filled' color='green' fullSize>
+                Save
+            </Button>
+        {:else}
+            <Button on:click={doCreate} variant='filled' color='green' fullSize>
+                Create
+            </Button>
+        {/if}
+    </SimpleGrid>
+</Modal>
+
+<Modal size="sm" opened={currentState === TableStates.DELETING} on:close={backToTable} withCloseButton={false}>
+    <Stack align="center">
+        <Title order={3}>Are you sure you want to delete</Title> 
+        <Title order={3}>{currentRow.hasOwnProperty("name")?currentRow["name"]:"this object"}</Title>
+    </Stack>
+    <Divider variant='dotted'/>
+    {#if currentRow.hasOwnProperty("image")}
+        <Image src={currentRow["image"]} />
+    {/if}
+    <Divider variant='dotted'/>
+    <SimpleGrid cols={2}>
+        <Button on:click={backToTable} variant='filled' color='blue' fullSize>
+            Cancel
+        </Button>
+        <Button on:click={doDelete} variant='filled' color='red' fullSize>
+            Delete
+        </Button>
+    </SimpleGrid>
+</Modal>
+
+<Modal size="sm" opened={currentState === TableStates.FEEDBACK} on:close={backToTable} withCloseButton={false}>
+    <Stack align="center">
+        <Title order={3}>{currentMessage}</Title>
+    </Stack>
+    <Divider variant='dotted'/>
+    <SimpleGrid cols={1}>
+        <Button on:click={backToTable} variant='filled' color='blue' fullSize>
+            OK
+        </Button>
+    </SimpleGrid>
+</Modal>
+<!----------------------------------------------------------------------------------------------------->
