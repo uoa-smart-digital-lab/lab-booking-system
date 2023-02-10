@@ -6,7 +6,7 @@
     import { PERSONALL } from './Graphql.svelte';
     import type { Person, Item } from './Graphql.svelte';
     import { StatusArray, ItemtypeArray } from './Graphql.svelte';
-    import { TableButtonTypes, TableColTypes, type TableColumns, type TableDefinition } from './Table/TableTypes';
+    import { TableButtonTypes, TableColTypes, type ResultType, type TableColumns, type TableDefinition } from './Table/TableTypes';
     import Table from './Table/Table.svelte';
 	import { createEventDispatcher } from 'svelte';
     import { beforeUpdate } from 'svelte';
@@ -31,21 +31,23 @@
     // Variables
     // -------------------------------------------------------------------------------------------------
     const columns: TableColumns = [
-        {id: "editbutton", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
-            button:{title:"edit", color:"green", type: TableButtonTypes.EDIT,
-                action:(data:any, done:()=>void) =>
+        {id: "editButton", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
+            button: {
+                title:"edit", color:"green", type: TableButtonTypes.EDIT,
+                action:(data:any, done:(result: ResultType)=>void) =>
                 {
                     console.log(data);
                     console.log("Doing Edit");
-                    done();
+                    done({ok: data});
                 }
             }, 
-            headingButton:{title:"new", color:"blue", type: TableButtonTypes.CREATE,
-                action:(data:any, done:()=>void) =>
+            headingButton: {
+                title:"new", color:"blue", type: TableButtonTypes.CREATE,
+                action:(data:any, done:(result: ResultType)=>void) =>
                 {
                     console.log(data);
                     console.log("Doing Create");
-                    done();
+                    done({ok: data});
                 }
             }
         },
@@ -56,20 +58,23 @@
         {id: "inductions", title: "Inductions", span: 4, type: TableColTypes.LIST, sort: false, list: {
             extractItems: (items:Array<Item>) => items.map(item => item.name)  
         }},
-        {id: "inductions_button", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
-            button:{title:"induct", color:"blue", click:(data:any) => 
+        {id: "inductionsButton", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
+            button: {
+                title:"induct", color:"blue",
+                click:(data:any) => 
                 {
                     console.log(data);
                 }
             }
         },
-        {id: "deletebutton", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
-            button:{title:"delete", color:"red", type: TableButtonTypes.DELETE,
-                action:(data:any, done:()=>void) =>
+        {id: "deleteButton", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
+            button: {
+                title:"delete", color:"red", type: TableButtonTypes.DELETE,
+                action:(data:any, done:(result: ResultType)=>void) =>
                 {
                     console.log(data);
                     console.log("Doing Delete");
-                    done();
+                    done({ok: data});
                 }
             }
         }
@@ -96,10 +101,13 @@
     const checkSearch = (person : Person, searchString : string) : boolean => 
         (person.name.toLowerCase().includes(searchString.toLowerCase()) || person.upi.toLowerCase().includes(searchString.toLowerCase()) || (searchString === ""));
 
-    const processRow = (row: object): object => {
+    const preProcessRow = (row: object): object => {
         return row;
     }
 
+    const postProcessRow = (row: object): object => {
+        return row;
+    }
     beforeUpdate(() => {
 		people.refetch();
 	});
@@ -128,7 +136,7 @@ Layout
 {:else if $people.error}
     Error: {$people.error.message}
 {:else}
-    <Table {definition} {columns} {enums} {checkSearch} {processRow} {searchString} data={$people.data.personAll} />
+    <Table {definition} {columns} {enums} {checkSearch} {preProcessRow} {postProcessRow} {searchString} data={$people.data.personAll} />
 {/if}
 
 <!----------------------------------------------------------------------------------------------------->

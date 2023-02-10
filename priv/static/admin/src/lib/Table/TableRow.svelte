@@ -15,11 +15,11 @@
     export let rowNumber : number;
     export let enums: object;
     export let definition: TableDefinition;
-    export let processRow: (row: object) => {};
+    export let preProcessRow: (row: object) => {};
 
     let processedrow: object;
     $: {
-        processedrow = processRow(row);
+        processedrow = preProcessRow(row);
     }
 
     let width = columns.reduce((acc, cell) => acc + cell.span, 0);
@@ -56,7 +56,7 @@
                 {:else if column.type === TableColTypes.BUTTON}
                     <Button variant="light" fullSize color={column.button.color} on:click={()=>{
                         if (column.button.hasOwnProperty("type")) {
-                            dispatch ('buttonClick', { type : column.button.type, data : {row: row, cell: column.button} });
+                            dispatch ('buttonClick', { type : column.button.type, data : {row: processedrow, cell: column.button} });
                         }                        
                         else {
                             column.button.click(row);
@@ -84,7 +84,7 @@
                 {#if column.type === TableColTypes.BUTTON}
                     <Button variant="light" fullSize color={column.button.color} on:click={()=>{
                         if (column.button.hasOwnProperty("type")) {
-                            dispatch ('buttonClick', { type : column.button.type, data : {row: row, cell: column.button} });
+                            dispatch ('buttonClick', { type : column.button.type, data : {row: processedrow, cell: column.button} });
                         }                        
                         else {
                             column.button.click(row);

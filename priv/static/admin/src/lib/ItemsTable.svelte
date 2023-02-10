@@ -36,20 +36,21 @@
                 {
                     console.log(data);
                     console.log("Doing Edit");
-                    done({ok: {data: {}}});
+                    done({ok: data});
                 }
             }, 
             headingButton:{title:"new", color:"blue", type: TableButtonTypes.CREATE,
-                action:(data:any, done:({})=>void) =>
+                action:(data:any, done:(result: ResultType)=>void) =>
                 {
-                    doCreate({ variables: { name:data["name"], image:data["image"], url:data["url"], details:{"name":""}, cost:data["cost"], bookable:data["bookable"], access:data["access"] } })
+                    console.log(data);
+                    doCreate({ variables: data }) //{ name:data["name"], image:data["image"], url:data["url"], details:data["details"], cost:data["cost"], bookable:data["bookable"], access:data["access"] } })
                     .then((result:any) => {
                         done({ok: result.data.itemCreate});
                     })
                     .catch((error : { graphQLErrors : [{ message : string }]}) => {
                         let errorMessage = convertErrorMessage(error.graphQLErrors[0].message);
-                        console.error("Error Creating");
-                        done({error: {message:errorMessage}});
+                        console.error("Error Creating : " + errorMessage);
+                        done({error: errorMessage});
                     });
                 }
             }
@@ -69,12 +70,12 @@
             }
         },
         {id: "deletebutton", title: "", span: 1, type: TableColTypes.BUTTON, sort: false, 
-            button:{title:"delete", color:"red", type: TableButtonTypes.DELETE,
-                action:(data:any, done:({})=>void) =>
+             button:{title:"delete", color:"red", type: TableButtonTypes.DELETE,
+                action:(data:any, done:(result: ResultType)=>void) =>
                 {
                     console.log(data);
                     console.log("Doing Delete");
-                    done({result:"ok"});
+                    done({ok: data});
                 }
             }
         }
@@ -107,8 +108,20 @@
     const checkSearch = (item : Item, searchString : string) : boolean => 
         (item.name.includes(searchString.toLowerCase()) || getname(item.details).includes(searchString.toLowerCase()) || (searchString === ""));
 
-    const processRow = (row: object): object => {
+    const preProcessRow = (row: object): object => {
         row["nicename"] = row["details"].name;
+        return row;
+    }
+
+    const postProcessRow = (row: object): object => {
+        if (row.hasOwnProperty("details") && row.hasOwnProperty("nicename"))
+        {
+            row["details"].name = row["nicename"];
+        }
+        else
+        {
+            row["details"] = {name:""};
+        }
         return row;
     }
 
@@ -142,7 +155,7 @@ Layout
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    <Table {definition} {columns} {enums} {checkSearch} {processRow} {searchString} data={$items.data.itemAll} />
+    <Table {definition} {columns} {enums} {checkSearch} {preProcessRow} {postProcessRow} {searchString} data={$items.data.itemAll} />
 {/if}
 
 <!----------------------------------------------------------------------------------------------------->

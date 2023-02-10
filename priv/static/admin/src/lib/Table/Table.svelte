@@ -17,7 +17,8 @@
     export let data: Array<object>;
     export let searchString : string;
     export let checkSearch: (cell: object, searchString: string)=>{};
-    export let processRow: (row: object) => {}
+    export let preProcessRow: (row: object) => {}
+    export let postProcessRow: (row: object) => {}
     
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -47,23 +48,23 @@
         console.log(event);
         switch (event.detail.type)
         {
-            case TableButtonTypes.CREATE : currentState = TableStates.CREATING; currentRow = {}; currentCell = event.detail.data.cell; break;
+            case TableButtonTypes.CREATE : currentState = TableStates.CREATING; currentRow = {};                    currentCell = event.detail.data.cell; break;
             case TableButtonTypes.DELETE : currentState = TableStates.DELETING; currentRow = event.detail.data.row; currentCell = event.detail.data.cell; break;
             case TableButtonTypes.EDIT :   currentState = TableStates.EDITING;  currentRow = event.detail.data.row; currentCell = event.detail.data.cell; break;
             default: break;
         }
     }
 
-
     function backToTable () {
         currentState = TableStates.VIEWING;
     }
 
     function doDelete () {
+        console.log("Deleting");
         currentCell.button.action(currentRow, (answer: ResultType) => {
             if (answer.ok)
             {
-                currentMessage = (answer.hasOwnProperty("name")?answer["name"]:"object") + " deleted";
+                currentMessage = (answer.ok.hasOwnProperty("name")?answer.ok["name"]:"object") + " deleted";
             }
             else if (answer.error)
             {
@@ -78,10 +79,15 @@
     }
 
     function doCreate () {
-        currentCell.button.action(currentRow, (answer: ResultType) => {
+        console.log("Creating");
+        console.log(currentRow);
+        let processedRow = postProcessRow(currentRow);
+        console.log(processedRow);
+        console.log(currentCell);
+        currentCell.headingButton.action(processedRow, (answer: ResultType) => {
             if (answer.ok)
             {
-                currentMessage = (answer.hasOwnProperty("name")?answer["name"]:"object") + " created";
+                currentMessage = (answer.ok.hasOwnProperty("name")?answer.ok["name"]:"object") + " created";
             }
             else if (answer.error)
             {
@@ -96,10 +102,13 @@
     }
 
     function doEdit () {
-        currentCell.button.action(currentRow, (answer: ResultType) => {
+        console.log("Editing");
+        let processedRow = postProcessRow(currentRow);
+        console.log(processedRow);
+        currentCell.button.action(processedRow, (answer: ResultType) => {
             if (answer.ok)
             {
-                currentMessage = (answer.hasOwnProperty("name")?answer["name"]:"object") + " saved";
+                currentMessage = (answer.ok.hasOwnProperty("name")?answer.ok["name"]:"object") + " saved";
             }
             else if (answer.error)
             {
@@ -111,6 +120,10 @@
             }
             currentState = TableStates.FEEDBACK;
         })
+    }
+
+    function handleString (event: any) {
+        currentRow[event.target.name] = event.target.value;
     }
     
 </script>
@@ -137,7 +150,7 @@ Layout
     {/if}
     {#each sorted as row, rowNumber }
         {#if (checkSearch(row, searchString))}
-            <TableRow {rowNumber} {definition} {enums} {columns} {row} {processRow} on:buttonClick={buttonClick}/>
+            <TableRow {rowNumber} {definition} {enums} {columns} {row} {preProcessRow} on:buttonClick={buttonClick}/>
         {/if}
     {/each}
 </Stack>
@@ -146,13 +159,13 @@ Layout
     <SimpleGrid  cols={1} spacing="xs">
         {#each columns as column}
             {#if column.type === TableColTypes.STRING}
-                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+                <TextInput label={column.title} name={column.id} placeholder={column.title} on:input={handleString} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
             {:else if column.type === TableColTypes.NUMBER}
-                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+                <TextInput label={column.title} name={column.id} placeholder={column.title} on:input={handleString} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
             {:else if column.type === TableColTypes.LINK}
-                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+                <TextInput label={column.title} name={column.id} placeholder={column.title} on:input={handleString} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
             {:else if column.type === TableColTypes.IMAGE}
-                <TextInput label={column.title} placeholder={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
+                <TextInput label={column.title} name={column.id} placeholder={column.title} on:input={handleString} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
             {:else if column.type === TableColTypes.ENUM}
                 <NativeSelect data={enums[column.enum.enumName]} placeholder={column.title} label={column.title} value={(currentState === TableStates.EDITING)?currentRow[column.id]:""}/>
             {/if}
