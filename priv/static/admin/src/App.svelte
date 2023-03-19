@@ -1,6 +1,6 @@
 <script lang="ts">
     // @ts-ignore
-    import { behavior, Grid, Modal, Column, Row, Button, Dropdown, Input, Icon, Text, Menu, Item } from 'svelte-fomantic-ui';
+    import { behavior, Grid, Modal, Column, Row, Button, Dropdown, Input, Icon, Text, Menu, Item, Link } from 'svelte-fomantic-ui';
 
     import { ApolloClient, InMemoryCache } from '@apollo/client';
     import { setClient } from 'svelte-apollo';
@@ -11,6 +11,7 @@
 
     import Login from './lib/Login.svelte';
     import MainGraphic from './lib/MainGraphic.svelte';
+    import ItemsTable from './lib/ItemsTable.svelte';
 
     let sessionid: string = "";
     let user: Person;
@@ -37,8 +38,7 @@
     // -------------------------------------------------------------------------------------------------
     // Check the result of the login
     // -------------------------------------------------------------------------------------------------
-    function loggedIn(event) {
-        console.log(event.detail);
+    function loggedIn(event: {detail: {message: string, data: {person:Person, sessionid: string}}}) {
         switch (event.detail.message) {
             case "success":
                 user = event.detail.data.person;
@@ -54,36 +54,60 @@
     }
     // -------------------------------------------------------------------------------------------------
 
+
+
+    // -------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
+    function login() {
+        behavior("login_dialog", "show");
+    }
+    // -------------------------------------------------------------------------------------------------
+
+
+
+    // -------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
+    function logout(event: {data: Object, message: string}) {
+        user = undefined;
+        sessionid = "";
+    }
+    // -------------------------------------------------------------------------------------------------
+
+
+
 </script>
 
 
 
 <main>
-    <MainGraphic/>
-    <Grid ui three column>
-        <Row>
-            <Column> </Column>
-            <Column>
-                <Dropdown ui fluid>
-                    <Button ui fluid basic icon blue>
-                        <Icon dropdown/>
-                        <Text default>Select...</Text>
-                    </Button>
-                    <Menu ui fluid>
-                        <Item centered value="items">Items</Item>
-                        <Item centered value="persons">People</Item>
-                    </Menu>
-                </Dropdown>
-            </Column>
-            <Column>
-                <Button ui fluid basic icon red>
-                    <Icon ui sign out alternative/>
-                    logout
-                </Button>
-            </Column>
-        </Row>
-    </Grid>
+    <MainGraphic {sessionid} {user}/>
 
+    <Menu ui three fluid item attached top>
+        <Link item ></Link>
+        <Dropdown ui item>
+            <Link ui icon>
+                <Icon dropdown/>
+                <Text default>Select...</Text>
+            </Link>
+            <Menu ui>
+                <Item centered value="Items">Items</Item>
+                <Item centered value="People">People</Item>
+            </Menu>
+        </Dropdown>
+        {#if sessionid===""}
+            <Item link on:click={login}>
+                <Icon ui sign in alternative/>
+                login
+            </Item>
+        {:else}
+            <Item link on:click={logout}>
+                <Icon ui sign out alternative/>
+                logout
+            </Item>
+        {/if}
+    </Menu>
+
+    <ItemsTable searchString="" loggedIn={sessionid !== ""} {sessionid} />
 
     <Modal ui tiny id="login_dialog">
         <Login on:login={loggedIn}/>

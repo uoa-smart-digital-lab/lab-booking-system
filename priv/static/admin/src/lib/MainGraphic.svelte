@@ -2,8 +2,15 @@
   A login dialog box
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    // @ts-nocheck
+    import { stringifyForDisplay } from '@apollo/client/utilities';
+
+    // @ts-ignore
     import { Segment, Header, Image } from 'svelte-fomantic-ui';
+
+    import type { Person } from "../lib/Graphql.svelte";
+
+    export var sessionid: string;
+    export var user: Person;
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -37,9 +44,15 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 
-<Segment ui yellow raised inverted>
+<Segment ui basic attached bottom>
     <Image ui big centered src="/images/logo.png" alt="logo"/>
-    <Header h2 ui black centered inverted>Booking System</Header>
+    <Header h2 ui black centered inverted>
+        {#if sessionid !== ""}
+            {user.name}
+        {:else}
+            bookings - please log in
+        {/if}
+    </Header>
 </Segment>
 
 <!----------------------------------------------------------------------------------------------------->

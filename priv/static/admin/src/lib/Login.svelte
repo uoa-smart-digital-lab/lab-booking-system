@@ -2,7 +2,6 @@
   A login dialog box
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    // @ts-nocheck
 
     import { mutation } from 'svelte-apollo';
     import { LOGIN } from './Graphql.svelte';
@@ -10,6 +9,7 @@
     import { convertErrorMessage } from './ErrorMessages.svelte';
 	import { createEventDispatcher } from 'svelte';
 
+    // @ts-ignore
     import { Card, Text, Divider, Input, Button, Grid, Column, Icon, Header, Content, Image, Description, Actions } from 'svelte-fomantic-ui';
 
     const dispatch = createEventDispatcher();
