@@ -15,6 +15,7 @@ defmodule LabbookingsWeb.Router do
     get "/", BookingsController, :index
     get "/bookings", BookingsController, :index
     get "/admin", AdminPageController, :index
+    get "/admin2", Admin2PageController, :index
   end
 
   pipeline :api do

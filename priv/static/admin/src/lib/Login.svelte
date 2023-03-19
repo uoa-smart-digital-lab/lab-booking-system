@@ -5,11 +5,12 @@
     // @ts-nocheck
 
     import { mutation } from 'svelte-apollo';
-    import { Card, Divider, Input, Button, SimpleGrid, Text } from '@svelteuidev/core';
     import { LOGIN } from './Graphql.svelte';
     import type { Session } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
 	import { createEventDispatcher } from 'svelte';
+
+    import { Card, Text, Divider, Input, Button, Grid, Column, Icon, Header, Content, Image, Description, Actions } from 'svelte-fomantic-ui';
 
     const dispatch = createEventDispatcher();
 
@@ -43,6 +44,8 @@
     const handleSubmit = () => {
         doLogin({ variables: { upi, password } })
         .then((result:any) => {
+            console.log(result.data.login);
+
             dispatch ('login', { message : 'success', data : result.data.login });
         })
         .catch((error : { graphQLErrors : [{ message : string }]}) => {
@@ -71,27 +74,36 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Card p='md'>
+<Icon close/>
+<Header ui h4 center aligned>
+    Log in to the booking system
+</Header>
+<Content>
+    <Description>
+        <Input ui fluid>
+            <Input placeholder='UPI' bind:value={upi} on:keydown={handleKeydown} />
+        </Input>
+        <Divider ui small/>
+        <Input ui fluid>
+            <Input placeholder='Password' bind:value={password} on:keydown={handleKeydown} type='password' />
+        </Input>
+    </Description>
     {#if errorMessage}
-        <Text size='md' color='red' align='center'>
-            {errorMessage}
-        </Text>
-        <Divider variant='dotted'/>
+        <Header ui h5 medium red center aligned>{errorMessage}</Header>
     {/if}
-
-    <Input placeholder='UPI' bind:value={upi} on:keydown={handleKeydown} />
-    <Divider variant='dotted'/>
-        
-    <Input placeholder='Password' bind:value={password} on:keydown={handleKeydown} type='password' />
-    <Divider variant='dotted'/>
-
-    <SimpleGrid cols={2}>
-        <Button on:click={closeLogin} variant='filled' color='blue' fullSize>
-            Cancel
-        </Button>
-        <Button on:click={handleSubmit} variant='filled' color='green' fullSize>
-            Log in
-        </Button>
-    </SimpleGrid>
-</Card>
+</Content>
+<Actions>
+    <Grid ui two column>
+        <Column>
+            <Button ui fluid blue on:click={closeLogin}>
+                Cancel
+            </Button>
+        </Column>
+        <Column>
+            <Button ui fluid green on:click={handleSubmit}>
+                Log in
+            </Button>
+        </Column>
+    </Grid>
+</Actions>
 <!----------------------------------------------------------------------------------------------------->

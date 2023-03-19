@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "svelte-fomantic-ui": "^0.0.22"
+  }
+}
