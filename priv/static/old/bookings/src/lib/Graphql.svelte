@@ -7,7 +7,7 @@
     //--------------------------------------------------------------------------------------------------
     // Enums and Types
     //--------------------------------------------------------------------------------------------------
-    export enum Usertype {"USER", "POWERUSER", "ADMIN"};
+    export enum Status {"USER", "POWERUSER", "ADMIN"};
     export enum Itemtype {"FREE", "INDUCTION", "SUPERVISED"};
         
     export type Session = {
@@ -37,7 +37,7 @@
     export type Person = {
         upi: string,
         name: string,
-        status: Usertype,
+        status: Status,
         details: PersonDetails,
         tokens: number,
         inductions: [ Item ],

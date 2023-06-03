@@ -9,7 +9,7 @@ schema {
 }
 
 # Persons can have different access levels.
-enum Status {
+enum Usertype {
   USER,                   # An ordinary person
   POWERUSER,              # A person with some delegated responsibility
   ADMIN                   # Overall administrator who can do anything
@@ -36,7 +36,7 @@ type Person {
   upi: String!            # The unique University Personal ID
   name: String!           # The person's name
   password: String!       # The password (stored encrypted)
-  status: Status!         # The person's level of access
+  status: Usertype!       # The person's level of access
   details: Json!          # Any other relevant details (for future expansion)
 
   tokens: Int!            # Number of tokens in the account
@@ -114,11 +114,11 @@ type Mutation {
 
   # Create a new person.  Can only be done by Admin users.  Send sessionid by header.
   # Errors: personexists (Person already exists), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
-  personCreate (upi: String!, name: String!, password: String!, status: Status!, details: Json!): Person
+  personCreate (upi: String!, name: String!, password: String!, status: Usertype!, details: Json!): Person
 
   # Update a person.  Can only be done by Admin users.  Send sessionid by header.
   # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
-  personUpdate (upi: String!, name: String, password: String, status: Status, details: Json): Person
+  personUpdate (upi: String!, name: String, password: String, status: Usertype, details: Json): Person
 
   # Delete a person.  Can only be done by Admin users.  Send sessionid by header.
   # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
