@@ -1,0 +1,190 @@
+# Technology stack and API details for the Lab Booking System
+
+## The Graphql API
+
+The Lab Booking System is centered aroudn the API.  The API Graphql Definition is as follows:
+
+```graphql
+# ******************************************************************************************************************************************************
+# This schema is for a lab bookings system with people and items.  Items can only be booked if a person has the rights to do so as determined by their
+# status and induction level for a specific item.  The Administrators have complete power, whereas some capabilities are delegated to powerusers.
+# ******************************************************************************************************************************************************
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Persons can have different access levels.
+enum Status {
+  USER,                   # An ordinary person
+  POWERUSER,              # A person with some delegated responsibility
+  ADMIN                   # Overall administrator who can do anything
+} 
+
+enum Itemtype {
+  FREE,                   # Anybody can book, no induction required
+  INDUCTION,              # Must be inducted to book and use
+  SUPERVISED              # Requires a supervisor for use (eg Lab Technician)
+} 
+
+# Used to represent JSON data.  Sent in as stringified JSON, but returned as actual JSON.
+scalar Json
+
+# A Date time in ISO 8601 format
+scalar DateTime
+
+# ******************************************************************************************************************************************************
+# A person who can use the lab and book items.
+# Note that a person who is a poweruser can alter the inductions of persons for items they themselves are inducted for, and alter the bookings for any
+# person of items they are inducted for.
+# ******************************************************************************************************************************************************
+type Person {
+  upi: String!            # The unique University Personal ID
+  name: String!           # The person's name
+  password: String!       # The password (stored encrypted)
+  status: Status!         # The person's level of access
+  details: Json!          # Any other relevant details (for future expansion)
+
+  tokens: Int!            # Number of tokens in the account
+
+  inductions: [Item]!     # A list of items this person is inducted for
+  bookings: [Booking]!    # A list of current bookings for this person
+} 
+
+# ******************************************************************************************************************************************************
+# A persistent session ID.
+# ******************************************************************************************************************************************************
+type Session {
+  sessionid: String!      # A GUID representing a sessionid
+  person: Person!         # The person logged in
+} 
+
+# ******************************************************************************************************************************************************
+# A bookable item.
+# ******************************************************************************************************************************************************
+type Item { 
+  name: String!           # The unique name of the item
+  image: String!          # A link to an image - can be to the images folder, eg /images/hololens2.jpg
+  url: String!            # A link to further information about the item (on another webserver, eg canvas)
+  details: Json!          # Any other relevant details (for future expansion)
+
+  cost: Int!              # Cost in tokens per time period
+
+  bookable: Boolean!      # Whether bookable at all
+  access: Itemtype!       # Level of access use
+
+  inductions: [Person]!   # A list of people for whom this item is inducted.  List will be empty if induction not required (status).
+  bookings: [Booking]!    # A list of bookings for this item
+} 
+
+# ******************************************************************************************************************************************************
+# A bookable item.  Local time is assumed.
+# ******************************************************************************************************************************************************
+type Booking {
+  person: Person!         # The person the item is booked for
+  item: Item!             # The item being booked
+  starttime: DateTime!    # The starting time
+  endtime: DateTime!      # The ending time
+  details: Json!          # Any other relevant details
+} 
+
+type Query {
+  # ******************************************************************************************************************************************************
+  # Person
+  # ******************************************************************************************************************************************************
+
+  # Get the specified person's details.
+  # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header)
+  personGet (upi: String!): Person
+
+  # Get all the people.
+  # Errors: notadmin (You are not admin), nosession (No session ID sent in header)
+  personAll: [Person]
+
+  # ******************************************************************************************************************************************************
+  # Item
+  # ******************************************************************************************************************************************************
+  # Get the specified item's details.  Start and end times are used to refine the search for bookings.
+  # Errors: noname (No item name given), noitem (Item with given name doesn't exist)
+  itemGet (name: String!, starttime: DateTime, endtime: DateTime): Item
+
+  # Get a list of all the items.  Start and end times are used to refine the search for bookings.
+  # Errors:
+  itemAll (starttime: DateTime, endtime: DateTime): [Item]
+}
+
+type Mutation {
+  # ******************************************************************************************************************************************************
+  # Person
+  # ******************************************************************************************************************************************************
+
+  # Create a new person.  Can only be done by Admin users.  Send sessionid by header.
+  # Errors: personexists (Person already exists), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
+  personCreate (upi: String!, name: String!, password: String!, status: Status!, details: Json!): Person
+
+  # Update a person.  Can only be done by Admin users.  Send sessionid by header.
+  # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
+  personUpdate (upi: String!, name: String, password: String, status: Status, details: Json): Person
+
+  # Delete a person.  Can only be done by Admin users.  Send sessionid by header.
+  # Errors: noperson (Person doesn't exist), notadmin (You are not admin), nosession (No session ID sent in header), internalerror (Internal error)
+  personDelete (upi: String!): Person
+
+  # Add or remove an item to or from a person's list of inducted items.  Can only be done by admins, and powerusers who are themselves inducted to the
+  # item they are inducting someone else to.  So, powerusers can only be inducted by admins (for any item) or other powerusers who are inducted to the item.
+  personInduct (upi: String!, itemName: String!): Person
+  personUninduct (upi: String!, itemName: String!): Person
+
+  # Change the number of tokens for a specific person.  Can only be done by administrator.
+  personAdjustTokens (upi: String!, tokens: Int!): Person
+
+  # ******************************************************************************************************************************************************
+  # Session
+  # ******************************************************************************************************************************************************
+
+  # Log in.  Set sessionid returned as a header for subsequent API calls.
+  # Errors: badpassword (Password incorrect), nosession (upi not given), noparam (no upi or password given)
+  login (upi: String!, password: String!): Session
+
+  # Log out.  Uses sessionid in the header to know which person to log out.
+  # Errors: nosession (No session ID sent in header), internalerror (Internal error)
+  logout: Session
+
+  # ******************************************************************************************************************************************************
+  # Item
+  # ******************************************************************************************************************************************************
+
+  # Create a new item.  Can only be done by admins and powerusers.
+  # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), itemexists (Item already exists), internalerror (Internal error)
+  itemCreate (name: String!, image: String!, url: String!, details: Json!, cost: Int!, bookable: Boolean!, access: Itemtype!): Item
+
+  # Update an item.  Can only be done by admins.
+  # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), noitem (Item doesn't exists), internalerror (Internal error)
+  itemUpdate (name: String!, image: String, url: String, details: Json, cost: Int, bookable: Boolean, access: Itemtype): Item
+
+  # Delete an item.  Can only be done by admins.
+  # Errors: nosession (No SessionID sent), notadmin (You are not admin or poweruser), noitem (Item doesn't exists), internalerror (Internal error)
+  itemDelete (name: String!): Item
+
+  # ******************************************************************************************************************************************************
+  # Bookings
+  # ******************************************************************************************************************************************************
+  # Make a booking for an item.  Anyone can book an item they are inducted for.  Users can only book for themselves.  Powerusers can book for themselves
+  # and for others for items they are inducted for, and that the user is inducted for. Items cannot be booked for a specific time of day if already booked.
+
+  # Create a booking for the given item for the given person as identified by their UPI
+  itemBook (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!, details: Json!): Booking
+
+  # Unbook the item at this time
+  itemUnbook (itemname: String!, starttime: DateTime!, endtime: DateTime!): Booking
+
+  # Delete an existing booking
+  itemChangebooking (upi: String!, itemname: String!, starttime: DateTime!, endtime: DateTime!, newstarttime: DateTime, newendtime: DateTime, details: Json): Booking
+}
+
+```
+
+## Technology Stack
+
+At the back end,
