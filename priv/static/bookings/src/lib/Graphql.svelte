@@ -20,7 +20,8 @@
     };
     export type PersonDetails = {};
     export type BookingDetails = {};
-    export type Inductions = [ Person ];
+    export type Inductions = Person[];
+    export type Items = Item[];
 
     export type Item = {
         name: string,
@@ -30,8 +31,8 @@
         cost: number,
         bookable: boolean,
         access: Itemtype,
-        bookings: [ Booking ],
-        inductions: [ Person ]
+        bookings: Booking[] | null,
+        inductions: Person[] | null
     };
 
     export type Person = {
@@ -40,8 +41,8 @@
         status: Usertype,
         details: PersonDetails,
         tokens: number,
-        inductions: [ Item ],
-        bookings: [ Booking ]
+        bookings: Booking[] | null,
+        inductions: Person[] | null
     };
 
     export type Booking = {

@@ -12,7 +12,6 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.4",
     "@tsconfig/svelte": "^4.0.1",
-    "svelte": "^3.58.0",
     "svelte-check": "^3.3.1",
     "tslib": "^2.5.0",
     "typescript": "^5.0.2",
@@ -21,6 +20,9 @@
   "dependencies": {
     "@apollo/client": "^3.7.15",
     "graphql": "^16.6.0",
+    "react": "^18.2.0",
+    "svelte": "^3.59.1",
+    "svelte-apollo": "^0.5.0",
     "svelte-fomantic-ui": "^0.3.1"
   }
 }
