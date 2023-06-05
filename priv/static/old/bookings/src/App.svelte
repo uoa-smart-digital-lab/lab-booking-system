@@ -18,6 +18,7 @@ The main App
     import { AppStates, AppEvents, LoginStates, LoginEvents } from './lib/Types.svelte';
     import { CounterClockwiseClock, Person } from 'radix-icons-svelte';
 
+
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------

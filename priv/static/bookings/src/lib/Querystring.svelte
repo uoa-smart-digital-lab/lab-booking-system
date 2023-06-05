@@ -1,5 +1,9 @@
 <!------------------------------------------------------------------------------------------------------
   Useful functions for dealing with query parameters
+
+  Author: Dr. Roy C. Davies
+  Created: June 2023
+  Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script context="module" lang="ts">
 

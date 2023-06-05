@@ -1,3 +1,10 @@
+<!------------------------------------------------------------------------------------------------------
+  Display list of items
+
+  Author: Dr. Roy C. Davies
+  Created: June 2023
+  Contact: roy.c.davies@ieee.org
+------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { Cards, Items } from "svelte-fomantic-ui";
     import type { Item as ItemT, ItemDetails, Person, Booking } from './Graphql.svelte';
@@ -13,6 +20,8 @@
     export let availability : boolean;              // Whether to show only items that are currently available for booking.
     export let qrcode: boolean;
     export let list: boolean;
+    export let numCols: number;
+    export let queryVars: {};
 
     let now = new Date();
 
@@ -36,11 +45,28 @@
         return (!(item.bookings.reduce((acc : boolean, curr : Booking) => acc || timeOverlaps(new Date(curr.starttime), new Date(curr.endtime), today), false)));
     }
 </script>
+<!----------------------------------------------------------------------------------------------------->
 
-<Cards ui _={list?"one stackable horizontal":"four stackable"}>
+
+
+<!------------------------------------------------------------------------------------------------------
+Styles
+------------------------------------------------------------------------------------------------------->
+<style>
+
+</style>
+<!----------------------------------------------------------------------------------------------------->
+
+
+
+<!------------------------------------------------------------------------------------------------------
+Layout
+------------------------------------------------------------------------------------------------------->
+<Cards ui _={list?"one stackable horizontal":(numCols===1?"one":numCols===2?"two":numCols===3?"three":"four")} style={"margin: 0.75em 0.25em !important;"}>
     {#each items as item}
         {#if checkSearch(item, searchString) && checkInducted(item, inducted, upi) && (availability ? checkAvailability(item, now) : true)}
-            <Item item={item} {list}/>
+            <Item {queryVars} {item} {list}/>
         {/if}
     {/each}
 </Cards>
+<!----------------------------------------------------------------------------------------------------->

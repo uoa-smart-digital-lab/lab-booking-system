@@ -1,5 +1,9 @@
 <!------------------------------------------------------------------------------------------------------
-  All the items in the system
+  All the items in the database
+
+  Author: Dr. Roy C. Davies
+  Created: June 2023
+  Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { query } from 'svelte-apollo';
@@ -17,6 +21,8 @@
     export let availability : boolean;              // Whether to show only items that are currently available for booking.
     export let qrcode: boolean;
     export let list: boolean;
+    export let numCols: number;
+    export let queryVars: {};
     
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -69,6 +75,6 @@ Layout
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    <Items {list} {searchString} {loggedIn} {upi} {inducted} {availability} {qrcode} items={$items.data.itemAll}/>
+    <Items {queryVars} {numCols} {list} {searchString} {loggedIn} {upi} {inducted} {availability} {qrcode} items={$items.data.itemAll}/>
 {/if}
 <!----------------------------------------------------------------------------------------------------->

@@ -1,4 +1,13 @@
+<!------------------------------------------------------------------------------------------------------
+  Main controlling App for Booking System
+
+  Author: Dr. Roy C. Davies
+  Created: June 2023
+  Contact: roy.c.davies@ieee.org
+------------------------------------------------------------------------------------------------------->
 <script lang="ts">
+    import { behavior, reload, Button, Buttons, Icon, Segment, Input, Menu, Item, Checkbox, Message, Image, Grid, Column, Header, Content, Dropdown, Text } from "svelte-fomantic-ui";
+
     import { ApolloClient, InMemoryCache } from '@apollo/client';
     import { setClient } from 'svelte-apollo';
 
@@ -6,15 +15,54 @@
     import { AppStates, AppEvents, LoginStates, LoginEvents } from './lib/Types.svelte';
     import Automation from './lib/FiniteStateMachine';
 
-    import { behavior, Button, Buttons, Icon, Segment, Input, Menu, Item, Checkbox } from "svelte-fomantic-ui";
-
     import Login from "./lib/Login.svelte";
     import Items_Loader from "./lib/Items_Loader.svelte";
     import { Itemtype, Usertype } from "./lib/Graphql.svelte";
     import type { Item as ItemT, Session } from './lib/Graphql.svelte';
     import { getQueryStringVal } from './lib/Querystring.svelte';
 
+    import { onMount } from 'svelte';
+
+    // -------------------------------------------------------------------------------------------------
+    // Window width
+    // -------------------------------------------------------------------------------------------------
+    let windowWidth: number = 0;
+    let numCols: number = 3;
+
+    const setNumCols = () => { 
+        if (windowWidth < 512) return 1;
+        else if (windowWidth < 768) return 2;
+        else if (windowWidth < 1024) return 3;
+        else return 4;
+    };
+
+    const setWindowWidth = () => { windowWidth = window.innerWidth; numCols = setNumCols(); };
+    // const getBackButton = (event) => { 
+    //     event.preventDefault();
+    //     event.returnValue = '';
+    // };
+    function beforeunload(event: BeforeUnloadEvent) {
+        event.preventDefault();
+        return (event.returnValue = "");
+    }
+
+    onMount(() => {
+        windowWidth = window.innerWidth; numCols = setNumCols();	
+        window.addEventListener('resize', setWindowWidth);
+        // window.addEventListener('beforeunload', getBackButton);
+
+        return () => { 
+            window.removeEventListener('resize', setWindowWidth);  
+            // window.removeEventListener('beforeunload', getBackButton);
+        }
+    });
+    // -------------------------------------------------------------------------------------------------
+
+
+
+    // -------------------------------------------------------------------------------------------------
     // UI Controlling Variales
+    // -------------------------------------------------------------------------------------------------
     let inducted : boolean = false;
     let list : boolean = true;
     let availability : boolean = false;
@@ -23,6 +71,7 @@
     let opened : boolean;
     let appState : AppStates;
     let qrcode : boolean = false;
+    let prevNumCols = -1;
 
     let queryVars : QueryVars = { 
         name : "", 
@@ -32,21 +81,12 @@
     };
 
     let appVars : AppVars = {
-        session : {
-            sessionid : "",
-            person : {
-                upi : "",
-                name : "",
-                status : Usertype.USER,
-                details : {},
-                tokens : 0,
-                bookings : [],
-                inductions : []
-            }
-        },
+        session : null,
         message : "",
         item : null
     }
+    // -------------------------------------------------------------------------------------------------
+
 
 
     // -------------------------------------------------------------------------------------------------
@@ -125,20 +165,29 @@
 
     // Force the UI to update (and update a few variables)
     function updateUI (_ : {} = {}) { 
-        // opened = (LoginC.currentState === LoginStates.LOGIN_DIALOG_OPEN);
-        // appVars.message = (
-        //     (LoginC.currentState === LoginStates.LOGGED_IN) ?
-        //         (
-        //             (appVars.item) ? 
-        //                 "Use the calendar to make a booking or edit existing bookings."
-        //             :
-        //                 "Choose an item to see or edit bookings"
-        //         )
-        //     :
-        //         "Welcome to the SDL / TTL Booking System.  This is still under heavy development, so for now, this is only test data.  \
-        //         Please try this out and send comments to roy.davies@auckland.ac.nz.  Log in to create and edit bookings."
-        // );
-        // loggedIn = (LoginC.currentState === LoginStates.LOGGED_IN);
+        if (!opened) {
+            if (LoginC.currentState === LoginStates.LOGIN_DIALOG_OPEN) {
+                behavior("Login_dialog", "show");
+                opened = true;
+            }
+        }
+        else {
+            opened = false;
+        }
+
+        appVars.message = (
+            (LoginC.currentState === LoginStates.LOGGED_IN) ?
+                (
+                    (appVars.item) ? 
+                        "Use the calendar to make a booking or edit existing bookings."
+                    :
+                        "Choose an item to see or edit bookings"
+                )
+            :
+                "This is still under heavy development, so for now, this is only test data.  \
+                Please try this out and send comments to roy.davies@auckland.ac.nz.  Log in to create and edit bookings."
+        );
+        loggedIn = (LoginC.currentState === LoginStates.LOGGED_IN);
         appState = AppC.currentState;
         appVars = appVars;
     };
@@ -153,56 +202,179 @@
 
 
     // -------------------------------------------------------------------------------------------------
+    // The login dialog box Controller
+    // -------------------------------------------------------------------------------------------------
+    let createLoginKey = (currentState : LoginStates, triggerEvent : LoginEvents) => currentState + '|' + triggerEvent;
+    let LoginC = new Automation<LoginStates, LoginEvents> (LoginStates.LOAD, createLoginKey, LoginStates._);
+
+    // -------------------------------------------------------------------------------------------------
+    // Transitions
+    // -------------------------------------------------------------------------------------------------
+    LoginC.add_transition(LoginStates.LOAD,                 LoginEvents.INITIALISE,             LoginStates.LOGIN_DIALOG_CLOSED,        initialise);
+    LoginC.add_transition(LoginStates._,                    LoginEvents.OPEN_DIALOG,            LoginStates.LOGIN_DIALOG_OPEN,          updateUI);
+    LoginC.add_transition(LoginStates._,                    LoginEvents.CLOSE_DIALOG,           LoginStates.LOGIN_DIALOG_CLOSED,        updateUI);
+    LoginC.add_transition(LoginStates._,                    LoginEvents.LOG_OUT,                LoginStates.LOGGED_OUT,                 resetLoginVariables);
+    LoginC.add_transition(LoginStates.LOGIN_DIALOG_OPEN,    LoginEvents.LOG_IN,                 LoginStates.LOGGED_IN,                  setSession);
+
+    // -------------------------------------------------------------------------------------------------
+    // Actions
+    // -------------------------------------------------------------------------------------------------
+    // Set up variables
+    function initialise(_:{}={}) {
+        appVars.session = null; appVars.item = null;
+        updateUI();
+    }
+    function resetLoginVariables(_:{}={}) {
+        appVars.session = null;
+        updateUI();
+    }
+    function setSession( session : Session ) {
+        appVars.session = session;
+        updateUI();
+    }
+    // -------------------------------------------------------------------------------------------------
+
+
+    // -------------------------------------------------------------------------------------------------
     // Start with the first event
     // -------------------------------------------------------------------------------------------------
     AppC.step(AppEvents.LOAD_QUERY_STRINGS);
-    // LoginC.step(LoginEvents.INITIALISE);
+    LoginC.step(LoginEvents.INITIALISE);
     // -------------------------------------------------------------------------------------------------
 
 
+    // -------------------------------------------------------------------------------------------------
+    // Log in or out
+    // -------------------------------------------------------------------------------------------------
+    function login (event : any) {
+        switch (event.detail.message)
+        {
+            case 'close' : LoginC.step(LoginEvents.CLOSE_DIALOG); break;
+            case 'success' : LoginC.step(LoginEvents.LOG_IN, event.detail.data); break;
+            default: break;
+        }
+    }
+    // -------------------------------------------------------------------------------------------------
+
+    // Call the $("#dropdown_menu").dropdown() function on the dropdown menu once it has been made visible
+    $: if (prevNumCols !== numCols) { prevNumCols = numCols; setTimeout(() => {reload("dropdown_menu");}, 1000) }
+
 </script>
+<!----------------------------------------------------------------------------------------------------->
 
-<main>
-    <Login id="Login_dialog"/>
 
-    <Menu ui top stackable attached compact>
-        <Item>
-            <Button ui fluid on:click={()=>{behavior("Login_dialog", "show")}}>
-                <Icon user/>
-                Login
-            </Button>
-        </Item>
 
-        <Menu right compact>
-            <Item>
-                <Buttons ui>
-                    <Button ui icon _={list?"green":"grey"} on:click={()=>list=true}>
-                        <Icon list/>
-                    </Button>
-                    <Button ui icon _={!list?"green":"grey"} on:click={()=>list=false}>
-                        <Icon th/>
-                    </Button>
-                </Buttons>
-            </Item>
-            <Item>
-                <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
-            </Item>
-            <Item>
-                <Checkbox ui right aligned toggle fluid label="Inducted for" bind:checked={inducted}/>
-            </Item>
-            <Item ui right aligned category search>
-                <Input ui>
-                    <Input text bind:value={searchString} placeholder="Search..."/>
-                </Input>
-            </Item>
-        </Menu>
-    </Menu>
-
-    <Segment ui basic>
-        <Items_Loader {searchString} {loggedIn} upi={appVars.session.person.upi} {inducted} {availability} {qrcode} {list}/>
-    </Segment>
-</main>
-
+<!------------------------------------------------------------------------------------------------------
+Styles
+------------------------------------------------------------------------------------------------------->
 <style>
 
 </style>
+<!----------------------------------------------------------------------------------------------------->
+
+
+
+<!------------------------------------------------------------------------------------------------------
+Layout
+------------------------------------------------------------------------------------------------------->
+<svelte:window on:beforeunload={beforeunload} />
+<main>
+    <Login id="Login_dialog" on:login={login}/>
+
+    {#if numCols<=2}
+        <Dropdown ui icon button left pointing style="position: fixed; top:5px; right:5px; z-index: 9999;" settings={{showOnFocus:true}} id="dropdown_menu">
+            <Icon black ellipsis vertical/>
+            <Menu top attached>
+                <Item>
+                    <Button ui fluid _={loggedIn?"orange":"blue"} on:click={()=>{if (loggedIn) {LoginC.step(LoginEvents.LOG_OUT)} else {LoginC.step(LoginEvents.OPEN_DIALOG)}}}>
+                        <Icon user/>
+                        Log {loggedIn?"out":"in"}
+                    </Button>
+                </Item>
+                <Item>
+                    <center>
+                        <Buttons ui centered>
+                            <Button ui icon _={list?"green":"grey"} on:click={()=>list=true}>
+                                <Icon list/>
+                            </Button>
+                            <Button ui icon _={!list?"green":"grey"} on:click={()=>list=false}>
+                                <Icon th/>
+                            </Button>
+                        </Buttons>
+                    </center>
+                </Item>
+                <Item>
+                    <center>
+                        <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
+                    </center>
+                </Item>
+                <Item>
+                    <center>
+                        <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>
+                    </center>
+                </Item>
+                <Item ui right aligned category search>
+                    <Input ui>
+                        <input placeholder="Search..." type="text" on:click|stopPropagation bind:value={searchString}/>
+                    </Input>
+                </Item>
+            </Menu>
+        </Dropdown>
+    {:else}
+        <Menu ui small top fixed stackable>
+            <Item>
+                <Button ui fluid _={loggedIn?"orange":"blue"} on:click={()=>{if (loggedIn) {LoginC.step(LoginEvents.LOG_OUT)} else {LoginC.step(LoginEvents.OPEN_DIALOG)}}}>
+                    <Icon user/>
+                    Log {loggedIn?"out":"in"}
+                </Button>
+            </Item>
+
+            <Menu right small>
+                <Item>
+                    <Buttons ui>
+                        <Button ui icon _={list?"green":"grey"} on:click={()=>list=true}>
+                            <Icon list/>
+                        </Button>
+                        <Button ui icon _={!list?"green":"grey"} on:click={()=>list=false}>
+                            <Icon th/>
+                        </Button>
+                    </Buttons>
+                </Item>
+                <Item>
+                    <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
+                </Item>
+                <Item>
+                    <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>
+                </Item>
+                <Item ui right aligned category search>
+                    <Input ui>
+                        <Input text bind:value={searchString} placeholder="Search..."/>
+                    </Input>
+                </Item>
+            </Menu>
+        </Menu>
+    {/if}
+
+    <Content style={numCols>2?"padding-top: 80px;":""}>
+        <Message ui yellow>
+            <Grid ui stackable>
+                <Column four wide>
+                    <Image ui _={numCols<=2?"small":""} src="/images/logo.png"/>
+                </Column>
+                <Column twelve wide>
+                    {#if loggedIn}
+                        <Header>Welcome {appVars.session.person.name} ({appVars.session.person.upi})</Header>
+                        {appVars.message}
+                    {:else}
+                        <Header>Welcome to the SDL / TTL Booking System.</Header>
+                        {appVars.message}
+                    {/if}
+                </Column>
+            </Grid>
+        </Message>
+    
+        <Items_Loader {queryVars} {numCols} {searchString} {loggedIn} upi={appVars.session?appVars.session.person.upi:""} {inducted} {availability} {qrcode} {list}/>
+    </Content>
+
+</main>
+<!----------------------------------------------------------------------------------------------------->

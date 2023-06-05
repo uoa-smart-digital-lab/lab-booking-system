@@ -1,3 +1,10 @@
+<!------------------------------------------------------------------------------------------------------
+  Types for the Finite State Machines used in the application.
+
+  Author: Dr. Roy C. Davies
+  Created: June 2023
+  Contact: roy.c.davies@ieee.org
+------------------------------------------------------------------------------------------------------->
 <script context="module" lang="ts">
 
     import type { Item, Session } from './Graphql.svelte';
@@ -54,3 +61,4 @@
     }
 
 </script>
+<!----------------------------------------------------------------------------------------------------->
