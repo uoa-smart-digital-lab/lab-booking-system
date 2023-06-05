@@ -6,7 +6,7 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { behavior, reload, Button, Buttons, Icon, Segment, Input, Menu, Item, Checkbox, Message, Image, Grid, Column, Header, Content, Dropdown, Text } from "svelte-fomantic-ui";
+    import { behavior, Message, Image, Grid, Column, Header, Content } from "svelte-fomantic-ui";
 
     import { ApolloClient, InMemoryCache } from '@apollo/client';
     import { setClient } from 'svelte-apollo';
@@ -16,7 +16,10 @@
     import Automation from './lib/FiniteStateMachine';
 
     import Login from "./lib/Login.svelte";
+    import TopBar from "./lib/TopBar.svelte";
+    import QRcode from "./lib/QRcode.svelte";
     import Items_Loader from "./lib/Items_Loader.svelte";
+    
     import { Itemtype, Usertype } from "./lib/Graphql.svelte";
     import type { Item as ItemT, Session } from './lib/Graphql.svelte';
     import { getQueryStringVal } from './lib/Querystring.svelte';
@@ -37,23 +40,13 @@
     };
 
     const setWindowWidth = () => { windowWidth = window.innerWidth; numCols = setNumCols(); };
-    // const getBackButton = (event) => { 
-    //     event.preventDefault();
-    //     event.returnValue = '';
-    // };
-    function beforeunload(event: BeforeUnloadEvent) {
-        event.preventDefault();
-        return (event.returnValue = "");
-    }
 
     onMount(() => {
         windowWidth = window.innerWidth; numCols = setNumCols();	
         window.addEventListener('resize', setWindowWidth);
-        // window.addEventListener('beforeunload', getBackButton);
 
         return () => { 
             window.removeEventListener('resize', setWindowWidth);  
-            // window.removeEventListener('beforeunload', getBackButton);
         }
     });
     // -------------------------------------------------------------------------------------------------
@@ -61,7 +54,18 @@
 
 
     // -------------------------------------------------------------------------------------------------
-    // UI Controlling Variales
+    // Prevent the user from leaving the page
+    // -------------------------------------------------------------------------------------------------
+    function beforeunload(event: BeforeUnloadEvent) {
+        event.preventDefault();
+        return (event.returnValue = "");
+    }
+    // -------------------------------------------------------------------------------------------------
+
+
+
+    // -------------------------------------------------------------------------------------------------
+    // UI Controlling Variables
     // -------------------------------------------------------------------------------------------------
     let inducted : boolean = false;
     let list : boolean = true;
@@ -71,7 +75,6 @@
     let opened : boolean;
     let appState : AppStates;
     let qrcode : boolean = false;
-    let prevNumCols = -1;
 
     let queryVars : QueryVars = { 
         name : "", 
@@ -127,10 +130,6 @@
 
     AppC.add_transition(AppStates.MAIN_LIST,                AppEvents.SHOW_DETAILS,             AppStates.ITEM_DETAILS,                 setItem);
     AppC.add_transition(AppStates.ITEM_DETAILS,             AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    doNothing);
-
-    // -------------------------------------------------------------------------------------------------
-
-
 
     // -------------------------------------------------------------------------------------------------
     // Actions
@@ -256,9 +255,6 @@
     }
     // -------------------------------------------------------------------------------------------------
 
-    // Call the $("#dropdown_menu").dropdown() function on the dropdown menu once it has been made visible
-    $: if (prevNumCols !== numCols) { prevNumCols = numCols; setTimeout(() => {reload("dropdown_menu");}, 1000) }
-
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -279,102 +275,42 @@ Layout
 ------------------------------------------------------------------------------------------------------->
 <svelte:window on:beforeunload={beforeunload} />
 <main>
+
     <Login id="Login_dialog" on:login={login}/>
 
-    {#if numCols<=2}
-        <Dropdown ui icon button left pointing style="position: fixed; top:5px; right:5px; z-index: 9999;" settings={{showOnFocus:true}} id="dropdown_menu">
-            <Icon black ellipsis vertical/>
-            <Menu top attached>
-                <Item>
-                    <Button ui fluid _={loggedIn?"orange":"blue"} on:click={()=>{if (loggedIn) {LoginC.step(LoginEvents.LOG_OUT)} else {LoginC.step(LoginEvents.OPEN_DIALOG)}}}>
-                        <Icon user/>
-                        Log {loggedIn?"out":"in"}
-                    </Button>
-                </Item>
-                <Item>
-                    <center>
-                        <Buttons ui centered>
-                            <Button ui icon _={list?"green":"grey"} on:click={()=>list=true}>
-                                <Icon list/>
-                            </Button>
-                            <Button ui icon _={!list?"green":"grey"} on:click={()=>list=false}>
-                                <Icon th/>
-                            </Button>
-                        </Buttons>
-                    </center>
-                </Item>
-                <Item>
-                    <center>
-                        <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
-                    </center>
-                </Item>
-                <Item>
-                    <center>
-                        <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>
-                    </center>
-                </Item>
-                <Item ui right aligned category search>
-                    <Input ui>
-                        <input placeholder="Search..." type="text" on:click|stopPropagation bind:value={searchString}/>
-                    </Input>
-                </Item>
-            </Menu>
-        </Dropdown>
+    {#if (AppC.currentState === AppStates.QRCODE)}
+        QRcode
+    {:else if (AppC.currentState === AppStates.QRSEARCH)}
+        QRsearch
+    {:else if (AppC.currentState === AppStates.ITEM_DETAILS) || (AppC.currentState === AppStates.MAIN_DETAILS)}
+        Details
+    {:else if (AppC.currentState === AppStates.MAIN_BOOKING)}
+        <TopBar bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        Booking
     {:else}
-        <Menu ui small top fixed stackable>
-            <Item>
-                <Button ui fluid _={loggedIn?"orange":"blue"} on:click={()=>{if (loggedIn) {LoginC.step(LoginEvents.LOG_OUT)} else {LoginC.step(LoginEvents.OPEN_DIALOG)}}}>
-                    <Icon user/>
-                    Log {loggedIn?"out":"in"}
-                </Button>
-            </Item>
+        <TopBar bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
 
-            <Menu right small>
-                <Item>
-                    <Buttons ui>
-                        <Button ui icon _={list?"green":"grey"} on:click={()=>list=true}>
-                            <Icon list/>
-                        </Button>
-                        <Button ui icon _={!list?"green":"grey"} on:click={()=>list=false}>
-                            <Icon th/>
-                        </Button>
-                    </Buttons>
-                </Item>
-                <Item>
-                    <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
-                </Item>
-                <Item>
-                    <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>
-                </Item>
-                <Item ui right aligned category search>
-                    <Input ui>
-                        <Input text bind:value={searchString} placeholder="Search..."/>
-                    </Input>
-                </Item>
-            </Menu>
-        </Menu>
+        <Content style={numCols>2?"padding-top: 80px;":"padding-top: 60px;"}>
+            <Message ui yellow>
+                <Grid ui stackable>
+                    <Column four wide>
+                        <Image ui _={numCols<=2?"small":""} src="/images/logo.png"/>
+                    </Column>
+                    <Column twelve wide>
+                        {#if loggedIn && appVars.session}
+                            <Header>Welcome {appVars.session.person.name} ({appVars.session.person.upi})</Header>
+                            {appVars.message}
+                        {:else}
+                            <Header>Welcome to the SDL / TTL Booking System.</Header>
+                            {appVars.message}
+                        {/if}
+                    </Column>
+                </Grid>
+            </Message>
+        
+            <Items_Loader {queryVars} {numCols} {searchString} {loggedIn} upi={appVars.session?appVars.session.person.upi:""} {inducted} {availability} {qrcode} {list}/>
+        </Content>
     {/if}
-
-    <Content style={numCols>2?"padding-top: 80px;":""}>
-        <Message ui yellow>
-            <Grid ui stackable>
-                <Column four wide>
-                    <Image ui _={numCols<=2?"small":""} src="/images/logo.png"/>
-                </Column>
-                <Column twelve wide>
-                    {#if loggedIn}
-                        <Header>Welcome {appVars.session.person.name} ({appVars.session.person.upi})</Header>
-                        {appVars.message}
-                    {:else}
-                        <Header>Welcome to the SDL / TTL Booking System.</Header>
-                        {appVars.message}
-                    {/if}
-                </Column>
-            </Grid>
-        </Message>
-    
-        <Items_Loader {queryVars} {numCols} {searchString} {loggedIn} upi={appVars.session?appVars.session.person.upi:""} {inducted} {availability} {qrcode} {list}/>
-    </Content>
 
 </main>
 <!----------------------------------------------------------------------------------------------------->
