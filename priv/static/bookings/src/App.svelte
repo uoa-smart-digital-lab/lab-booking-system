@@ -18,6 +18,7 @@
     import Login from "./lib/Login.svelte";
     import TopBar from "./lib/TopBar.svelte";
     import QRcode from "./lib/QRcode.svelte";
+    import Booking from "./lib/Booking.svelte";
     import Items_Loader from "./lib/Items_Loader.svelte";
     
     import { Itemtype, Usertype } from "./lib/Graphql.svelte";
@@ -290,7 +291,7 @@ Layout
         Details
     {:else if (AppC.currentState === AppStates.MAIN_BOOKING)}
         <TopBar bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
-        Booking
+        <Booking {appVars} {queryVars} {loggedIn}/>
     {:else}
         <TopBar bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
 

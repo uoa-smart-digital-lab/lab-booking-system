@@ -19,6 +19,13 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.15",
+    "@event-calendar/core": "^0.14.1",
+    "@event-calendar/day-grid": "^0.14.1",
+    "@event-calendar/interaction": "^0.14.1",
+    "@event-calendar/list": "^0.14.1",
+    "@event-calendar/resource-time-grid": "^0.14.1",
+    "@event-calendar/time-grid": "^0.14.1",
+    "dayjs": "^1.11.7",
     "graphql": "^16.6.0",
     "react": "^18.2.0",
     "svelte": "^3.59.1",

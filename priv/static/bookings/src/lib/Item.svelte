@@ -88,9 +88,9 @@ Layout
 {:else}
     <Card {ui}>
         {#if list}
-            <Content style={"display:flex; align-items: center;"}>
+            <Image style={"display:flex; align-items: center; padding-left: 1em; padding-right: 1em; background-color:white;"}>
                 <Image ui tiny src={item.image}/>
-            </Content>
+            </Image>
 
             <Content style={"display:flex; justify-content: center; flex-direction:column;"}>
                 <Header>{getName(item.details, item.name)}</Header>
@@ -99,15 +99,15 @@ Layout
             </Content>
 
             <Content style={"display:flex; align-items: center;"}>
-                <Buttons ui _={(numCols === 1)?"vertical":"two"}>
-                    <Button ui primary on:click={bookItem}>book</Button>
-                    <Button ui green on:click={showDetails}>info</Button>
+                <Buttons ui _={(numCols <= 2)?"vertical":""} style={"margin-left:auto; margin-right:0"}>
+                    <Button ui primary on:click={bookItem} style={"width:150px;"}>book</Button>
+                    <Button ui green on:click={showDetails} style={"width:150px;"}>info</Button>
                 </Buttons>
             </Content>
         {:else}
-            <Content>
+            <Image style={"padding-left: 1em; padding-right: 1em; background-color:white;"}>
                 <Image ui src={item.image}/>
-            </Content>
+            </Image>
 
             <Content>
                 <Header center aligned>{getName(item.details, item.name)}</Header>

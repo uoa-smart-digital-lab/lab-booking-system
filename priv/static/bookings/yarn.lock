@@ -131,6 +131,61 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.19.tgz#8cfaf2ff603e9aabb910e9c0558c26cf32744061"
   integrity sha512-lAhycmKnVOuRYNtRtatQR1LPQf2oYCkRGkSFnseDAKPl8lu5SOsK/e1sXe5a0Pc5kHIHe6P2I/ilntNv2xf3cA==
 
+"@event-calendar/common@~0.14.3":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/common/-/common-0.14.3.tgz#8c1def2a40e15ca1a2bf3748c75d9ada6ef3572c"
+  integrity sha512-NFfbfBsGpMWvkqR4x5y1DU57SKeVP+hTtw86+hj4b2quw74mRDFUGUvOKt1YjInc3xGQJvqEGSb5738AyBXtGQ==
+  dependencies:
+    svelte "^3.55.0"
+
+"@event-calendar/core@^0.14.1":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/core/-/core-0.14.3.tgz#6c81a98108c041cd2dd18bb9ec4409fd90c4551a"
+  integrity sha512-9E3uTLbwbsWcisY30MSJ/odHFr0EluuhLYMASN8sr8ezD2HHrXD7Gc8YxX5/+PK/1fOZCMjeTX893iBpoEAB8g==
+  dependencies:
+    "@event-calendar/common" "~0.14.3"
+    svelte "^3.55.0"
+
+"@event-calendar/day-grid@^0.14.1":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/day-grid/-/day-grid-0.14.3.tgz#a08c6befdc2bd560b87dac904388f99a3959625a"
+  integrity sha512-2QFdv+hvzFHbU+o8pAkgeEdc9B9rKVDmBHNQ9leh52sI2PKLaEmyJu0QeutzYZyCAGz+ej6MQjeFpv0GwkKtbQ==
+  dependencies:
+    "@event-calendar/common" "~0.14.3"
+    svelte "^3.55.0"
+
+"@event-calendar/interaction@^0.14.1":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/interaction/-/interaction-0.14.3.tgz#c0f4c2d2c75a9dac63d4781b49b5dd7b6e2314d8"
+  integrity sha512-eP2hZjP0JTw0DP8RDn7oU6y7PWUHFhTmcaLpi/4GIF+e9TiabqxKV8zOrI/62s2SwINa2AJAqM3RGtxif1IMEQ==
+  dependencies:
+    "@event-calendar/common" "~0.14.3"
+    svelte "^3.55.0"
+
+"@event-calendar/list@^0.14.1":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/list/-/list-0.14.3.tgz#d65ef16551b6991f130cdad40005c91a1ae7d4c6"
+  integrity sha512-g5+HiVQwCXYp1hUDQjDA+juCRLuqg4Jvk+R6uichAGMKhuHIHKaqz2neTOzQnN5krsoav4iCMLBLSYKBzjRGJA==
+  dependencies:
+    "@event-calendar/common" "~0.14.3"
+    svelte "^3.55.0"
+
+"@event-calendar/resource-time-grid@^0.14.1":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/resource-time-grid/-/resource-time-grid-0.14.3.tgz#0e8404620606fa6adc378c9270d186d8768aa345"
+  integrity sha512-DDrTngLlLNJd5xoU7Bq0Pk1JsyS5vuql09mCINc7xIA4dXEJevFLsIa6pWsWF27do0IhypUjf8r6pvYabfYZ4g==
+  dependencies:
+    "@event-calendar/time-grid" "~0.14.3"
+    svelte "^3.55.0"
+
+"@event-calendar/time-grid@^0.14.1", "@event-calendar/time-grid@~0.14.3":
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/@event-calendar/time-grid/-/time-grid-0.14.3.tgz#8f7bd02a0ab9cd4d6d39f4f683dab3fce8c14268"
+  integrity sha512-ibGcdNU7YyoLSrgy4PdVm5sH5ECHCx/XspBLBPTaZ29OXwhOd0q6xQ8M4G5ngKPco7ohKqH2CJ1XzQEnVzCE7Q==
+  dependencies:
+    "@event-calendar/common" "~0.14.3"
+    svelte "^3.55.0"
+
 "@graphql-typed-document-node/core@^3.1.1":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
@@ -300,6 +355,11 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
+
+dayjs@^1.11.7:
+  version "1.11.8"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.8.tgz#4282f139c8c19dd6d0c7bd571e30c2d0ba7698ea"
+  integrity sha512-LcgxzFoWMEPO7ggRv1Y2N31hUf2R0Vj7fuy/m+Bg1K8rr+KAs1AEy4y9jd5DXe8pbHgX+srkHNS7TH6Q6ZhYeQ==
 
 debug@^4.3.4:
   version "4.3.4"
@@ -824,7 +884,7 @@ svelte-qrcode@^1.0.0:
   resolved "https://registry.yarnpkg.com/svelte-qrcode/-/svelte-qrcode-1.0.0.tgz#4fd219ae20ccaecb91ba9727a2aaf3a0163b251d"
   integrity sha512-WrOvyyxtUzu32gVIDxcFMy0A7uUpbl/8yHaTNOsUaI8W5V4wa7AmReCjffhNY2aS42CqCLJ6qdwUoj/KxmeZzA==
 
-svelte@^3.59.1:
+svelte@^3.55.0, svelte@^3.59.1:
   version "3.59.1"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.59.1.tgz#3de3d56b9165748f32f3131589b8d183cabe7449"
   integrity sha512-pKj8fEBmqf6mq3/NfrB9SLtcJcUvjYSWyePlfCqN9gujLB25RitWK8PvFzlwim6hD/We35KbPlRteuA6rnPGcQ==
