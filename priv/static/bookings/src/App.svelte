@@ -57,8 +57,11 @@
     // Prevent the user from leaving the page
     // -------------------------------------------------------------------------------------------------
     function beforeunload(event: BeforeUnloadEvent) {
-        event.preventDefault();
-        return (event.returnValue = "");
+        if ((AppC.currentState !== AppStates.QRCODE) && (AppC.currentState !== AppStates.QRSEARCH))
+        {
+            event.preventDefault();
+            return (event.returnValue = "");
+        }
     }
     // -------------------------------------------------------------------------------------------------
 
@@ -140,6 +143,7 @@
         queryVars.name = getQueryStringVal("item");
         queryVars.qrcode = getQueryStringVal("qrcode");
         queryVars.search = getQueryStringVal("search");
+        searchString = queryVars.search?queryVars.search:"";
         queryVars.qrsearch = getQueryStringVal("qrsearch");
 
         if (queryVars.qrcode) {
@@ -279,9 +283,9 @@ Layout
     <Login id="Login_dialog" on:login={login}/>
 
     {#if (AppC.currentState === AppStates.QRCODE)}
-        QRcode
+        <QRcode {queryVars}/>
     {:else if (AppC.currentState === AppStates.QRSEARCH)}
-        QRsearch
+        <QRcode {queryVars}/>
     {:else if (AppC.currentState === AppStates.ITEM_DETAILS) || (AppC.currentState === AppStates.MAIN_DETAILS)}
         Details
     {:else if (AppC.currentState === AppStates.MAIN_BOOKING)}

@@ -2,7 +2,7 @@
   An individual Item's qrcode or qr qrcode for a group of items
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-	import { Card, Text, Divider } from 'svelte-fomantic-ui';
+	import { Card, Content, Link } from 'svelte-fomantic-ui';
     import QrCode from "svelte-qrcode";
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
@@ -44,38 +44,35 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Card p="lg" shadow="sm" style="border-color:black">
+<Card ui centered>
     {#if queryVars.qrsearch}
-        <a href = {qrlink}>
+        <Link image href = {qrlink}>
             <QrCode value={qrlink} alt={qrlink}/>
-        </a>
-
-        <Divider variant='dotted'/>
-
-        <Text align='center' size='lg' weight={500}>
-            Scan this for a list of {queryVars.qrsearch} items.
-        </Text>
+        </Link>
+        <Content>
+            <center>
+                Scan this for a list of {queryVars.qrsearch} items.
+            </center>
+        </Content>
     {:else}
         {#if $item.loading}
             Loading...
         {:else if $item.error}
             Error: {$item.error.message}
         {:else}
-            <a href = {qrlink}>
+            <Link image href={qrlink}>
                 <QrCode value={qrlink} alt={qrlink}/>
-            </a>
-
-            <Divider variant='dotted'/>
-
-            <Text align='center' size='lg' weight={500}>
-                Scan this for {getname($item.data.itemGet.details, $item.data.itemGet.name)}.
-            </Text>
-
-            <Divider variant='dotted'/>
-
-            <Text weight={'bold'} align='center' size='lg'>
-                {$item.data.itemGet.name.toUpperCase()}
-            </Text>
+            </Link>
+            <Content>
+                <center>
+                    Scan this for {getname($item.data.itemGet.details, $item.data.itemGet.name)}.
+                </center>
+            </Content>
+            <Content extra>
+                <center>
+                    {$item.data.itemGet.name.toUpperCase()}
+                </center>
+            </Content>
         {/if}
     {/if}
 </Card>

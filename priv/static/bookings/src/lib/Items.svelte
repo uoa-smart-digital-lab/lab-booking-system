@@ -8,6 +8,7 @@
 <script lang="ts">
     import { Cards, Items } from "svelte-fomantic-ui";
     import type { Item as ItemT, ItemDetails, Person, Booking } from './Graphql.svelte';
+    import type { } from './Types.svelte';
 
     import Item from "./Item.svelte";
 
@@ -21,7 +22,6 @@
     export let qrcode: boolean;
     export let list: boolean;
     export let numCols: number;
-    export let queryVars: {};
 
     let now = new Date();
 
@@ -30,7 +30,7 @@
 
     // Check whether the search string is in the name of the item or the details.name of the item. Or if the search string is empty, return true.
     const checkSearch = (item : ItemT, searchString : string) : boolean => 
-        (item.bookable && (item.name.toLowerCase().includes(searchString.toLowerCase()) || getname(item.details).toLowerCase().includes(searchString.toLowerCase()) || (searchString === "")));
+        (item.bookable && item && (item.name.toLowerCase().includes(searchString.toLowerCase()) || getname(item.details).toLowerCase().includes(searchString.toLowerCase()) || (searchString === "")));
 
     // Check whether the person can book the item.  Either it is free to use (so return true) or the user must be inducted, in which case they must be named in the inducted list to return true
     const checkInducted = (item : ItemT, inducted : boolean, upi : string) : boolean => 
@@ -62,10 +62,18 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Cards ui _={list?"one stackable horizontal":(numCols===1?"one":numCols===2?"two":numCols===3?"three":"four")} style={"margin: 0.75em 0.25em !important;"}>
+<Cards ui _={list?"one horizontal":(numCols===1?"one":numCols===2?"two":numCols===3?"three":"four")} style={"margin: 0.75em 0.25em !important;"}>
     {#each items as item}
-        {#if checkSearch(item, searchString) && checkInducted(item, inducted, upi) && (availability ? checkAvailability(item, now) : true)}
-            <Item {queryVars} {item} {list}/>
+        {#if availability}
+            {#if checkAvailability(item, now)}
+                {#if (checkSearch(item, searchString) && checkInducted(item, inducted, upi))}                
+                    <Item {list} {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={true} {numCols}/>
+                {/if}
+            {/if}
+        {:else}
+            {#if (checkSearch(item, searchString) && checkInducted(item, inducted, upi))}                
+                <Item {list} {qrcode} {item} on:book on:showDetails {loggedIn} {upi} available={checkAvailability(item, now)} {numCols}/>
+            {/if}
         {/if}
     {/each}
 </Cards>

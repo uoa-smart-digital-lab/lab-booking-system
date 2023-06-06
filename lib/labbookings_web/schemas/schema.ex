@@ -10,13 +10,13 @@ defmodule LabbookingsWeb.Schema do
   query do
     import_fields :person_queries
     import_fields :item_queries
-    import_fields :booking_queries
+    # import_fields :booking_queries
   end
 
   mutation do
     import_fields :person_mutations
     import_fields :item_mutations
-    import_fields :booking_mutations
+    # import_fields :booking_mutations
   end
 
 end

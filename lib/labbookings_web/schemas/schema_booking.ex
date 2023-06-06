@@ -49,9 +49,9 @@ defmodule LabbookingsWeb.Schema.Booking do
   # ------------------------------------------------------------------------------------------------------
   # Queries
   # ------------------------------------------------------------------------------------------------------
-  object :booking_queries do
+  # object :booking_queries do
     # Nothing here - bookings are found through the items and persons queries.
-  end
+  # end
   # ------------------------------------------------------------------------------------------------------
 
 
@@ -59,8 +59,8 @@ defmodule LabbookingsWeb.Schema.Booking do
   # ------------------------------------------------------------------------------------------------------
   # Mutations
   # ------------------------------------------------------------------------------------------------------
-  object :booking_mutations do
+  # object :booking_mutations do
     # Nothing here - bookings are made as part of the items mutations.
-  end
+  # end
   # ------------------------------------------------------------------------------------------------------
 end

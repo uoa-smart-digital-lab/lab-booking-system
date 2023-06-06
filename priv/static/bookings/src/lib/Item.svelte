@@ -6,10 +6,11 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { Card, Item, Content, Image, Header, Buttons, Button, Description, Meta} from "svelte-fomantic-ui";
+    import { Card, Content, Image, Header, Buttons, Button, Description, Meta} from "svelte-fomantic-ui";
     import type { Item as ItemT, ItemDetails, Person} from './Graphql.svelte';
-    import QrCode from "svelte-qrcode";
 	import { createEventDispatcher } from 'svelte';
+    import QRcode from "./QRcode.svelte";
+    import type { QueryVars } from './Types.svelte';
 
     const dispatch = createEventDispatcher();
 
@@ -23,12 +24,11 @@
     export let qrcode : boolean;                    // Show the QR code for the item instead of the picture
     export let list : boolean;                      // True if list mode, otherwise display as card
     export let ui = false;
-    export let queryVars : {};
+    export let numCols: number;
 
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let qrlink = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/?" + (queryVars["qrsearch"]?"search=" + queryVars["qrsearch"]:"item=" + queryVars["qrcode"]);
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -83,47 +83,43 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Card {ui}>
-    {#if list}
-        <Content style={"display:flex; align-items: center;"}>
-            {#if qrcode}
-                <QrCode value={qrlink} alt={qrlink}/>
-            {:else}
-                <Image ui small src={item.image}/>
-            {/if}
-        </Content>
+{#if qrcode}
+    <QRcode queryVars={{qrcode: item.name, name: item.name, qrsearch: "", search: ""}}/>
+{:else}
+    <Card {ui}>
+        {#if list}
+            <Content style={"display:flex; align-items: center;"}>
+                <Image ui tiny src={item.image}/>
+            </Content>
 
-        <Content style={"display:flex; justify-content: center; flex-direction:column;"}>
-            <Header>{getName(item.details, item.name)}</Header>
-            <Description>{item.name.toUpperCase()}</Description>
-            <Meta>{getAccessMessage(loggedIn, available)}</Meta>
-        </Content>
+            <Content style={"display:flex; justify-content: center; flex-direction:column;"}>
+                <Header>{getName(item.details, item.name)}</Header>
+                <Description>{item.name.toUpperCase()}</Description>
+                <Meta>{getAccessMessage(loggedIn, available)}</Meta>
+            </Content>
 
-        <Content style={"display:flex; align-items: center;"}>
-            <Buttons ui wrapping two buttons>
+            <Content style={"display:flex; align-items: center;"}>
+                <Buttons ui _={(numCols === 1)?"vertical":"two"}>
+                    <Button ui primary on:click={bookItem}>book</Button>
+                    <Button ui green on:click={showDetails}>info</Button>
+                </Buttons>
+            </Content>
+        {:else}
+            <Content>
+                <Image ui src={item.image}/>
+            </Content>
+
+            <Content>
+                <Header center aligned>{getName(item.details, item.name)}</Header>
+                <Description center aligned>{item.name.toUpperCase()}</Description>
+                <Meta center aligned>{getAccessMessage(loggedIn, available)}</Meta>
+            </Content>
+
+            <Buttons ui wrapping two buttons bottom attached>
                 <Button ui primary on:click={bookItem}>book</Button>
                 <Button ui green on:click={showDetails}>info</Button>
             </Buttons>
-        </Content>
-    {:else}
-        <Content>
-            {#if qrcode}
-                <QrCode value={qrlink} alt={qrlink}/>
-            {:else}
-                <Image ui src={item.image}/>
-            {/if}
-        </Content>
-
-        <Content>
-            <Header center aligned>{getName(item.details, item.name)}</Header>
-            <Description center aligned>{item.name.toUpperCase()}</Description>
-            <Meta center aligned>{getAccessMessage(loggedIn, available)}</Meta>
-        </Content>
-
-        <Buttons ui wrapping two buttons bottom attached>
-            <Button ui primary on:click={bookItem}>book</Button>
-            <Button ui green on:click={showDetails}>info</Button>
-        </Buttons>
-    {/if}
-</Card>
+        {/if}
+    </Card>
+{/if}
 <!----------------------------------------------------------------------------------------------------->
