@@ -77,7 +77,7 @@ Layout
                             </Item>
                             <Item>
                                 <center>
-                                    <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
+                                    <Checkbox ui right aligned toggle fluid label="Available" bind:checked={availability}/>
                                 </center>
                             </Item>
                             <Item>
@@ -121,7 +121,7 @@ Layout
                     </Buttons>
                 </Item>
                 <Item>
-                    <Checkbox ui right aligned toggle fluid label="Bookable" bind:checked={availability}/>
+                    <Checkbox ui right aligned toggle fluid label="Available" bind:checked={availability}/>
                 </Item>
                 <Item>
                     <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>

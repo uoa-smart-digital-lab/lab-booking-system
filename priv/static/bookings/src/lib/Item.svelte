@@ -98,12 +98,19 @@ Layout
                 <Meta>{getAccessMessage(loggedIn, available)}</Meta>
             </Content>
 
-            <Content style={"display:flex; align-items: center;"}>
-                <Buttons ui _={(numCols <= 2)?"vertical":""} style={"margin-left:auto; margin-right:0"}>
-                    <Button ui primary on:click={bookItem} style={"width:150px;"}>book</Button>
-                    <Button ui green on:click={showDetails} style={"width:150px;"}>info</Button>
-                </Buttons>
-            </Content>
+                {#if numCols === 1}
+                    <Buttons ui two buttons fluid bottom attached>
+                        <Button ui primary on:click={bookItem}>book</Button>
+                        <Button ui green on:click={showDetails}>info</Button>
+                    </Buttons>
+                {:else}
+                    <Content style={"display:flex; align-items: center;"}>
+                        <Buttons ui _={(numCols <= 2)?"vertical":""} style={"margin-left:auto; margin-right:0"}>
+                            <Button ui primary on:click={bookItem} style={"width:150px;"}>book</Button>
+                            <Button ui green on:click={showDetails} style={"width:150px;"}>info</Button>
+                        </Buttons>
+                    </Content>
+                {/if}
         {:else}
             <Image style={"padding-left: 1em; padding-right: 1em; background-color:white;"}>
                 <Image ui src={item.image}/>
