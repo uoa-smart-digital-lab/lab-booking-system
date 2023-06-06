@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck - known error with Calendar
 
-	import { Button, Modal } from 'svelte-fomantic-ui';
+	import { Button, Modal, Select, Option, Title } from 'svelte-fomantic-ui';
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
     import Calendar from '@event-calendar/core';
@@ -43,6 +43,14 @@
     let details : any;                          // Additional booking details
     let bookingupi : string;                    // The booking upi
     let bookerStatus : string;                  // The booking person's status
+    let itemsArray: string;
+
+    let items={
+        hololens2_1:"Hololens2_1",
+        hololens2_2:"Hololens2_2",
+        hololens2_3:"Hololens2_3",
+        hololens2_4:"Hololens2_4"
+    }
 
 
     // The GraphQL query structure for login
@@ -161,24 +169,32 @@ Layout
         <!-- <ConfirmBooking {details} sessionid={appVars.session.sessionid} {closeDialog} {success} {updating} {editing} {bookingupi} {bookerStatus} upi={appVars.session.person.upi} itemName={appVars.item.name} {startTime} {endTime} {newStartTime} {newEndTime} /> -->
     </Modal>
     {setItem ($item.data.itemGet)}
-    <Calendar bind:this={ec} {plugins} options = {{
-        scrollTime: '09:00:00',
-        views: {
-            timeGridDay: {pointer: true},
-            dayGridMonth: {pointer: true}
-        },
-        headerToolbar: {start: 'title', center: '', end: 'dayGridMonth,timeGridWeek,timeGridDay prev,today,next'},
-        events: translateBookingsForCalendar($item.data.itemGet.bookings),
-        eventResize: updateEvent,
-        eventDrop: updateEvent,
-        eventClick: editEvent,
-        select: newEvent,
-        dateClick: changeView,
-        nowIndicator: true,
-        editable: false,
-        selectable: loggedIn,
-        view: "dayGridMonth",
-        slotDuration: '01:00:00'
-    }} />
+    <div style={"padding-top:55px; margin: 5px;"}>
+        <!-- <Select ui fluid search dropdown multiple bind:selected={itemsArray}>
+            <Option value="">Select Items</Option>
+            {#each Object.keys(items) as key}
+                <Option value={key}>{items[key]}</Option>
+            {/each}
+        </Select> -->
+        <Calendar bind:this={ec} {plugins} options = {{
+            scrollTime: '09:00:00',
+            views: {
+                timeGridDay: {pointer: true},
+                dayGridMonth: {pointer: true}
+            },
+            headerToolbar: {start: 'title', center: '', end: 'dayGridMonth,timeGridWeek,timeGridDay prev,today,next'},
+            events: translateBookingsForCalendar($item.data.itemGet.bookings),
+            eventResize: updateEvent,
+            eventDrop: updateEvent,
+            eventClick: editEvent,
+            select: newEvent,
+            dateClick: changeView,
+            nowIndicator: true,
+            editable: false,
+            selectable: loggedIn,
+            view: "dayGridMonth",
+            slotDuration: '01:00:00'
+        }} />
+    </div>
 {/if}
 <!----------------------------------------------------------------------------------------------------->

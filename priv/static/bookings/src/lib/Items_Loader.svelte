@@ -75,6 +75,6 @@ Layout
 {:else if $items.error}
     Error: {$items.error.message}
 {:else}
-    <Items {numCols} {list} {searchString} {loggedIn} {upi} {inducted} {availability} {qrcode} items={$items.data.itemAll}/>
+    <Items on:book on:showDetails {numCols} {list} {searchString} {loggedIn} {upi} {inducted} {availability} {qrcode} items={$items.data.itemAll}/>
 {/if}
 <!----------------------------------------------------------------------------------------------------->

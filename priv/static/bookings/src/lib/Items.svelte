@@ -22,6 +22,7 @@
     export let qrcode: boolean;
     export let list: boolean;
     export let numCols: number;
+    
 
     let now = new Date();
 

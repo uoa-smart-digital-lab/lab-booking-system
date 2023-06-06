@@ -19,6 +19,7 @@
     import TopBar from "./lib/TopBar.svelte";
     import QRcode from "./lib/QRcode.svelte";
     import Booking from "./lib/Booking.svelte";
+    import Details from "./lib/Details.svelte";
     import Items_Loader from "./lib/Items_Loader.svelte";
     
     import { Itemtype, Usertype } from "./lib/Graphql.svelte";
@@ -258,6 +259,40 @@
             default: break;
         }
     }
+
+    // Cancel the booking calendar view and come back to the list
+    function doneBooking (_event: any) {
+        appVars.item = null;
+        AppC.step(AppEvents.SHOW_LIST);
+    }
+
+    // Use the item chosen to go to the booking calendar
+    function bookItem (event: any) { 
+        window.scrollTo(0,0);
+        AppC.step(AppEvents.SHOW_BOOKING, event.detail.item);
+    }
+
+    function setTheItem (event: any) {
+        appVars.item = event.detail.item;
+        updateUI();
+    }
+
+    // Done showing the details for an item
+    function showDetails ( event: any ) {
+        window.scrollTo(0,0);
+        AppC.step(AppEvents.SHOW_DETAILS, event.detail.item);
+    }
+
+    function doneDetails ( _event : any ) {
+        if (AppC.currentState === AppStates.MAIN_DETAILS)
+        {
+            AppC.step(AppEvents.SHOW_BOOKING);
+        }
+        else
+        {
+            AppC.step(AppEvents.SHOW_LIST);
+        }
+    }
     // -------------------------------------------------------------------------------------------------
 
 </script>
@@ -288,14 +323,15 @@ Layout
     {:else if (AppC.currentState === AppStates.QRSEARCH)}
         <QRcode {queryVars}/>
     {:else if (AppC.currentState === AppStates.ITEM_DETAILS) || (AppC.currentState === AppStates.MAIN_DETAILS)}
-        Details
+        <TopBar {appVars} bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        <Details {appVars}/>
     {:else if (AppC.currentState === AppStates.MAIN_BOOKING)}
-        <TopBar bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
-        <Booking {appVars} {queryVars} {loggedIn}/>
+        <TopBar {appVars} bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        <Booking on:setItem={setTheItem} {appVars} {queryVars} {loggedIn}/>
     {:else}
-        <TopBar bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        <TopBar {appVars} bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
 
-        <Content style={numCols>2?"padding-top: 80px;":"padding-top: 60px;"}>
+        <Content style={"padding-top: 60px;"}>
             <Message ui yellow>
                 <Grid ui stackable>
                     <Column four wide>
@@ -313,7 +349,7 @@ Layout
                 </Grid>
             </Message>
         
-            <Items_Loader {queryVars} {numCols} {searchString} {loggedIn} upi={appVars.session?appVars.session.person.upi:""} {inducted} {availability} {qrcode} {list}/>
+            <Items_Loader on:book={bookItem} on:showDetails={showDetails} {queryVars} {numCols} {searchString} {loggedIn} upi={appVars.session?appVars.session.person.upi:""} {inducted} {availability} {qrcode} {list}/>
         </Content>
     {/if}
 

@@ -6,10 +6,11 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { Icon, Breadcrumb, Link } from "svelte-fomantic-ui";
+    import { Icon, Breadcrumb, Link, Section } from "svelte-fomantic-ui";
     import { AppStates, AppEvents } from './Types.svelte';
 
     export let AppC : any;
+    export let name : string;
 
 </script>
 <!----------------------------------------------------------------------------------------------------->
@@ -49,6 +50,10 @@ Layout
             <Icon info/>
             Details
         </Link>
+    {/if}
+    {#if name && name !== ""}
+        <Icon grip lines vertical divider />
+        <Section>{name.toUpperCase()}</Section>
     {/if}
 </Breadcrumb>
 <!----------------------------------------------------------------------------------------------------->

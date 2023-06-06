@@ -99,10 +99,12 @@ Layout
             </Content>
 
                 {#if numCols === 1}
-                    <Buttons ui two buttons fluid bottom attached>
-                        <Button ui primary on:click={bookItem}>book</Button>
-                        <Button ui green on:click={showDetails}>info</Button>
-                    </Buttons>
+                    <Content extra style={"padding: 0 0;"}>
+                        <Buttons ui two buttons fluid bottom attached>
+                            <Button ui primary on:click={bookItem}>book</Button>
+                            <Button ui green on:click={showDetails}>info</Button>
+                        </Buttons>
+                    </Content>
                 {:else}
                     <Content style={"display:flex; align-items: center;"}>
                         <Buttons ui _={(numCols <= 2)?"vertical":""} style={"margin-left:auto; margin-right:0"}>

@@ -6,9 +6,10 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { reload, Button, Buttons, Icon, Input, Menu, Item, Checkbox, Dropdown, Breadcrumb, Link } from "svelte-fomantic-ui";
+    import { reload, Button, Buttons, Icon, Input, Menu, Item, Checkbox, Dropdown, Text } from "svelte-fomantic-ui";
     import { AppStates, AppEvents, LoginStates, LoginEvents } from './Types.svelte';
     import Navigator from "./Navigator.svelte";
+    import type { AppVars } from './Types.svelte';
 
     export let numCols : number;
     export let loggedIn : boolean;
@@ -18,6 +19,7 @@
     export let inducted : boolean;
     export let searchString : string;
     export let AppC : any;
+    export let appVars: AppVars;
 
     let prevNumCols : number = -1;
 
@@ -47,11 +49,11 @@ Styles
 Layout
 ------------------------------------------------------------------------------------------------------->
 {#if numCols<=2}
-    <Menu ui small top fixed>
+    <Menu ui top fixed>
         <Item>
-            <Navigator bind:AppC/>
+            <Navigator bind:AppC name={(AppC.currentState === AppStates.MAIN_LIST)?"":appVars?(appVars.item?appVars.item.name:""):""}/>
         </Item>
-        <Menu right small>
+        <Menu right>
             <Item>
                 <Dropdown ui icon button left pointing settings={{showOnFocus:true}} id="dropdown_menu">
                     <Icon black ellipsis vertical/>
@@ -85,8 +87,8 @@ Layout
                                     <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>
                                 </center>
                             </Item>
-                            <Item ui right aligned category search>
-                                <Input ui>
+                            <Item>
+                                <Input ui small>
                                     <input placeholder="Search..." type="text" on:click|stopPropagation bind:value={searchString}/>
                                 </Input>
                             </Item>
@@ -97,7 +99,7 @@ Layout
         </Menu>
     </Menu>
 {:else}
-    <Menu ui small top fixed stackable>
+    <Menu ui mini top fixed stackable>
         <Item>
             <Button ui fluid _={loggedIn?"orange":"blue"} on:click={()=>{if (loggedIn) {LoginC.step(LoginEvents.LOG_OUT)} else {LoginC.step(LoginEvents.OPEN_DIALOG)}}}>
                 <Icon user/>
@@ -105,13 +107,13 @@ Layout
             </Button>
         </Item>
         <Item>
-            <Navigator bind:AppC/>
+            <Navigator bind:AppC name={(AppC.currentState === AppStates.MAIN_LIST)?"":appVars?(appVars.item?appVars.item.name:""):""}/>
         </Item>
 
         {#if (AppC.currentState === AppStates.MAIN_LIST)}
-            <Menu right small>
+            <Menu right mini>
                 <Item>
-                    <Buttons ui>
+                    <Buttons ui mini>
                         <Button ui icon _={list?"green":"grey"} on:click={()=>list=true}>
                             <Icon list/>
                         </Button>
@@ -126,7 +128,7 @@ Layout
                 <Item>
                     <Checkbox ui right aligned toggle fluid label="Inducted" bind:checked={inducted}/>
                 </Item>
-                <Item ui right aligned category search>
+                <Item>
                     <Input ui>
                         <Input text bind:value={searchString} placeholder="Search..."/>
                     </Input>

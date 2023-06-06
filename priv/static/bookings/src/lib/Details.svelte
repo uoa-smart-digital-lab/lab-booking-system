@@ -2,6 +2,8 @@
   Show a webpage inside an iframe
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
+    import { Embed } from 'svelte-fomantic-ui';
+
     import type { AppVars } from './Types.svelte';
 
     // -------------------------------------------------------------------------------------------------
@@ -10,7 +12,7 @@
  
     export let appVars : AppVars;
 
-    let height = screen.height;
+    let height = screen.height - 60;
 </script>
 <!----------------------------------------------------------------------------------------------------->
 
@@ -28,6 +30,7 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<iframe src={appVars.item.url} height={height} width='100%' frameborder=0 title='' scrolling=yes >
-<p>Oops! Your browser does not support iframes.</p></iframe>
+<div style={"padding-top: 60px; height:auto;"}>
+    <Embed ui activate style={"height:" + height + "px;"} data={{url : appVars.item.url}}/>
+</div>
 <!----------------------------------------------------------------------------------------------------->
