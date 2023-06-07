@@ -53,7 +53,7 @@
     }
 
 
-    // The GraphQL query structure for login
+    // The GraphQL query structure for getting an item
     let item : any = query(ITEMGET, { variables: {name: appVars.item ? appVars.item.name : ( queryVars.name ? queryVars.name : "" ) } });
 
     // -------------------------------------------------------------------------------------------------

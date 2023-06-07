@@ -51,7 +51,7 @@ Layout
 {#if numCols<=2}
     <Menu ui top fixed>
         <Item>
-            <Navigator bind:AppC name={(AppC.currentState === AppStates.MAIN_LIST)?"":appVars?(appVars.item?appVars.item.name:""):""}/>
+            <Navigator {AppC} {numCols} on:showDetails item={appVars.item}/> <!-- name={(AppC.currentState === AppStates.MAIN_LIST)?"":appVars?(appVars.item?appVars.item.name:""):""}/> -->
         </Item>
         <Menu right>
             <Item>
@@ -107,7 +107,7 @@ Layout
             </Button>
         </Item>
         <Item>
-            <Navigator bind:AppC name={(AppC.currentState === AppStates.MAIN_LIST)?"":appVars?(appVars.item?appVars.item.name:""):""}/>
+            <Navigator {AppC} {numCols} on:showDetails item={appVars.item}/> <!-- name={(AppC.currentState === AppStates.MAIN_LIST)?"":appVars?(appVars.item?appVars.item.name:""):""}/> -->
         </Item>
 
         {#if (AppC.currentState === AppStates.MAIN_LIST)}

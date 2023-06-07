@@ -129,12 +129,13 @@
     AppC.add_transition(AppStates.INIT,                     AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    doNothing);
 
     AppC.add_transition(AppStates.MAIN_LIST,                AppEvents.SHOW_BOOKING,             AppStates.MAIN_BOOKING,                 setItem);
-    AppC.add_transition(AppStates.MAIN_BOOKING,             AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    doNothing);
+    AppC.add_transition(AppStates.MAIN_BOOKING,             AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    clearItem);
     AppC.add_transition(AppStates.MAIN_BOOKING,             AppEvents.SHOW_DETAILS,             AppStates.MAIN_DETAILS,                 setItem);
     AppC.add_transition(AppStates.MAIN_DETAILS,             AppEvents.SHOW_BOOKING,             AppStates.MAIN_BOOKING,                 doNothing);
+    AppC.add_transition(AppStates.MAIN_DETAILS,             AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    clearItem);
 
     AppC.add_transition(AppStates.MAIN_LIST,                AppEvents.SHOW_DETAILS,             AppStates.ITEM_DETAILS,                 setItem);
-    AppC.add_transition(AppStates.ITEM_DETAILS,             AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    doNothing);
+    AppC.add_transition(AppStates.ITEM_DETAILS,             AppEvents.SHOW_LIST,                AppStates.MAIN_LIST,                    clearItem);
 
     // -------------------------------------------------------------------------------------------------
     // Actions
@@ -167,6 +168,8 @@
 
     // Do (almost) nothing
     function doNothing (_ : {} = {}) { updateUI(); }
+
+    function clearItem (_ : {} = {}) { appVars.item = null; updateUI(); }
 
     // Force the UI to update (and update a few variables)
     function updateUI (_ : {} = {}) { 
@@ -323,13 +326,13 @@ Layout
     {:else if (AppC.currentState === AppStates.QRSEARCH)}
         <QRcode {queryVars}/>
     {:else if (AppC.currentState === AppStates.ITEM_DETAILS) || (AppC.currentState === AppStates.MAIN_DETAILS)}
-        <TopBar {appVars} bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        <TopBar {appVars} {numCols} on:showDetails={showDetails} bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
         <Details {appVars}/>
     {:else if (AppC.currentState === AppStates.MAIN_BOOKING)}
-        <TopBar {appVars} bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        <TopBar {appVars} {numCols} on:showDetails={showDetails} bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
         <Booking on:setItem={setTheItem} {appVars} {queryVars} {loggedIn}/>
     {:else}
-        <TopBar {appVars} bind:numCols bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
+        <TopBar {appVars} {numCols} on:showDetails={showDetails} bind:loggedIn bind:LoginC bind:list bind:availability bind:inducted bind:searchString bind:AppC/>
 
         <Content style={"padding-top: 60px;"}>
             <Message ui yellow>
