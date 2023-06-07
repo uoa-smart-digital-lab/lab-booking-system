@@ -27,7 +27,6 @@
     // -------------------------------------------------------------------------------------------------
     // Variables
     // -------------------------------------------------------------------------------------------------
-    let now : Date;
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -38,17 +37,8 @@
     // Force reload of the data
     function reload () { items.refetch(); }
 
-    // Create a date time at zero time zone from the current time and date
-    const rightNow = () => {
-        let now = new Date();
-        let nowString = (now.getFullYear().toString() + "-" + ((now.getMonth()<9)?"0":"") + (now.getMonth()+1).toString() + "-" + ((now.getDate()<10)?"0":"") + now.getDate().toString() + "T" + ((now.getHours()<10)?"0":"") + now.getHours().toString() + ":" + ((now.getMinutes()<10)?"0":"") + now.getMinutes().toString() + ":00+00:00");
-        return (new Date(nowString));
-    }
-
-
     // Get the current time and refetch the items
     beforeUpdate(() => {
-        now = rightNow();
 		items.refetch();
 	});
 

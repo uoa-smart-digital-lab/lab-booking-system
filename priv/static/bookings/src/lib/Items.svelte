@@ -22,9 +22,17 @@
     export let qrcode: boolean;
     export let list: boolean;
     export let numCols: number;
-    
 
-    let now = new Date();
+    // Create a date time at zero time zone from the current time and date
+    const rightNow = () => {
+        let now = new Date();
+        let nowString = (now.getFullYear().toString() + "-" + ((now.getMonth()<9)?"0":"") + (now.getMonth()+1).toString() + "-" + ((now.getDate()<10)?"0":"") + now.getDate().toString() + "T" + ((now.getHours()<10)?"0":"") + now.getHours().toString() + ":" + ((now.getMinutes()<10)?"0":"") + now.getMinutes().toString() + ":00+00:00");
+        return (new Date(nowString));
+    }
+
+    // Get the current time and refetch the items
+    let now = rightNow();
+    console.log(now);
 
     // Get the name from the details if it exists, otherwise return an empty string rather than undefined
     function getname (details : ItemDetails) : string { return(details.name ? details.name : ""); }
@@ -45,6 +53,7 @@
     const checkAvailability = (item : ItemT, today : Date) : boolean => {     
         return (!(item.bookings.reduce((acc : boolean, curr : Booking) => acc || timeOverlaps(new Date(curr.starttime), new Date(curr.endtime), today), false)));
     }
+
 </script>
 <!----------------------------------------------------------------------------------------------------->
 

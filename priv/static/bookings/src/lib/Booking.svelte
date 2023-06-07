@@ -4,7 +4,7 @@
 <script lang="ts">
     // @ts-nocheck - known error with Calendar
 
-	import { Button, Modal, Select, Option, Title } from 'svelte-fomantic-ui';
+	import { behavior, Modal } from 'svelte-fomantic-ui';
     import { query } from 'svelte-apollo';
     import { ITEMGET } from './Graphql.svelte';
     import Calendar from '@event-calendar/core';
@@ -14,7 +14,7 @@
     import Interaction from '@event-calendar/interaction';
     import ResourceTimeGrid from '@event-calendar/resource-time-grid';
     import ConfirmBooking from './ConfirmBooking.svelte';
-    import type { Booking, ItemDetails, Item } from './Graphql.svelte';
+    import type { Booking, Item } from './Graphql.svelte';
     import type { AppVars, QueryVars } from './Types.svelte';
     import Item from './Item.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -45,12 +45,12 @@
     let bookerStatus : string;                  // The booking person's status
     let itemsArray: string;
 
-    let items={
-        hololens2_1:"Hololens2_1",
-        hololens2_2:"Hololens2_2",
-        hololens2_3:"Hololens2_3",
-        hololens2_4:"Hololens2_4"
-    }
+    // let items={
+    //     hololens2_1:"Hololens2_1",
+    //     hololens2_2:"Hololens2_2",
+    //     hololens2_3:"Hololens2_3",
+    //     hololens2_4:"Hololens2_4"
+    // }
 
 
     // The GraphQL query structure for getting an item
@@ -73,7 +73,6 @@
         let counter : number = 0;
         bookings.forEach((booking : Booking) => {
             let eventLength = (new Date(booking.endtime) - new Date(booking.starttime)) / (1000 * 3600);
-
             calendarEvents.push({
                 id: counter++,
                 start: booking.starttime,
@@ -91,7 +90,7 @@
     }
 
     // Close the dialog box (eg after cancel button pressed)
-    const closeDialog = () => { item.refetch(); ec.setOption("events", translateBookingsForCalendar($item.data.itemGet.bookings)); ec.unselect(); opened = false; }
+    const closeDialog = () => { item.refetch(); ec.setOption("events", translateBookingsForCalendar($item.data.itemGet.bookings)); ec.unselect(); behavior("ConfirmBookingDialog", "hide"); opened = false; }
 
     // Called when the update or new booking is successful (and sends the updated item)
     const success = (updatedItem : Item) => { closeDialog(); }
@@ -106,6 +105,7 @@
             details = {info:""};
             bookingupi = appVars.session.person.upi;
             bookerStatus = appVars.session.person.status.toString();
+            behavior("ConfirmBookingDialog", "show");
             opened = true;
         }
     }
@@ -121,6 +121,7 @@
             details = info.event.extendedProps.details;
             bookingupi = info.event.extendedProps.upi;
             bookerStatus = appVars.session.person.status.toString();
+            behavior("ConfirmBookingDialog", "show");
             opened = true;
         }
     }
@@ -134,6 +135,7 @@
             details = info.event.extendedProps.details;
             bookingupi = info.event.extendedProps.upi;
             bookerStatus = appVars.session.person.status.toString();
+            behavior("ConfirmBookingDialog", "show");
             opened = true;
         }
     }
@@ -165,9 +167,14 @@ Layout
 {:else if $item.error}
     There is no item called \'{queryVars.name}\' in the system.
 {:else}
-    <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered>
-        <!-- <ConfirmBooking {details} sessionid={appVars.session.sessionid} {closeDialog} {success} {updating} {editing} {bookingupi} {bookerStatus} upi={appVars.session.person.upi} itemName={appVars.item.name} {startTime} {endTime} {newStartTime} {newEndTime} /> -->
-    </Modal>
+    <!-- <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered> -->
+    <Modal id="ConfirmBookingDialog" ui tiny>
+        {#if opened}
+            <ConfirmBooking title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} {details} sessionid={appVars?appVars.session?appVars.session.sessionid:"":""} {closeDialog} {success} {updating} {editing} {bookingupi} {bookerStatus} upi={appVars?appVars.session?appVars.session.person.upi:"":""} itemName={appVars?appVars.item?appVars.item.name:"":""} {startTime} {endTime} {newStartTime} {newEndTime} />
+        {/if}
+        </Modal>
+    <!-- </Modal> -->
+
     {setItem ($item.data.itemGet)}
     <div style={"padding-top:55px; margin: 5px;"}>
         <!-- <Select ui fluid search dropdown multiple bind:selected={itemsArray}>

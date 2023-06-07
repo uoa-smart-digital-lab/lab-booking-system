@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { mutation } from 'svelte-apollo';
-    import { Card, Divider, Center, Input, Button, Grid, Text } from 'svelte-fomantic-ui';
+    import { behavior, Input, Button, Modal, Message , Content, Form, Field, Label, Actions} from 'svelte-fomantic-ui';
     import { ITEMCHANGEBOOKING, ITEMBOOK, ITEMUNBOOK } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
@@ -45,6 +45,7 @@
     const handleUpdate = () => {
         ItemChangebooking({ variables: { itemname:itemName, upi:bookingupi, starttime:startTime, endtime:endTime, newstarttime:newStartTime, newendtime:newEndTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
         .then((result : any) => {
+            errorMessage="";
             success(result.data.itemChangebooking);
         })
         .catch((error) => {
@@ -61,6 +62,7 @@
     const handleNew = () => {
         ItemBook({ variables: { itemname:itemName, upi:bookingupi, starttime:startTime, endtime:endTime, details:"{\"info\":\"" + bookingInfo + "\"}" } })
         .then((result : any) => {
+            errorMessage="";
             success(result.data.itemBook);
         })
         .catch((error) => {
@@ -77,6 +79,7 @@
     const handleDelete = () => {
         ItemUnbook({ variables: { itemname:itemName, upi:bookingupi, starttime:startTime, endtime:endTime } })
         .then((result : any) => {
+            errorMessage="";
             success(result.data.itemBook);
         })
         .catch((error) => {
@@ -102,43 +105,40 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
-<Card p="lg">
-    {#if errorMessage}
-        <Text size='md' color='red' align='center'>
-            {errorMessage}
-        </Text>
-        <Divider variant='dotted'/>
-    {/if}
-
-    {#if bookerStatus === "ADMIN" || bookerStatus === "POWERUSER"}
-        <Input placeholder="Booking for..." bind:value={bookingupi}/>
-        <Divider variant='dotted'/>
-    {/if}
-    <Input placeholder="Additional Booking Details" bind:value={bookingInfo}/>
-    <Divider variant='dotted'/>
-    <Grid cols={2}>
-        <Button on:click={closeDialog} variant='filled' color='blue' fullSize>
-            Cancel
-        </Button>
-        {#if updating || editing}
-            <Button on:click={handleUpdate} variant='filled' color='green' fullSize>
-                Update
-            </Button>
-        {:else}
-            <Button on:click={handleNew} variant='filled' color='green' fullSize>
-                New
-            </Button>
+<Content>
+    <Form ui>
+        {#if bookerStatus === "ADMIN" || bookerStatus === "POWERUSER"}
+            <Field>
+                <Label input>User name</Label>
+                <Input placeholder="Booking for..." bind:value={bookingupi}/>
+            </Field>
         {/if}
-    </Grid>
-    {#if editing}
-        <Divider variant='dotted'/>
-        <Center>or</Center>
-        <Divider variant='dotted'/>
-        <Grid cols={1}>
-            <Button on:click={handleDelete} variant='filled' color='red' fullSize>
-                Delete
-            </Button>        
-        </Grid>
+        <Field>
+            <Label input>Details</Label>
+            <Input placeholder="Additional Booking Details" bind:value={bookingInfo}/>
+        </Field>
+    </Form>
+    {#if errorMessage!==""}
+        <Message ui error>{errorMessage}</Message>
     {/if}
-</Card>
+</Content>
+<Actions>
+    <Button ui blue on:click={ () => {errorMessage=""; closeDialog(); }}>
+        Cancel
+    </Button>
+    {#if updating || editing}
+        <Button ui green on:click={handleUpdate}>
+            Update
+        </Button>
+    {:else}
+        <Button ui green on:click={handleNew}>
+            New
+        </Button>
+    {/if}
+    {#if editing}
+        <Button ui red on:click={handleDelete}>
+            Delete
+        </Button>
+    {/if}      
+</Actions>
 <!----------------------------------------------------------------------------------------------------->

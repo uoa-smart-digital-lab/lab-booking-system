@@ -175,7 +175,7 @@
     function updateUI (_ : {} = {}) { 
         if (!opened) {
             if (LoginC.currentState === LoginStates.LOGIN_DIALOG_OPEN) {
-                behavior("Login_dialog", "show");
+                behavior("LoginDialog", "show");
                 opened = true;
             }
         }
@@ -270,7 +270,7 @@
     }
 
     // Use the item chosen to go to the booking calendar
-    function bookItem (event: any) { 
+    function bookItem (event: any) {
         window.scrollTo(0,0);
         AppC.step(AppEvents.SHOW_BOOKING, event.detail.item);
     }
@@ -319,7 +319,7 @@ Layout
 <svelte:window on:beforeunload={beforeunload} />
 <main>
 
-    <Login id="Login_dialog" on:login={login}/>
+    <Login id="LoginDialog" on:login={login}/>
 
     {#if (AppC.currentState === AppStates.QRCODE)}
         <QRcode {queryVars}/>
