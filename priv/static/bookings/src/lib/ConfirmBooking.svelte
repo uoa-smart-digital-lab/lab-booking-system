@@ -3,10 +3,11 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { mutation } from 'svelte-apollo';
-    import { behavior, Input, Button, Modal, Message , Content, Form, Field, Label, Actions} from 'svelte-fomantic-ui';
+    import { Input, Button, Header, Message , Content, Form, Field, Label, Actions, Text } from 'svelte-fomantic-ui';
     import { ITEMCHANGEBOOKING, ITEMBOOK, ITEMUNBOOK } from './Graphql.svelte';
     import type { Item } from './Graphql.svelte';
     import { convertErrorMessage } from './ErrorMessages.svelte';
+    import dayjs from 'dayjs'
 
     // -------------------------------------------------------------------------------------------------
     // Parameters
@@ -23,6 +24,7 @@
     export let details : any;                               // Additional booking details
     export let bookingupi : string;                         // The upi to book for
     export let bookerStatus : string;                       // The status of the person booking
+    export let title: string;                               // Title of the dialog box
 
     export let success : (item : Item) => null;             // Called when success in updating or new
     export let closeDialog : () => null;                    // Close the dialog box (eg when cancel pressed)
@@ -32,6 +34,7 @@
     // -------------------------------------------------------------------------------------------------
     let errorMessage : string = "";                             // Error message from attempted booking
     let bookingInfo : string = details.info ? details.info : "";
+    const offsetMinutes = new Date(startTime).getTimezoneOffset();
 
     // -------------------------------------------------------------------------------------------------
     // Functions
@@ -105,8 +108,17 @@ Styles
 <!------------------------------------------------------------------------------------------------------
 Layout
 ------------------------------------------------------------------------------------------------------->
+<Header>{title}</Header>
 <Content>
     <Form ui>
+        <Field>
+            <Label input>Start</Label>
+            <Text>{dayjs(new Date(new Date(newStartTime).getTime() - offsetMinutes * 60000)).format('MMMM DD, YYYY, HH:mm')}</Text>
+        </Field>
+        <Field>
+            <Label input>End</Label>
+            <Text>{dayjs(new Date(new Date(newEndTime).getTime() - offsetMinutes * 60000)).format('MMMM DD, YYYY, HH:mm')}</Text>
+        </Field>
         {#if bookerStatus === "ADMIN" || bookerStatus === "POWERUSER"}
             <Field>
                 <Label input>User name</Label>

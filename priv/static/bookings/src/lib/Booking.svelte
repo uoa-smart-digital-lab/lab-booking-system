@@ -167,13 +167,11 @@ Layout
 {:else if $item.error}
     There is no item called \'{queryVars.name}\' in the system.
 {:else}
-    <!-- <Modal size="sm" {opened} on:close={closeDialog} title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} centered> -->
     <Modal id="ConfirmBookingDialog" ui tiny>
         {#if opened}
             <ConfirmBooking title={(updating ? "Update" : (editing ? "Change" : "Create new")) + " Booking"} {details} sessionid={appVars?appVars.session?appVars.session.sessionid:"":""} {closeDialog} {success} {updating} {editing} {bookingupi} {bookerStatus} upi={appVars?appVars.session?appVars.session.person.upi:"":""} itemName={appVars?appVars.item?appVars.item.name:"":""} {startTime} {endTime} {newStartTime} {newEndTime} />
         {/if}
-        </Modal>
-    <!-- </Modal> -->
+    </Modal>
 
     {setItem ($item.data.itemGet)}
     <div style={"padding-top:55px; margin: 5px;"}>

@@ -6,7 +6,7 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { Card, Content, Image, Header, Buttons, Button, Description, Meta} from "svelte-fomantic-ui";
+    import { Card, Content, Image, Header, Buttons, Button, Description, Meta, Icon} from "svelte-fomantic-ui";
     import type { Item as ItemT, ItemDetails, Person} from './Graphql.svelte';
 	import { createEventDispatcher } from 'svelte';
     import QRcode from "./QRcode.svelte";
@@ -101,15 +101,17 @@ Layout
                 {#if numCols === 1}
                     <Content extra style={"padding: 0 0;"}>
                         <Buttons ui two buttons fluid bottom attached>
-                            <Button ui primary on:click={bookItem}>book</Button>
-                            <Button ui green on:click={showDetails}>info</Button>
+                            <Button ui primary icon on:click={bookItem}><Icon calendar alternate outline/></Button>
+                            <Button ui green icon on:click={showDetails}><Icon info/></Button>
                         </Buttons>
                     </Content>
                 {:else}
                     <Content style={"display:flex; align-items: center;"}>
                         <Buttons ui _={(numCols <= 2)?"vertical":""} style={"margin-left:auto; margin-right:0"}>
-                            <Button ui primary on:click={bookItem} style={"width:150px;"}>book</Button>
-                            <Button ui green on:click={showDetails} style={"width:150px;"}>info</Button>
+                            <Button ui primary icon on:click={bookItem}><Icon calendar alternate outline/></Button>
+                            <Button ui green icon on:click={showDetails}><Icon info/></Button>
+                            <!-- <Button ui primary on:click={bookItem} style={"width:150px;"}>book</Button>
+                            <Button ui green on:click={showDetails} style={"width:150px;"}>info</Button> -->
                         </Buttons>
                     </Content>
                 {/if}
@@ -125,8 +127,10 @@ Layout
             </Content>
 
             <Buttons ui wrapping two buttons bottom attached>
-                <Button ui primary on:click={bookItem}>book</Button>
-                <Button ui green on:click={showDetails}>info</Button>
+                <Button ui primary icon on:click={bookItem}><Icon calendar alternate outline/></Button>
+                <Button ui green icon on:click={showDetails}><Icon info/></Button>
+                <!-- <Button ui primary on:click={bookItem}>book</Button>
+                <Button ui green on:click={showDetails}>info</Button> -->
             </Buttons>
         {/if}
     </Card>

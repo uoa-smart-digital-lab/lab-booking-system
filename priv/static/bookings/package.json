@@ -25,7 +25,7 @@
     "@event-calendar/list": "^0.14.1",
     "@event-calendar/resource-time-grid": "^0.14.1",
     "@event-calendar/time-grid": "^0.14.1",
-    "dayjs": "^1.11.7",
+    "dayjs": "^1.11.8",
     "graphql": "^16.6.0",
     "react": "^18.2.0",
     "svelte": "^3.59.1",
