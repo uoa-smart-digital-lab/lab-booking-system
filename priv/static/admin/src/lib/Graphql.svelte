@@ -22,7 +22,10 @@
     export type ItemDetails = {
         name: string
     };
-    export type PersonDetails = {};
+    export type PersonDetails = {
+        phone: string,
+        email: string
+    };
     export type BookingDetails = {};
     export type Inductions = Person[];
     export type Items = Item[];

@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :labbookings, Labbookings.Repo,
   username: "postgres",
-  password: "#6DDf9f9ce4",
+  password: "postgres",
   hostname: "localhost",
   database: "labbookings_dev",
   stacktrace: true,

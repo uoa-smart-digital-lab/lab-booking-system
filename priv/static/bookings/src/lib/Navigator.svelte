@@ -47,10 +47,10 @@ Layout
                 {/if}
             </Link>
         {:else}
-            <Section inverted>
-                <Icon list/>
+            <Section>
+                <Icon list black/>
                 {#if numCols > 1}
-                    List
+                    <Text ui black>List</Text>
                 {/if}
             </Section>
         {/if}
@@ -66,9 +66,9 @@ Layout
             </Link>
         {:else}
             <Section>
-                <Icon calendar alternate outline/>
+                <Icon calendar alternate outline black/>
                 {#if numCols > 1}
-                    Booking
+                    <Text ui black>Booking</Text>
                 {/if}
             </Section>
         {/if}
@@ -76,9 +76,9 @@ Layout
     {#if (AppC.currentState === AppStates.ITEM_DETAILS) || (AppC.currentState === AppStates.MAIN_DETAILS)}
         <Icon right chevron divider/>
         <Section>
-            <Icon info/>
+            <Icon info black/>
             {#if numCols > 1}
-                Info
+                <Text ui black>Info</Text>
             {/if}
         </Section>
     {/if}
@@ -89,8 +89,8 @@ Layout
                 <Section>{item.name.toUpperCase()}</Section>
             </Link>
         {:else}
-            <Icon grip lines vertical divider />
-            <Section>{item.name.toUpperCase()}</Section>
+            <Icon grip lines vertical divider/>
+            <Section><Text ui black>{item.name.toUpperCase()}</Text></Section>
         {/if}
     {/if}
 </Breadcrumb>
