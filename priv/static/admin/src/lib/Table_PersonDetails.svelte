@@ -48,23 +48,6 @@ PersonDetails = {
                 </Table_Col>
             </Table_Row>
         </Table_Body>
-        {#if controls}
-            <Table_Foot class="full-width">
-                <Table_Row>
-                    <Table_Col colspan="7"></Table_Col>
-                    <Table_Col colspan="1">
-                        <Buttons ui fluid>
-                            <Button ui red>
-                                Cancel
-                            </Button>
-                            <Button ui primary on:click={()=>{console.log(person)}}>
-                                Save
-                            </Button>
-                        </Buttons>
-                    </Table_Col>
-                </Table_Row>
-            </Table_Foot>
-        {/if}
     </Table>
 {:else}
     <Table ui definition>

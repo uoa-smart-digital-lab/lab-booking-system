@@ -45,6 +45,7 @@
     export type Person = {
         upi: string,
         name: string,
+        password: string,
         status: Usertype,
         details: PersonDetails,
         tokens: number,
