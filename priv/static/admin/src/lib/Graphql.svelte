@@ -14,9 +14,12 @@
     export enum Usertype {"USER", "POWERUSER", "ADMIN"};
     export enum Itemtype {"FREE", "INDUCTION", "SUPERVISED"};
         
+    //--------------------------------------------------------------------------------------------------
+    // A session is returned when a user logs in
+    //--------------------------------------------------------------------------------------------------
     export class Session {
         sessionid : string;
-        person : Person
+        person : Person;
 
         constructor(sessionid: string = "", person: Person = new Person()) {
             this.sessionid = sessionid;
@@ -30,9 +33,13 @@
             return ["string", "Person"];
         }
     };
+    //--------------------------------------------------------------------------------------------------
 
+    //--------------------------------------------------------------------------------------------------
+    // An item can have some details, in this case a name
+    //--------------------------------------------------------------------------------------------------
     export class ItemDetails {
-        name: string
+        name: string;
 
         constructor(name: string = "") {
             this.name = name;
@@ -45,9 +52,14 @@
             return ["string"];
         }
     };
+    //--------------------------------------------------------------------------------------------------
+    
+    //--------------------------------------------------------------------------------------------------
+    // A Person can have some extra details, in this case a phone number and email address
+    //--------------------------------------------------------------------------------------------------
     export class PersonDetails {
         phone: string;
-        email: string
+        email: string;
 
         constructor(phone: string = "", email: string = "") {
             this.phone = phone;
@@ -61,11 +73,38 @@
             return ["string", "string"];
         }
     };
-    export type BookingDetails = {};
-    export type Items = Item[];
-    export type Bookings = Booking[];
-    export type Persons = Person[];
+    //--------------------------------------------------------------------------------------------------
 
+    //--------------------------------------------------------------------------------------------------
+    // A Booking can have some extra details, in this case a details description
+    //--------------------------------------------------------------------------------------------------
+    export class BookingDetails {
+        details: string;
+
+        constructor(details: string = "") {
+            this.details = details;
+        }
+
+        static keys(): string[] {
+            return ["details"];
+        }
+        static types(): string[] {
+            return ["string"];
+        }
+    };
+    //--------------------------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------------------------
+    // Some type arrays
+    //--------------------------------------------------------------------------------------------------
+    export type Items = Item[] | null;
+    export type Bookings = Booking[] | null;
+    export type Persons = Person[] | null;
+    //--------------------------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------------------------
+    // A bookable item
+    //--------------------------------------------------------------------------------------------------
     export class Item {
         name: string;
         image: string;
@@ -74,10 +113,10 @@
         cost: number;
         bookable: boolean;
         access: Itemtype;
-        bookings: Bookings | null;
-        inductions: Persons | null
+        bookings: Bookings;
+        inductions: Persons;
 
-        constructor(name: string = "", image: string = "", url: string = "", details: ItemDetails = { name: "" }, cost: number = 0, bookable: boolean = false, access: Itemtype = Itemtype.FREE, bookings: Bookings | null = null, inductions: Persons | null = null) {
+        constructor(name: string = "", image: string = "", url: string = "", details: ItemDetails = new ItemDetails(), cost: number = 0, bookable: boolean = false, access: Itemtype = Itemtype.FREE, bookings: Bookings = null, inductions: Persons = null) {
             this.name = name;
             this.image = image;
             this.url = url;
@@ -95,11 +134,15 @@
         static types(): string[] {
             return ["string", "string", "string", "ItemDetails", "number", "boolean", "Itemtype", "Bookings", "Persons"];
         }
-        static widths(): string[] {
-            return ["1", "1", "1", "1", "1", "1", "1", "1", "1"];
+        static widths(): number[] {
+            return [1, 1, 1, 1, 1, 1, 1, 1, 1];
         }
     };
+    //--------------------------------------------------------------------------------------------------
 
+    //--------------------------------------------------------------------------------------------------
+    // A person
+    //--------------------------------------------------------------------------------------------------
     export class Person {
         upi: string;
         name: string;
@@ -107,10 +150,10 @@
         status: Usertype;
         details: PersonDetails;
         tokens: number;
-        bookings: Bookings | null;
-        inductions: Persons | null
+        bookings: Bookings;
+        inductions: Persons;
 
-        constructor(upi: string = "", name: string = "", password: string = "", status: Usertype = Usertype.USER, details: PersonDetails = { phone: "", email: "" }, tokens: number = 0, bookings: Bookings | null = null, inductions: Persons | null = null) {
+        constructor(upi: string = "", name: string = "", password: string = "", status: Usertype = Usertype.USER, details: PersonDetails = new PersonDetails(), tokens: number = 0, bookings: Bookings = null, inductions: Persons = null) {
             this.upi = upi;
             this.name = name;
             this.password = password;
@@ -128,7 +171,11 @@
             return ["string", "string", "string", "Usertype", "PersonDetails", "number", "Bookings", "Persons"];
         }
     };
+    //--------------------------------------------------------------------------------------------------
 
+    //--------------------------------------------------------------------------------------------------
+    // A booking
+    //--------------------------------------------------------------------------------------------------
     export class Booking {
         person: Person;
         item: Item;
@@ -136,7 +183,7 @@
         endtime: Date;
         details: BookingDetails
 
-        constructor(person: Person = new Person(), item: Item = new Item(), starttime: Date = new Date(), endtime: Date = new Date(), details: BookingDetails = {}) {
+        constructor(person: Person = new Person(), item: Item = new Item(), starttime: Date = new Date(), endtime: Date = new Date(), details: BookingDetails = new BookingDetails()) {
             this.person = person;
             this.item = item;
             this.starttime = starttime;
@@ -151,6 +198,9 @@
             return ["Person", "Item", "Date", "Date", "BookingDetails"];
         }
     };
+    //--------------------------------------------------------------------------------------------------
+
+    export type BookingTypes = Person | Item | Booking | PersonDetails | ItemDetails | Session;
 
 
     export function getKeys(theType: string): string[] {
