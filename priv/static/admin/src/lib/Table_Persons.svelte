@@ -32,25 +32,29 @@ Person {
 }
 -->
 
-<Table ui _={horizontal?"":"definition"} stackable>
+<Table ui _={horizontal?"":"definition"} stackable compact>
     {#if headings && horizontal}
         <Table_Head>
             <Table_Row>
-                <Table_Col head>upi</Table_Col>
-                <Table_Col head>name</Table_Col>
-                <Table_Col head>password</Table_Col>
-                <Table_Col head>status</Table_Col>
-                <Table_Col head>details</Table_Col>
-                <Table_Col head>tokens</Table_Col>
-                <Table_Col head>inductions</Table_Col>
-                <Table_Col head>bookings</Table_Col>
+                <Table_Col head one wide>
+                    <Button ui icon blue><Icon plus/></Button>
+                </Table_Col>
+                <Table_Col head two wide center aligned>upi</Table_Col>
+                <Table_Col head three wide center aligned>name</Table_Col>
+                <Table_Col head one wide center aligned>password</Table_Col>
+                <Table_Col head one wide center aligned>status</Table_Col>
+                <Table_Col head four wide center aligned>details</Table_Col>
+                <Table_Col head one wide center aligned>tokens</Table_Col>
+                <Table_Col head one wide center aligned>inductions</Table_Col>
+                <Table_Col head one wide center aligned>bookings</Table_Col>
+                <Table_Col head one wide right aligned></Table_Col>
             </Table_Row>
         </Table_Head>
     {/if}
     {#each persons as person}
         <Table_Person horizontal bind:person={person}/>
     {/each}
-    {#if horizontal}
+    <!-- {#if horizontal}
         {#if controls}
             <Table_Foot class="full-width">
                 <Table_Row>
@@ -60,7 +64,7 @@ Person {
                             <Button ui red>
                                 Cancel
                             </Button>
-                            <Button ui primary on:click={()=>{console.log(person)}}>
+                            <Button ui primary on:click={()=>{console.log(persons)}}>
                                 Save
                             </Button>
                         </Buttons>
@@ -78,7 +82,7 @@ Person {
                             <Button ui red>
                                 Cancel
                             </Button>
-                            <Button ui primary on:click={()=>{console.log(person)}}>
+                            <Button ui primary on:click={()=>{console.log(persons)}}>
                                 Save
                             </Button>
                         </Buttons>
@@ -86,7 +90,7 @@ Person {
                 </Table_Row>
             </Table_Foot>
         {/if}
-    {/if}
+    {/if} -->
 </Table>    
 
 

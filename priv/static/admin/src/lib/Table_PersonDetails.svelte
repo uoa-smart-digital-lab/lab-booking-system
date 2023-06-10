@@ -25,7 +25,7 @@ PersonDetails = {
 -->
 
 {#if horizontal}
-    <Table ui stackable>
+    <Table ui stackable compact>
         {#if headings}
             <Table_Head>
                 <Table_Row>
@@ -50,7 +50,7 @@ PersonDetails = {
         </Table_Body>
     </Table>
 {:else}
-    <Table ui definition>
+    <Table ui definition compact>
         <Table_Body>
             <Table_Row>
                 <Table_Col>phone</Table_Col>

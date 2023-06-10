@@ -6,7 +6,7 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { Table, Table_Col, Table_Row, Table_Body, Table_Foot, Table_Head, Input, Dropdown, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
+    import { Table, Table_Col, Table_Row, Table_Body, Table_Foot, Table_Head, Input, Dropdown, Menu, Item, Button, Icon, Text, Link } from "svelte-fomantic-ui";
     import type { Person } from "./Graphql.svelte";
     import Table_PersonDetails from "./Table_PersonDetails.svelte";
 
@@ -38,21 +38,22 @@ Person {
     <Table_Body>
         <Table_Row>
             <Table_Col>
+                <Button ui icon red><Icon times/></Button>
+            </Table_Col>
+            <Table_Col center aligned>
                 <Input ui fluid>
                     <Input text bind:value={person.upi}/>
                 </Input>
             </Table_Col>
-            <Table_Col>
+            <Table_Col center aligned>
                 <Input ui fluid>
                     <Input text bind:value={person.name}/>
                 </Input>
             </Table_Col>
-            <Table_Col>
-                <Input ui fluid>
-                    <Input text bind:value={person.password}/>
-                </Input>
+            <Table_Col center aligned>
+                <Button ui icon blue tertiary><Icon ui ellipsis horizontal/></Button>
             </Table_Col>
-            <Table_Col>
+            <Table_Col center aligned>
                 <Dropdown ui fluid selection selected={person.status.toString()} on:change={(item) => {person.status=Number(item.detail.value)}}>
                     <Input hidden bind:value={person.status}/>
                     <Icon dropdown/>
@@ -64,19 +65,22 @@ Person {
                     </Menu>
                 </Dropdown>
             </Table_Col>
-            <Table_Col>
+            <Table_Col center aligned>
                 <Table_PersonDetails {horizontal} {headings} bind:details={person.details}/>
             </Table_Col>
-            <Table_Col>
+            <Table_Col center aligned>
                 <Input ui fluid>
                     <Input text bind:value={person.tokens}/>
                 </Input>
             </Table_Col>
-            <Table_Col>
-                <Button ui fluid>inductions ...</Button>
+            <Table_Col center aligned>
+                <Button ui icon blue tertiary><Icon ui ellipsis horizontal/></Button>
             </Table_Col>
-            <Table_Col>
-                <Button ui fluid>bookings ...</Button>
+            <Table_Col center aligned>
+                <Button ui icon blue tertiary><Icon ui ellipsis horizontal/></Button>
+            </Table_Col>
+            <Table_Col right aligned>
+                <Button ui icon green><Icon check/></Button>
             </Table_Col>
         </Table_Row>
     </Table_Body>
@@ -138,13 +142,13 @@ Person {
         <Table_Row>
             <Table_Col>inductions</Table_Col>
             <Table_Col>
-                <Button ui fluid>inductions ...</Button>
+                <Button ui icon blue><Icon ui pen/></Button>
             </Table_Col>
         </Table_Row>
         <Table_Row>
             <Table_Col>bookings</Table_Col>
             <Table_Col>
-                <Button ui fluid>bookings ...</Button>
+                <Button ui icon blue><Icon ui pen/></Button>
             </Table_Col>
         </Table_Row>
     </Table_Body>
