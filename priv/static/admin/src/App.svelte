@@ -1,5 +1,6 @@
 <script lang="ts">
     import Table_Persons from "./lib/Table_Persons.svelte";
+    import GraphQL_Table from "./lib/GraphQL_Table.svelte";
     import type { PersonDetails, Person } from "./lib/Graphql.svelte";
     import { Usertype } from "./lib/Graphql.svelte";
 
@@ -33,7 +34,8 @@
 </script>
 
 <main>
-    <Table_Persons horizontal headings controls bind:persons={persons}/>
+    <GraphQL_Table definition="Person" />
+    <!-- <Table_Persons horizontal headings controls bind:persons={persons}/> -->
 </main>
 
 <style>
