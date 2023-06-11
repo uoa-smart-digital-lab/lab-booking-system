@@ -33,7 +33,9 @@
             <Table_Row>
                 {#each getKeys(definition) as col, i}
                     <Table_Col center aligned>
-                        {#if types[i] === "string" || types[i] === "number" || types[i] === "boolean"}
+                        {#if types[i] === "string" || types[i] === "number" || types[i] === "boolean" || types[i] === "Date"}
+                            {row[col]}
+                        {:else if types[i] === "array"}
                             {row[col]}
                         {/if}
                     </Table_Col>

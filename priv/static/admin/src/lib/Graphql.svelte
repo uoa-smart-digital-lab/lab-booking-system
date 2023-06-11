@@ -97,9 +97,9 @@
     //--------------------------------------------------------------------------------------------------
     // Some type arrays
     //--------------------------------------------------------------------------------------------------
-    export type Items = Item[] | null;
-    export type Bookings = Booking[] | null;
-    export type Persons = Person[] | null;
+    export type Items = Array<Item>;
+    export type Bookings = Array<Booking>;
+    export type Persons = Array<Person>;
     //--------------------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------------------
@@ -113,8 +113,8 @@
         cost: number;
         bookable: boolean;
         access: Itemtype;
-        bookings: Bookings;
-        inductions: Persons;
+        bookings: Bookings | null;
+        inductions: Persons | null;
 
         constructor(name: string = "", image: string = "", url: string = "", details: ItemDetails = new ItemDetails(), cost: number = 0, bookable: boolean = false, access: Itemtype = Itemtype.FREE, bookings: Bookings = null, inductions: Persons = null) {
             this.name = name;
@@ -150,8 +150,8 @@
         status: Usertype;
         details: PersonDetails;
         tokens: number;
-        bookings: Bookings;
-        inductions: Persons;
+        bookings: Bookings | null;
+        inductions: Persons | null;
 
         constructor(upi: string = "", name: string = "", password: string = "", status: Usertype = Usertype.USER, details: PersonDetails = new PersonDetails(), tokens: number = 0, bookings: Bookings = null, inductions: Persons = null) {
             this.upi = upi;
@@ -164,11 +164,12 @@
             this.inductions = inductions;
         }
 
+        static types(): string[] {
+            return ["string", "string", "string", "Usertype", "PersonDetails", "number", "Array<Booking>", "Array<Person>"]
+        }
+
         static keys(): string[] {
             return ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
-        }
-        static types(): string[] {
-            return ["string", "string", "string", "Usertype", "PersonDetails", "number", "Bookings", "Persons"];
         }
     };
     //--------------------------------------------------------------------------------------------------
@@ -200,7 +201,7 @@
     };
     //--------------------------------------------------------------------------------------------------
 
-    export type BookingTypes = Person | Item | Booking | PersonDetails | ItemDetails | Session;
+    export type BookingTypes = Person | Item | Booking | PersonDetails | ItemDetails | Session | Usertype | String | Number | Boolean | Usertype;
 
 
     export function getKeys(theType: string): string[] {
