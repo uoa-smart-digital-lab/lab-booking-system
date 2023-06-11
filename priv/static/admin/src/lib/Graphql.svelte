@@ -26,12 +26,22 @@
             this.person = person;
         }
 
-        static keys(): string[] {
-            return ["sessionid", "person"];
+        static _format: {
+            sessionid: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            },
+            person: {
+                type: "Person",
+                editable: true,
+                input: "object",
+                width: 2
+            }
         }
-        static types(): string[] {
-            return ["string", "Person"];
-        }
+
+        static _keys = ["sessionid", "person"];
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -45,12 +55,16 @@
             this.name = name;
         }
 
-        static keys(): string[] {
-            return ["name"];
+        static _format: {
+            name: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            }
         }
-        static types(): string[] {
-            return ["string"];
-        }
+
+        static _keys = ["name"];
     };
     //--------------------------------------------------------------------------------------------------
     
@@ -66,12 +80,22 @@
             this.email = email;
         }
 
-        static keys(): string[] {
-            return ["phone", "email"];
+        static _format: {
+            phone: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            },
+            email: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            }
         }
-        static types(): string[] {
-            return ["string", "string"];
-        }
+
+        static _keys = ["phone", "email"];
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -85,12 +109,16 @@
             this.details = details;
         }
 
-        static keys(): string[] {
-            return ["details"];
+        static _format: {
+            details: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            }
         }
-        static types(): string[] {
-            return ["string"];
-        }
+
+        static _keys = ["details"];
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -128,15 +156,64 @@
             this.inductions = inductions;
         }
 
-        static keys(): string[] {
-            return ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
+        static _format: {
+            name: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            },
+            image: {
+                type: "string",
+                editable: true,
+                input: "image",
+                width: 2
+            },
+            url: {
+                type: "string",
+                editable: true,
+                input: "url",
+                width: 2
+            },
+            details: {
+                type: "ItemDetails",
+                editable: true,
+                input: "object",
+                width: 2
+            },
+            cost: {
+                type: "number",
+                editable: true,
+                input: "number",
+                width: 1
+            },
+            bookable: {
+                type: "boolean",
+                editable: true,
+                input: "checkbox",
+                width: 1
+            },
+            access: {
+                type: "Itemtype",
+                editable: true,
+                input: "dropdown",
+                width: 2
+            },
+            bookings: {
+                type: "Bookings",
+                editable: false,
+                input: "array",
+                width: 2
+            },
+            inductions: {
+                type: "Persons",
+                editable: false,
+                input: "array",
+                width: 2
+            }
         }
-        static types(): string[] {
-            return ["string", "string", "string", "ItemDetails", "number", "boolean", "Itemtype", "Bookings", "Persons"];
-        }
-        static widths(): number[] {
-            return [1, 1, 1, 1, 1, 1, 1, 1, 1];
-        }
+
+        static _keys = ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -164,13 +241,58 @@
             this.inductions = inductions;
         }
 
-        static types(): string[] {
-            return ["string", "string", "string", "Usertype", "PersonDetails", "number", "Array<Booking>", "Array<Person>"]
+        static _format: {
+            upi: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            },
+            name: {
+                type: "string",
+                editable: true,
+                input: "text",
+                width: 2
+            },
+            password: {
+                type: "string",
+                editable: true,
+                input: "password",
+                width: 2
+            },
+            status: {
+                type: "Usertype",
+                editable: true,
+                input: "dropdown",
+                width: 2
+            },
+            details: {
+                type: "PersonDetails",
+                editable: true,
+                input: "object",
+                width: 2
+            },
+            tokens: {
+                type: "number",
+                editable: false,
+                input: "number",
+                width: 1
+            },
+            bookings: {
+                type: "Bookings",
+                editable: false,
+                input: "array",
+                width: 2
+            },
+            inductions: {
+                type: "Persons",
+                editable: false,
+                input: "array",
+                width: 2
+            }
         }
 
-        static keys(): string[] {
-            return ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
-        }
+        static _keys = ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -192,12 +314,40 @@
             this.details = details;
         }
 
-        static keys(): string[] {
-            return ["person", "item", "starttime", "endtime", "details"];
+        static _format = {
+            person: {
+                type: "Person",
+                editable: true,
+                input: "object",
+                width: 2
+            },
+            item: {
+                type: "Item",
+                editable: true,
+                input: "object",
+                width: 2
+            },
+            starttime: {
+                type: "Date",
+                editable: true,
+                input: "datetime",
+                width: 2
+            },
+            endtime: {
+                type: "Date",
+                editable: true,
+                input: "datetime",
+                width: 2
+            },
+            details: {
+                type: "BookingDetails",
+                editable: true,
+                input: "object",
+                width: 2
+            }
         }
-        static types(): string[] {
-            return ["Person", "Item", "Date", "Date", "BookingDetails"];
-        }
+
+        static _keys = ["person", "item", "starttime", "endtime", "details"];
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -206,24 +356,25 @@
 
     export function getKeys(theType: string): string[] {
         switch (theType) {
-            case "Person": return Person.keys();
-            case "Item": return Item.keys();
-            case "Booking": return Booking.keys();
-            case "PersonDetails": return PersonDetails.keys();
-            case "ItemDetails": return ItemDetails.keys();
-            case "Session": return Session.keys();
+            case "Person": return Person._keys;
+            case "Item": return Item._keys;
+            case "Booking": return Booking._keys;
+            case "PersonDetails": return PersonDetails._keys;
+            case "ItemDetails": return ItemDetails._keys;
+            case "Session": return Session._keys;
             default: return [];
         }
     }
-    export function getTypes(theType: string): string[] {
+
+    export function getFormat(theType: string): object {
         switch (theType) {
-            case "Person": return Person.types();
-            case "Item": return Item.types();
-            case "Booking": return Booking.types();
-            case "PersonDetails": return PersonDetails.types();
-            case "ItemDetails": return ItemDetails.types();
-            case "Session": return Session.types();
-            default: return [];
+            case "Person": return Person._format;
+            case "Item": return Item._format;
+            case "Booking": return Booking._format;
+            case "PersonDetails": return PersonDetails._format;
+            case "ItemDetails": return ItemDetails._format;
+            case "Session": return Session._format;
+            default: return {};
         }
     }
 

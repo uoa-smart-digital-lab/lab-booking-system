@@ -35,7 +35,6 @@
 
 <main>
     <GraphQL_Table definition="Person" data={persons}/>
-    <!-- <Table_Persons horizontal headings controls bind:persons={persons}/> -->
 </main>
 
 <style>

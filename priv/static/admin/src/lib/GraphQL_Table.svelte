@@ -7,13 +7,13 @@
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
     import { Table, Table_Col, Table_Row, Table_Body, Table_Foot, Table_Head, Input, Dropdown, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
-    import { getKeys, getTypes } from "./Graphql.svelte";
+    import { getKeys, getFormat } from "./Graphql.svelte";
     import type {BookingTypes} from "./Graphql.svelte";
 
     export let definition: string = "";
     export let data: BookingTypes[] = [];
 
-    const types = getTypes(definition);
+    const format = getFormat(definition);
 </script>
 
 
@@ -33,10 +33,21 @@
             <Table_Row>
                 {#each getKeys(definition) as col, i}
                     <Table_Col center aligned>
-                        {#if types[i] === "string" || types[i] === "number" || types[i] === "boolean" || types[i] === "Date"}
+                        {#if format[col].type === "string" || format[col].type === "number" || format[col].type === "boolean" || format[col].type === "Date"}
                             {row[col]}
-                        {:else if types[i] === "array"}
+                        {:else if format[col].type === "array"}
                             {row[col]}
+                        {:else if format[col].type === "object"}
+                            <Dropdown ui fluid selection selected={data[col].status.toString()} on:change={(item) => {data[col].status=Number(item.detail.value)}}>
+                                <Input hidden bind:value={data[col].status}/>
+                                <Icon dropdown/>
+                                <Text default>Select Status</Text>
+                                <Menu fluid>
+                                    <Item value="0">student</Item>
+                                    <Item value="1">staff</Item>
+                                    <Item value="2">admin</Item>
+                                </Menu>
+                            </Dropdown>
                         {/if}
                     </Table_Col>
                 {/each}
