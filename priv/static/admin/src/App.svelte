@@ -1,40 +1,36 @@
 <script lang="ts">
     import Table_Persons from "./lib/Table_Persons.svelte";
     import GraphQL_Table from "./lib/GraphQL_Table.svelte";
-    import type { PersonDetails, Person } from "./lib/Graphql.svelte";
-    import { Usertype } from "./lib/Graphql.svelte";
+    import { PersonDetails, GraphQL, Person} from "./lib/Graphql.svelte";
+    import type { Persons } from "./lib/Graphql.svelte";
+    import { Usertype, Session, Item } from "./lib/Graphql.svelte";
 
-    let details: PersonDetails = {
-        phone: "123456789",
-        email: "here@there"
-    }
-    let persons: Person[] = [
-        {
-            upi: "rdav031",
-            name: "Roy Davies",
-            password: "",
-            status: Usertype.ADMIN,
-            details: details,
-            tokens: 0,
-            bookings: null,
-            inductions: null
-        },
-        {
-            upi: "fdag1234",
-            name: "Fred Dagg",
-            password: "",
-            status: Usertype.USER,
-            details: details,
-            tokens: 0,
-            bookings: null,
-            inductions: null
-        }
-    ]
+    // let details: PersonDetails = new PersonDetails("123456789", "here@there");
+
+    // let persons: Persons = new Persons();
+    // persons.push(new Person("rdav031", "Roy Davies", "", Usertype.ADMIN, details, 0, null, null));
+    // persons.push(new Person("fdag1234", "Fred Dagg", "", Usertype.USER, details, 0, null, null));
+
+    GraphQL.start();
+
+    let session: Session = new Session();
+    session.login("rdav031", "12345")
+    .then(() => {
+        // Login successful
+        console.log("Logged in :", session);
+
+
+    })
+    .catch((error) => {
+        // Login failed, handle error
+    });
+
+    Item.ItemAll()
 
 </script>
 
 <main>
-    <GraphQL_Table definition="Person" data={persons}/>
+    <!-- <GraphQL_Table definition="Person" data={persons}/> -->
 </main>
 
 <style>

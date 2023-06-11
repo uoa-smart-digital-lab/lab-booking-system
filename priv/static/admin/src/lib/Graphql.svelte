@@ -6,7 +6,21 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script context="module" lang="ts">
-    import { gql } from '@apollo/client';
+    import { gql, ApolloClient, InMemoryCache } from '@apollo/client';
+    import { setClient, mutation } from 'svelte-apollo';
+    import Items from 'svelte-fomantic-ui/src/lib/views/Items.svelte';
+
+    export class GraphQL {
+        static start() {
+            // GraphQL client setup 
+            const client = new ApolloClient({
+                uri:  '/api',
+                cache: new InMemoryCache()
+            });
+            setClient(client);
+       }
+    }
+
 
     //--------------------------------------------------------------------------------------------------
     // Enums and Types
@@ -18,12 +32,22 @@
     // A session is returned when a user logs in
     //--------------------------------------------------------------------------------------------------
     export class Session {
+        __typename : string = "Session";
         sessionid : string;
         person : Person;
 
         constructor(sessionid: string = "", person: Person = new Person()) {
             this.sessionid = sessionid;
             this.person = person;
+        }
+
+        set(session:{}) {
+            this.sessionid = session["sessionid"];
+            this.person = session["person"];
+        }
+        reset() {
+            this.sessionid = "";
+            this.person = new Person();
         }
 
         static _format: {
@@ -42,6 +66,38 @@
         }
 
         static _keys = ["sessionid", "person"];
+
+        private doLogin = mutation(gql`
+                mutation login ($upi:String!, $password:String!)
+                {
+                    login (upi:$upi, password:$password) {
+                        sessionid person { upi name status }
+                    }
+                }`);
+
+        private doLogout = mutation(gql`
+                mutation logout ($sessionid:String!)
+                {
+                    logout (sessionid:$sessionid) {
+                        sessionid
+                    }
+                }`);
+
+        public login(upi: string, password: string): Promise<void> {
+            return new Promise<void>((resolve, reject) => {
+                this.doLogin({ variables: { upi: upi, password: password } })
+                .then((result: any) => { this.set(result.data.login); resolve(); })
+                .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
+            });
+        }
+
+        public logout(): Promise<void> {
+            return new Promise<void>((resolve, reject) => {
+                this.doLogout({ variables: { sessionid: this.sessionid } })
+                .then((result: any) => { this.reset(); resolve(); })
+                .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
+            });
+        }
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -49,6 +105,7 @@
     // An item can have some details, in this case a name
     //--------------------------------------------------------------------------------------------------
     export class ItemDetails {
+        __typename : string = "ItemDetails";
         name: string;
 
         constructor(name: string = "") {
@@ -72,6 +129,7 @@
     // A Person can have some extra details, in this case a phone number and email address
     //--------------------------------------------------------------------------------------------------
     export class PersonDetails {
+        __typename : string = "PersonDetails";
         phone: string;
         email: string;
 
@@ -103,6 +161,7 @@
     // A Booking can have some extra details, in this case a details description
     //--------------------------------------------------------------------------------------------------
     export class BookingDetails {
+        __typename : string = "BookingDetails";
         details: string;
 
         constructor(details: string = "") {
@@ -134,6 +193,7 @@
     // A bookable item
     //--------------------------------------------------------------------------------------------------
     export class Item {
+        __typename : string = "Item";
         name: string;
         image: string;
         url: string;
@@ -214,6 +274,72 @@
         }
 
         static _keys = ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
+
+        private doItemAll = mutation(gql`
+                query itemAll
+                {
+                    itemAll {
+                        url name image details cost bookable access
+                        bookings { person { name upi } starttime endtime details }
+                        inductions { upi }
+                    }
+                }`);
+
+        public ItemAll(): Promise<Items> {
+            return new Promise<Items>((resolve, reject) => {
+                this.doItemAll({ variables: { } })
+                .then((result: any) => { 
+                    let items:Items = result.data.itemAll;
+                    resolve(items); 
+                })
+                .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
+            });
+        }
+
+        static _queries = {
+            all: gql`
+                query itemAll
+                {
+                    itemAll {
+                        url name image details cost bookable access
+                        bookings { person { name upi } starttime endtime details }
+                        inductions { upi }
+                    }
+                } `,
+            get: gql`
+                query itemGet($name: String!) 
+                {
+                    itemGet (name: $name) {
+                        url name image details cost bookable access
+                        bookings { person { name upi } starttime endtime details }
+                        inductions { upi }
+                    }
+                } `
+        };
+
+        static _mutations = {
+            add: gql`
+                mutation itemAdd ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
+                {
+                    itemAdd (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
+                        name
+                    }
+                }`,
+            update: gql`
+                mutation itemUpdate ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
+                {
+                    itemUpdate (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
+                        name
+                    }
+                }`,
+            delete: gql`
+                mutation itemDelete ($name:String!)
+                {
+                    itemDelete (name:$name) {
+                        name
+                    }
+                }`
+        }
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -221,6 +347,7 @@
     // A person
     //--------------------------------------------------------------------------------------------------
     export class Person {
+        __typename : string = "Person";
         upi: string;
         name: string;
         password: string;
@@ -293,6 +420,51 @@
         }
 
         static _keys = ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
+
+        static _queries = {
+            all: gql`
+                query personAll
+                {
+                    personAll {
+                        upi name password status details tokens
+                        bookings { person { name upi } starttime endtime details }
+                        inductions { upi }
+                    }
+                } `,
+            get: gql`
+                query personGet($upi: String!) 
+                {
+                    personGet (upi: $upi) {
+                        upi name password status details tokens
+                        bookings { person { name upi } starttime endtime details }
+                        inductions { upi }
+                    }
+                } `
+        };
+
+        static _mutations = {
+            add: gql`
+                mutation personAdd ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
+                {
+                    personAdd (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
+                        upi
+                    }
+                }`,
+            update: gql`
+                mutation personUpdate ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
+                {
+                    personUpdate (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
+                        upi
+                    }
+                }`,
+            delete: gql`
+                mutation personDelete ($upi:String!)
+                {
+                    personDelete (upi:$upi) {
+                        upi
+                    }
+                }`
+        }
     };
     //--------------------------------------------------------------------------------------------------
 
@@ -300,6 +472,7 @@
     // A booking
     //--------------------------------------------------------------------------------------------------
     export class Booking {
+        __typename : string = "Booking";
         person: Person;
         item: Item;
         starttime: Date;
