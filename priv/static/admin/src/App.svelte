@@ -4,6 +4,7 @@
     import { PersonDetails, GraphQL, Person} from "./lib/Graphql.svelte";
     import type { Persons, Items } from "./lib/Graphql.svelte";
     import { Usertype, Session, Item, ItemAll } from "./lib/Graphql.svelte";
+    import { getClient } from 'svelte-apollo';
 
     // let details: PersonDetails = new PersonDetails("123456789", "here@there");
 
@@ -11,17 +12,16 @@
     // persons.push(new Person("rdav031", "Roy Davies", "", Usertype.ADMIN, details, 0, null, null));
     // persons.push(new Person("fdag1234", "Fred Dagg", "", Usertype.USER, details, 0, null, null));
 
-    GraphQL.start();
+    let graphQL = new GraphQL("/api");
 
     let session: Session = new Session();
-    session.login("rdav031", "12345")
+    session.login(graphQL, "rdav031", "12345")
     .then(() => {
         // Login successful
         console.log("Logged in :", session);
 
-        ItemAll()
+        ItemAll(graphQL)
         .then((items) => {
-            console.log("HERE");
             console.log(items);
         })
         .catch((error) => {
@@ -29,6 +29,7 @@
         });
     })
     .catch((error) => {
+        console.log(error);
         // Login failed, handle error
     });
 

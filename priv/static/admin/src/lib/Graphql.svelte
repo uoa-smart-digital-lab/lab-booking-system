@@ -6,18 +6,87 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script context="module" lang="ts">
-    import { gql, ApolloClient, InMemoryCache, useLazyQuery } from '@apollo/client';
+    import { gql, ApolloClient, InMemoryCache, type DocumentNode } from '@apollo/client';
     import { setClient, mutation, getClient } from 'svelte-apollo';
 
     export class GraphQL {
-        static start() {
-            // GraphQL client setup 
-            const client = new ApolloClient({
-                uri:  '/api',
-                cache: new InMemoryCache()
-            });
-            setClient(client);
-       }
+        uri: string = '/api';
+
+        constructor(uri: string = '/api') {
+            this.uri = uri;
+        }
+
+        public query(session: Session = null, variables: {} = {}, query:{name: string, query: string} = null): Promise<any> {
+
+            return new Promise((resolve, reject) => {
+                fetch(this.uri, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            sessionid: session ? session.sessionid : ""
+                        },
+                        body: JSON.stringify({
+                            query: query ? query.query : "",
+                            variables: variables
+                        }),
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.statusText;
+                        }
+                    })
+                    .then(data => {
+                        if (data.errors && data.errors.length > 0) {
+                            reject(data.errors[0].message); // Reject the promise with the error
+                        } else {
+                            console.log(data);
+                            resolve(data[query.name]); // Resolve the promise with the fetched data
+                        }
+                    })
+                    .catch(error => {
+                        reject(error); // Reject the promise with the error
+                    });
+                }
+            );
+        }
+
+        public mutation(session: Session = null, variables: {} = {}, mutation:{name: string, mutation: string} = null): Promise<any> {
+            
+            return new Promise((resolve, reject) => {
+                fetch(this.uri, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            sessionid: session ? session.sessionid : ""
+                        },
+                        body: JSON.stringify({
+                            query: mutation ? mutation.mutation : "",
+                            variables: variables
+                        }),
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return response.statusText;
+                        }
+                    })
+                    .then(data => {
+                        if (data.errors && data.errors.length > 0) {
+                            reject(data.errors[0].message); // Reject the promise with the error
+                        } else {
+                            console.log(data);
+                            resolve(data[mutation.name]); // Resolve the promise with the fetched data
+                        }
+                    })
+                    .catch(error => {
+                        reject(error); // Reject the promise with the error
+                    });
+                }
+            );
+        }
     }
 
 
@@ -66,36 +135,31 @@
 
         static _keys = ["sessionid", "person"];
 
-        private doLogin = mutation(gql`
+        static _mutations = {
+            login: {name: "login", mutation: `
                 mutation login ($upi:String!, $password:String!)
                 {
                     login (upi:$upi, password:$password) {
                         sessionid person { upi name status }
                     }
-                }`);
-
-        private doLogout = mutation(gql`
+                }`
+            },
+            logout: {name: "logout", mutation: `
                 mutation logout ($sessionid:String!)
                 {
                     logout (sessionid:$sessionid) {
                         sessionid
                     }
-                }`);
-
-        public login(upi: string, password: string): Promise<void> {
-            return new Promise<void>((resolve, reject) => {
-                this.doLogin({ variables: { upi: upi, password: password } })
-                .then((result: any) => { this.set(result.data.login); resolve(); })
-                .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
-            });
+                }`
+            }
         }
 
-        public logout(): Promise<void> {
-            return new Promise<void>((resolve, reject) => {
-                this.doLogout({ variables: { sessionid: this.sessionid } })
-                .then((result: any) => { this.reset(); resolve(); })
-                .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
-            });
+        public login(graphql: GraphQL, upi: string, password: string): Promise<void> {
+            return graphql.mutation(this, {upi: upi, password: password}, Session._mutations.login);
+        }
+
+        public logout(graphql: GraphQL): Promise<void> {
+            return graphql.mutation(this, {sessionid: this.sessionid}, Session._mutations.logout);
         }
     };
     //--------------------------------------------------------------------------------------------------
@@ -274,27 +338,8 @@
 
         static _keys = ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
 
-        static doGetAll = useLazyQuery(gql`
-            query itemAll
-            {
-                itemAll {
-                    url name image details cost bookable access
-                    bookings { person { name upi } starttime endtime details }
-                    inductions { upi }
-                }
-            } `,
-        );
-
-        static ItemAll(): Promise<void> {
-            return new Promise<void>((resolve, reject) => {
-                this.doGetAll({ variables: { upi: upi, password: password } })
-                .then((result: any) => { this.set(result.data.login); resolve(); })
-                .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
-            });
-        }
-
         static _queries = {
-            all: gql`
+            all: {name: "itemAll", query: `
                 query itemAll
                 {
                     itemAll {
@@ -302,8 +347,8 @@
                         bookings { person { name upi } starttime endtime details }
                         inductions { upi }
                     }
-                } `,
-            get: gql`
+                }`},
+            get: {name: "itemGet", query: `
                 query itemGet($name: String!) 
                 {
                     itemGet (name: $name) {
@@ -311,33 +356,39 @@
                         bookings { person { name upi } starttime endtime details }
                         inductions { upi }
                     }
-                } `
+                }`}
         };
 
         static _mutations = {
-            add: gql`
+            add: {name: "itemAdd", mutation: `
                 mutation itemAdd ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemAdd (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
                         name
                     }
-                }`,
-            update: gql`
+                }`},
+            update: {name: "itemUpdate", mutation: `
                 mutation itemUpdate ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemUpdate (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
                         name
                     }
-                }`,
-            delete: gql`
+                }`},
+            delete: {name: "itemDelete", mutation: `
                 mutation itemDelete ($name:String!)
                 {
                     itemDelete (name:$name) {
                         name
                     }
-                }`
+                }`}
         }
     };
+
+
+    export function ItemAll(graphql: GraphQL, session: Session = null): Promise<any> {
+        return graphql.query(session, {}, Item._queries.all);
+    }
+
     //--------------------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------------------
@@ -419,7 +470,7 @@
         static _keys = ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
 
         static _queries = {
-            all: gql`
+            all: {name: "personAll", query: `
                 query personAll
                 {
                     personAll {
@@ -427,8 +478,9 @@
                         bookings { person { name upi } starttime endtime details }
                         inductions { upi }
                     }
-                } `,
-            get: gql`
+                }`
+            },
+            get: {name: "personGet", query: `
                 query personGet($upi: String!) 
                 {
                     personGet (upi: $upi) {
@@ -436,31 +488,35 @@
                         bookings { person { name upi } starttime endtime details }
                         inductions { upi }
                     }
-                } `
+                }`
+            }
         };
 
         static _mutations = {
-            add: gql`
+            add: {name: "personAdd", mutation: `
                 mutation personAdd ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
                 {
                     personAdd (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
                         upi
                     }
-                }`,
-            update: gql`
+                }`
+            },
+            update: {name: "personUpdate", mutation: `
                 mutation personUpdate ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
                 {
                     personUpdate (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
                         upi
                     }
-                }`,
-            delete: gql`
+                }`
+            },
+            delete: {name: "personDelete", mutation: `
                 mutation personDelete ($upi:String!)
                 {
                     personDelete (upi:$upi) {
                         upi
                     }
                 }`
+            }
         }
     };
     //--------------------------------------------------------------------------------------------------
@@ -551,58 +607,58 @@
     //--------------------------------------------------------------------------------------------------
     // The Querys and mutations
     //--------------------------------------------------------------------------------------------------
-    export const ITEMALL = gql`
-        query itemAll
-        {
-            itemAll {
-                url name image details cost bookable access
-                bookings { person { name upi } starttime endtime details }
-                inductions { upi }
-            }
-        } `;
+    // export const ITEMALL = gql`
+    //     query itemAll
+    //     {
+    //         itemAll {
+    //             url name image details cost bookable access
+    //             bookings { person { name upi } starttime endtime details }
+    //             inductions { upi }
+    //         }
+    //     } `;
     
-    export const ITEMGET = gql`
-        query itemGet($name: String!) 
-        {
-            itemGet (name: $name) {
-                url name image details cost bookable access
-                bookings { person { name upi } starttime endtime details }
-                inductions { upi }
-            }
-        } `;
+    // export const ITEMGET = gql`
+    //     query itemGet($name: String!) 
+    //     {
+    //         itemGet (name: $name) {
+    //             url name image details cost bookable access
+    //             bookings { person { name upi } starttime endtime details }
+    //             inductions { upi }
+    //         }
+    //     } `;
 
 
-    export const LOGIN = gql`
-        mutation login ($upi:String!, $password:String!)
-        {
-            login (upi:$upi, password:$password) {
-                sessionid person { upi name status }
-            }
-        }`;
+    // export const LOGIN = gql`
+    //     mutation login ($upi:String!, $password:String!)
+    //     {
+    //         login (upi:$upi, password:$password) {
+    //             sessionid person { upi name status }
+    //         }
+    //     }`;
 
-    export const ITEMCHANGEBOOKING = gql`
-        mutation itemChangebooking ($itemname:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!, $newstarttime: DateTime, $newendtime: DateTime, $details:Json)
-        {
-            itemChangebooking(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime, newstarttime:$newstarttime, newendtime:$newendtime) {
-                name
-            }
-        }`;
+    // export const ITEMCHANGEBOOKING = gql`
+    //     mutation itemChangebooking ($itemname:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!, $newstarttime: DateTime, $newendtime: DateTime, $details:Json)
+    //     {
+    //         itemChangebooking(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime, newstarttime:$newstarttime, newendtime:$newendtime) {
+    //             name
+    //         }
+    //     }`;
 
-    export const ITEMBOOK = gql`
-        mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
-        {
-            itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
-                name
-            }
-        }`;
+    // export const ITEMBOOK = gql`
+    //     mutation itemBook ($itemname:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
+    //     {
+    //         itemBook(itemname:$itemname, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
+    //             name
+    //         }
+    //     }`;
 
-    export const ITEMUNBOOK = gql`
-        mutation itemUnbook ($itemname:String!, $starttime:DateTime!, $endtime:DateTime!)
-        {
-            itemUnbook(itemname:$itemname, starttime:$starttime, endtime:$endtime) {
-                name
-            }
-        }`;
+    // export const ITEMUNBOOK = gql`
+    //     mutation itemUnbook ($itemname:String!, $starttime:DateTime!, $endtime:DateTime!)
+    //     {
+    //         itemUnbook(itemname:$itemname, starttime:$starttime, endtime:$endtime) {
+    //             name
+    //         }
+    //     }`;
 
 </script>
 <!----------------------------------------------------------------------------------------------------->
