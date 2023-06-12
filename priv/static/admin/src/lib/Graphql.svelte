@@ -6,9 +6,8 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script context="module" lang="ts">
-    import { gql, ApolloClient, InMemoryCache } from '@apollo/client';
-    import { setClient, mutation } from 'svelte-apollo';
-    import Items from 'svelte-fomantic-ui/src/lib/views/Items.svelte';
+    import { gql, ApolloClient, InMemoryCache, useLazyQuery } from '@apollo/client';
+    import { setClient, mutation, getClient } from 'svelte-apollo';
 
     export class GraphQL {
         static start() {
@@ -275,23 +274,21 @@
 
         static _keys = ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
 
-        private doItemAll = mutation(gql`
-                query itemAll
-                {
-                    itemAll {
-                        url name image details cost bookable access
-                        bookings { person { name upi } starttime endtime details }
-                        inductions { upi }
-                    }
-                }`);
+        static doGetAll = useLazyQuery(gql`
+            query itemAll
+            {
+                itemAll {
+                    url name image details cost bookable access
+                    bookings { person { name upi } starttime endtime details }
+                    inductions { upi }
+                }
+            } `,
+        );
 
-        public ItemAll(): Promise<Items> {
-            return new Promise<Items>((resolve, reject) => {
-                this.doItemAll({ variables: { } })
-                .then((result: any) => { 
-                    let items:Items = result.data.itemAll;
-                    resolve(items); 
-                })
+        static ItemAll(): Promise<void> {
+            return new Promise<void>((resolve, reject) => {
+                this.doGetAll({ variables: { upi: upi, password: password } })
+                .then((result: any) => { this.set(result.data.login); resolve(); })
                 .catch((error: { graphQLErrors: [{ message: string }] }) => { reject(error.graphQLErrors[0].message); });
             });
         }
