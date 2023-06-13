@@ -12,17 +12,21 @@
     // persons.push(new Person("rdav031", "Roy Davies", "", Usertype.ADMIN, details, 0, null, null));
     // persons.push(new Person("fdag1234", "Fred Dagg", "", Usertype.USER, details, 0, null, null));
 
-    let graphQL = new GraphQL("/api");
+    let connection = new GraphQL("/api");
 
     let session: Session = new Session();
-    session.login(graphQL, "rdav031", "12345")
+    session.login(connection, "rdav031", "12345")
     .then(() => {
         // Login successful
         console.log("Logged in :", session);
 
-        ItemAll(graphQL)
+        ItemAll(connection)
         .then((items) => {
             console.log(items);
+            session.logout(connection)
+            .then(() => {
+                console.log("Logged out");
+            })
         })
         .catch((error) => {
             console.log(error);

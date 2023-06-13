@@ -16,7 +16,7 @@
             this.uri = uri;
         }
 
-        public query(session: Session = null, variables: {} = {}, query:{name: string, query: string} = null): Promise<any> {
+        private gql(session: Session = null, variables: {} = {}, gql:{name: string, gql: string} = null): Promise<any> {
 
             return new Promise((resolve, reject) => {
                 fetch(this.uri, {
@@ -26,7 +26,7 @@
                             sessionid: session ? session.sessionid : ""
                         },
                         body: JSON.stringify({
-                            query: query ? query.query : "",
+                            query: gql ? gql.gql : "",
                             variables: variables
                         }),
                     })
@@ -41,8 +41,7 @@
                         if (data.errors && data.errors.length > 0) {
                             reject(data.errors[0].message); // Reject the promise with the error
                         } else {
-                            console.log(data);
-                            resolve(data[query.name]); // Resolve the promise with the fetched data
+                            resolve(data.data[gql.name]); // Resolve the promise with the fetched data
                         }
                     })
                     .catch(error => {
@@ -51,41 +50,12 @@
                 }
             );
         }
+        public query(session: Session = null, variables: {} = {}, query:{name: string, gql: string} = null): Promise<any> {
+            return this.gql(session, variables, query);
+        }
 
-        public mutation(session: Session = null, variables: {} = {}, mutation:{name: string, mutation: string} = null): Promise<any> {
-            
-            return new Promise((resolve, reject) => {
-                fetch(this.uri, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            sessionid: session ? session.sessionid : ""
-                        },
-                        body: JSON.stringify({
-                            query: mutation ? mutation.mutation : "",
-                            variables: variables
-                        }),
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        } else {
-                            return response.statusText;
-                        }
-                    })
-                    .then(data => {
-                        if (data.errors && data.errors.length > 0) {
-                            reject(data.errors[0].message); // Reject the promise with the error
-                        } else {
-                            console.log(data);
-                            resolve(data[mutation.name]); // Resolve the promise with the fetched data
-                        }
-                    })
-                    .catch(error => {
-                        reject(error); // Reject the promise with the error
-                    });
-                }
-            );
+        public mutation(session: Session = null, variables: {} = {}, mutation:{name: string, gql: string} = null): Promise<any> {
+            return this.gql(session, variables, mutation);
         }
     }
 
@@ -136,7 +106,7 @@
         static _keys = ["sessionid", "person"];
 
         static _mutations = {
-            login: {name: "login", mutation: `
+            login: {name: "login", gql: `
                 mutation login ($upi:String!, $password:String!)
                 {
                     login (upi:$upi, password:$password) {
@@ -144,10 +114,10 @@
                     }
                 }`
             },
-            logout: {name: "logout", mutation: `
-                mutation logout ($sessionid:String!)
+            logout: {name: "logout", gql: `
+                mutation logout
                 {
-                    logout (sessionid:$sessionid) {
+                    logout {
                         sessionid
                     }
                 }`
@@ -155,11 +125,29 @@
         }
 
         public login(graphql: GraphQL, upi: string, password: string): Promise<void> {
-            return graphql.mutation(this, {upi: upi, password: password}, Session._mutations.login);
+            return new Promise((resolve, reject) => {
+                graphql.mutation(this, {upi: upi, password: password}, Session._mutations.login)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
         }
 
         public logout(graphql: GraphQL): Promise<void> {
-            return graphql.mutation(this, {sessionid: this.sessionid}, Session._mutations.logout);
+            return new Promise((resolve, reject) => {
+                graphql.mutation(this, {}, Session._mutations.logout)
+                .then((data) => {
+                    this.reset();
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
         }
     };
     //--------------------------------------------------------------------------------------------------
@@ -339,7 +327,7 @@
         static _keys = ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
 
         static _queries = {
-            all: {name: "itemAll", query: `
+            all: {name: "itemAll", gql: `
                 query itemAll
                 {
                     itemAll {
@@ -348,7 +336,7 @@
                         inductions { upi }
                     }
                 }`},
-            get: {name: "itemGet", query: `
+            get: {name: "itemGet", gql: `
                 query itemGet($name: String!) 
                 {
                     itemGet (name: $name) {
@@ -360,21 +348,21 @@
         };
 
         static _mutations = {
-            add: {name: "itemAdd", mutation: `
+            add: {name: "itemAdd", gql: `
                 mutation itemAdd ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemAdd (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
                         name
                     }
                 }`},
-            update: {name: "itemUpdate", mutation: `
+            update: {name: "itemUpdate", gql: `
                 mutation itemUpdate ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemUpdate (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
                         name
                     }
                 }`},
-            delete: {name: "itemDelete", mutation: `
+            delete: {name: "itemDelete", gql: `
                 mutation itemDelete ($name:String!)
                 {
                     itemDelete (name:$name) {
@@ -470,7 +458,7 @@
         static _keys = ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
 
         static _queries = {
-            all: {name: "personAll", query: `
+            all: {name: "personAll", gql: `
                 query personAll
                 {
                     personAll {
@@ -480,7 +468,7 @@
                     }
                 }`
             },
-            get: {name: "personGet", query: `
+            get: {name: "personGet", gql: `
                 query personGet($upi: String!) 
                 {
                     personGet (upi: $upi) {
@@ -493,7 +481,7 @@
         };
 
         static _mutations = {
-            add: {name: "personAdd", mutation: `
+            add: {name: "personAdd", gql: `
                 mutation personAdd ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
                 {
                     personAdd (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
@@ -501,7 +489,7 @@
                     }
                 }`
             },
-            update: {name: "personUpdate", mutation: `
+            update: {name: "personUpdate", gql: `
                 mutation personUpdate ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
                 {
                     personUpdate (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
@@ -509,7 +497,7 @@
                     }
                 }`
             },
-            delete: {name: "personDelete", mutation: `
+            delete: {name: "personDelete", gql: `
                 mutation personDelete ($upi:String!)
                 {
                     personDelete (upi:$upi) {
