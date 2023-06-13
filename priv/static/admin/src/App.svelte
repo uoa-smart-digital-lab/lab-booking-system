@@ -3,8 +3,7 @@
     import GraphQL_Table from "./lib/GraphQL_Table.svelte";
     import { PersonDetails, GraphQL, Person} from "./lib/Graphql.svelte";
     import type { Persons, Items } from "./lib/Graphql.svelte";
-    import { Usertype, Session, Item, ItemAll } from "./lib/Graphql.svelte";
-    import { getClient } from 'svelte-apollo';
+    import { Usertype, Session, Item } from "./lib/Graphql.svelte";
 
     // let details: PersonDetails = new PersonDetails("123456789", "here@there");
 
@@ -20,7 +19,7 @@
         // Login successful
         console.log("Logged in :", session);
 
-        ItemAll(connection)
+        Item.itemAll(connection)
         .then((items) => {
             console.log(items);
             session.logout(connection)

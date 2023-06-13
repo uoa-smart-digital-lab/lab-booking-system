@@ -6,50 +6,56 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script context="module" lang="ts">
-    import { gql, ApolloClient, InMemoryCache, type DocumentNode } from '@apollo/client';
-    import { setClient, mutation, getClient } from 'svelte-apollo';
 
+    //==================================================================================================
+    // GraphQL fetch functions
+    //==================================================================================================
     export class GraphQL {
-        uri: string = '/api';
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
+        uri: string = '/graphql';   // default uri
 
-        constructor(uri: string = '/api') {
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(uri: string = '/graphql') {
             this.uri = uri;
         }
 
+        //----------------------------------------------------------------------------------------------
+        // Private methods
+        //----------------------------------------------------------------------------------------------
         private gql(session: Session = null, variables: {} = {}, gql:{name: string, gql: string} = null): Promise<any> {
 
+            // Return a promise that is fulfilled when the fetch completes
             return new Promise((resolve, reject) => {
+                // Send a fetch request to the server
                 fetch(this.uri, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            sessionid: session ? session.sessionid : ""
-                        },
-                        body: JSON.stringify({
-                            query: gql ? gql.gql : "",
-                            variables: variables
-                        }),
+                        headers: { 'Content-Type': 'application/json', sessionid: session ? session.sessionid : "" },
+                        body: JSON.stringify({ query: gql ? gql.gql : "", variables: variables }),
                     })
+                    // If there was an OK response (ie status 200), then return the json data.  If not, return the status text
                     .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        } else {
-                            return response.statusText;
-                        }
+                        if (response.ok) {  return response.json(); } 
+                        else {              return response.statusText; }
                     })
+                    // Even if the response was OK, this could be an error, so check for errors in the returned data
+                    // and either return that by rejecting the promise, or the data by resolving the promise.
                     .then(data => {
-                        if (data.errors && data.errors.length > 0) {
-                            reject(data.errors[0].message); // Reject the promise with the error
-                        } else {
-                            resolve(data.data[gql.name]); // Resolve the promise with the fetched data
-                        }
+                        if (data.errors && data.errors.length > 0) { reject(data.errors[0].message); }
+                        else { resolve(data.data[gql.name]); }
                     })
-                    .catch(error => {
-                        reject(error); // Reject the promise with the error
-                    });
+                    // Anything else that might cause an error (eg a 404 error), reject the promise with the error.
+                    .catch(error => { reject(error); })
                 }
             );
         }
+
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
         public query(session: Session = null, variables: {} = {}, query:{name: string, gql: string} = null): Promise<any> {
             return this.gql(session, variables, query);
         }
@@ -58,53 +64,57 @@
             return this.gql(session, variables, mutation);
         }
     }
+    //==================================================================================================
 
 
-    //--------------------------------------------------------------------------------------------------
-    // Enums and Types
-    //--------------------------------------------------------------------------------------------------
+
+    //==================================================================================================
+    // Enums
+    //==================================================================================================
     export enum Usertype {"USER", "POWERUSER", "ADMIN"};
     export enum Itemtype {"FREE", "INDUCTION", "SUPERVISED"};
-        
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+
+
+
+    //==================================================================================================
+    // Type arrays
+    //==================================================================================================
+    export type Items = Array<Item>;
+    export type Bookings = Array<Booking>;
+    export type Persons = Array<Person>;
+    //==================================================================================================
+
+
+
+    //==================================================================================================
     // A session is returned when a user logs in
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    export type SessionJSON = {sessionid: string, person: PersonJSON};
     export class Session {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "Session";
         sessionid : string;
         person : Person;
 
-        constructor(sessionid: string = "", person: Person = new Person()) {
-            this.sessionid = sessionid;
-            this.person = person;
-        }
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: SessionJSON = null) { this.set(data); }
 
-        set(session:{}) {
-            this.sessionid = session["sessionid"];
-            this.person = session["person"];
-        }
-        reset() {
-            this.sessionid = "";
-            this.person = new Person();
-        }
-
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
         static _format: {
-            sessionid: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            },
-            person: {
-                type: "Person",
-                editable: true,
-                input: "object",
-                width: 2
-            }
+            sessionid:  { type: "string",       editable: true,     input: "text",      width: 2 },
+            person:     { type: "Person",       editable: true,     input: "object",    width: 2 }
         }
 
-        static _keys = ["sessionid", "person"];
-
+        //----------------------------------------------------------------------------------------------
+        // GraphQL definitions
+        //----------------------------------------------------------------------------------------------
         static _mutations = {
             login: {name: "login", gql: `
                 mutation login ($upi:String!, $password:String!)
@@ -122,6 +132,22 @@
                     }
                 }`
             }
+        }
+
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
+        public set(data: SessionJSON = null) {
+            if (data) {
+                this.sessionid = data["sessionid"] ? data["sessionid"] : "";
+                this.person = new Person(data["person"]);
+            } else {
+                this.reset();
+            }
+        }
+        public reset() {
+            this.sessionid = "";
+            this.person = new Person();
         }
 
         public login(graphql: GraphQL, upi: string, password: string): Promise<void> {
@@ -150,100 +176,141 @@
             });
         }
     };
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
 
-    //--------------------------------------------------------------------------------------------------
+
+
+    //==================================================================================================
     // An item can have some details, in this case a name
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    export type ItemDetailsJSON = {name: string};
     export class ItemDetails {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "ItemDetails";
         name: string;
 
-        constructor(name: string = "") {
-            this.name = name;
-        }
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: ItemDetailsJSON = null) { this.set(data); }
 
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
         static _format: {
-            name: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            }
+            name:       { type: "string",       editable: true,     input: "text",      width: 2 }
         }
 
-        static _keys = ["name"];
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
+        public set (data: ItemDetailsJSON = null) {
+            if (data) this.name = data["name"] ? data["name"] : "";
+            else this.reset();
+        }
+        public reset() {
+            this.name = "";
+        }
     };
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
     
-    //--------------------------------------------------------------------------------------------------
+
+
+    //==================================================================================================
     // A Person can have some extra details, in this case a phone number and email address
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    type PersonDetailsJSON = {phone: string, email: string};
     export class PersonDetails {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "PersonDetails";
         phone: string;
         email: string;
 
-        constructor(phone: string = "", email: string = "") {
-            this.phone = phone;
-            this.email = email;
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: PersonDetailsJSON = null) { this.set(data); }
+
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
+        static _format: {
+            phone:      { type: "string",       editable: true,     input: "text",      width: 2 },
+            email:      { type: "string",       editable: true,     input: "text",      width: 2 }
         }
 
-        static _format: {
-            phone: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            },
-            email: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
+        public set (data: PersonDetailsJSON = null) {
+            if (data) {
+                this.phone = data["phone"] ? data["phone"] : "";
+                this.email = data["email"] ? data["email"] : "";
+            } else {
+                this.reset();
             }
         }
-
-        static _keys = ["phone", "email"];
+        public reset () {
+            this.phone = "";
+            this.email = "";
+        }
     };
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
 
-    //--------------------------------------------------------------------------------------------------
+
+
+    //==================================================================================================
     // A Booking can have some extra details, in this case a details description
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    export type BookingDetailsJSON = {details: string};
     export class BookingDetails {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "BookingDetails";
         details: string;
 
-        constructor(details: string = "") {
-            this.details = details;
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: BookingDetailsJSON = null) {
+            this.set(data);
         }
 
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
         static _format: {
-            details: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            }
+            details:    { type: "string",       editable: true,     input: "text",      width: 2 }
         }
 
-        static _keys = ["details"];
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
+        public set (data: BookingDetailsJSON = null) {
+            if (data) this.details = data["details"] ? data["details"] : "";
+            else this.reset();
+        }
+        public reset () {
+            this.details = "";
+        }
     };
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
 
-    //--------------------------------------------------------------------------------------------------
-    // Some type arrays
-    //--------------------------------------------------------------------------------------------------
-    export type Items = Array<Item>;
-    export type Bookings = Array<Booking>;
-    export type Persons = Array<Person>;
-    //--------------------------------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------------------------------
+
+    //==================================================================================================
     // A bookable item
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    export type ItemJSON = {name: string, image: string, url: string, details: ItemJSON, cost: number, bookable: boolean, access: number, bookings: BookingJSON[], inductions: PersonJSON[]};
     export class Item {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "Item";
         name: string;
         image: string;
@@ -255,77 +322,29 @@
         bookings: Bookings | null;
         inductions: Persons | null;
 
-        constructor(name: string = "", image: string = "", url: string = "", details: ItemDetails = new ItemDetails(), cost: number = 0, bookable: boolean = false, access: Itemtype = Itemtype.FREE, bookings: Bookings = null, inductions: Persons = null) {
-            this.name = name;
-            this.image = image;
-            this.url = url;
-            this.details = details;
-            this.cost = cost;
-            this.bookable = bookable;
-            this.access = access;
-            this.bookings = bookings;
-            this.inductions = inductions;
-        }
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: ItemJSON = null) { this.set(data); }
 
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
         static _format: {
-            name: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            },
-            image: {
-                type: "string",
-                editable: true,
-                input: "image",
-                width: 2
-            },
-            url: {
-                type: "string",
-                editable: true,
-                input: "url",
-                width: 2
-            },
-            details: {
-                type: "ItemDetails",
-                editable: true,
-                input: "object",
-                width: 2
-            },
-            cost: {
-                type: "number",
-                editable: true,
-                input: "number",
-                width: 1
-            },
-            bookable: {
-                type: "boolean",
-                editable: true,
-                input: "checkbox",
-                width: 1
-            },
-            access: {
-                type: "Itemtype",
-                editable: true,
-                input: "dropdown",
-                width: 2
-            },
-            bookings: {
-                type: "Bookings",
-                editable: false,
-                input: "array",
-                width: 2
-            },
-            inductions: {
-                type: "Persons",
-                editable: false,
-                input: "array",
-                width: 2
-            }
+            name:       { type: "string",       editable: true,     input: "text",      width: 2 },
+            image:      { type: "string",       editable: true,     input: "image",     width: 2 },
+            url:        { type: "string",       editable: true,     input: "url",       width: 2 },
+            details:    { type: "ItemDetails",  editable: true,     input: "object",    width: 2 },
+            cost:       { type: "number",       editable: true,     input: "number",    width: 1 },
+            bookable:   { type: "boolean",      editable: true,     input: "checkbox",  width: 1 },
+            access:     { type: "Itemtype",     editable: true,     input: "dropdown",  width: 2 },
+            bookings:   { type: "Bookings",     editable: false,    input: "array",     width: 2 },
+            inductions: { type: "Persons",      editable: false,    input: "array",     width: 2 }
         }
 
-        static _keys = ["name", "image", "url", "details", "cost", "bookable", "access", "bookings", "inductions"];
-
+        //----------------------------------------------------------------------------------------------
+        // GraphQL definitions
+        //----------------------------------------------------------------------------------------------
         static _queries = {
             all: {name: "itemAll", gql: `
                 query itemAll
@@ -335,7 +354,8 @@
                         bookings { person { name upi } starttime endtime details }
                         inductions { upi }
                     }
-                }`},
+                }`
+            },
             get: {name: "itemGet", gql: `
                 query itemGet($name: String!) 
                 {
@@ -344,7 +364,8 @@
                         bookings { person { name upi } starttime endtime details }
                         inductions { upi }
                     }
-                }`}
+                }`
+            }
         };
 
         static _mutations = {
@@ -354,35 +375,104 @@
                     itemAdd (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
                         name
                     }
-                }`},
+                }`
+            },
             update: {name: "itemUpdate", gql: `
                 mutation itemUpdate ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemUpdate (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
                         name
                     }
-                }`},
+                }`
+            },
             delete: {name: "itemDelete", gql: `
                 mutation itemDelete ($name:String!)
                 {
                     itemDelete (name:$name) {
                         name
                     }
-                }`}
+                }`
+            }
         }
+
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
+        public set(data: ItemJSON = null) {
+            if (data) {
+                this.name = data["name"];
+                this.image = data["image"];
+                this.url = data["url"];
+                this.details = new ItemDetails(data["details"]);
+                this.cost = data["cost"];
+                this.bookable = data["bookable"];
+                this.access = data["access"];
+                this.bookings = []; data["bookings"] ? data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); }) : [];
+                this.inductions = []; data["inductions"] ? data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); }) : []
+            } else {
+                this.reset();
+            }
+        }
+        public reset() {
+            this.name = "";
+            this.image = "";
+            this.url = "";
+            this.details = new ItemDetails();
+            this.cost = 0;
+            this.bookable = false;
+            this.access = Itemtype.FREE;
+            this.bookings = [];
+            this.inductions = [];
+        }
+
+        public itemGet(graphql: GraphQL, session: Session, name: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.query(session, {name: name}, Item._queries.get)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        //----------------------------------------------------------------------------------------------
+        // Static class methods
+        //----------------------------------------------------------------------------------------------
+        static itemAll(graphql: GraphQL, session: Session = null): Promise<any> {
+            return new Promise((resolve, reject) => {
+                graphql.query(session, {name: name}, Item._queries.get)
+                .then((data) => {
+                    let result: Items = [];
+                    console.log(data);
+                    data.forEach((item: ItemJSON) => {
+                        result.push(new Item(item));
+                    });
+                    resolve(result);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+
+            return graphql.query(session, {}, Item._queries.all);
+        }
+
     };
+    //==================================================================================================
 
 
-    export function ItemAll(graphql: GraphQL, session: Session = null): Promise<any> {
-        return graphql.query(session, {}, Item._queries.all);
-    }
 
-    //--------------------------------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
     // A person
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    type PersonJSON = {upi: string, name: string, password: string, status: number, details: PersonDetailsJSON, tokens: number, bookings: BookingJSON[], inductions: PersonJSON[]};
     export class Person {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "Person";
         upi: string;
         name: string;
@@ -393,70 +483,28 @@
         bookings: Bookings | null;
         inductions: Persons | null;
 
-        constructor(upi: string = "", name: string = "", password: string = "", status: Usertype = Usertype.USER, details: PersonDetails = new PersonDetails(), tokens: number = 0, bookings: Bookings = null, inductions: Persons = null) {
-            this.upi = upi;
-            this.name = name;
-            this.password = password;
-            this.status = status;
-            this.details = details;
-            this.tokens = tokens;
-            this.bookings = bookings;
-            this.inductions = inductions;
-        }
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: PersonJSON = null) { this.set(data); }
 
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
         static _format: {
-            upi: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            },
-            name: {
-                type: "string",
-                editable: true,
-                input: "text",
-                width: 2
-            },
-            password: {
-                type: "string",
-                editable: true,
-                input: "password",
-                width: 2
-            },
-            status: {
-                type: "Usertype",
-                editable: true,
-                input: "dropdown",
-                width: 2
-            },
-            details: {
-                type: "PersonDetails",
-                editable: true,
-                input: "object",
-                width: 2
-            },
-            tokens: {
-                type: "number",
-                editable: false,
-                input: "number",
-                width: 1
-            },
-            bookings: {
-                type: "Bookings",
-                editable: false,
-                input: "array",
-                width: 2
-            },
-            inductions: {
-                type: "Persons",
-                editable: false,
-                input: "array",
-                width: 2
-            }
+            upi:        { type: "string",       editable: true,     input: "text",      width: 2 },
+            name:       { type: "string",       editable: true,     input: "text",      width: 2 },
+            password:   { type: "string",       editable: true,     input: "password",  width: 2 },
+            status:     { type: "Usertype",     editable: true,     input: "dropdown",  width: 2 },
+            details:    { type: "PersonDetails",editable: true,     input: "object",    width: 2 },
+            tokens:     { type: "number",       editable: true,     input: "number",    width: 1 },
+            bookings:   { type: "Bookings",     editable: false,    input: "array",     width: 2 },
+            inductions: { type: "Persons",      editable: false,    input: "array",     width: 2 }
         }
 
-        static _keys = ["upi", "name", "password", "status", "details", "tokens", "bookings", "inductions"];
-
+        //----------------------------------------------------------------------------------------------
+        // GraphQL definitions
+        //----------------------------------------------------------------------------------------------
         static _queries = {
             all: {name: "personAll", gql: `
                 query personAll
@@ -490,7 +538,7 @@
                 }`
             },
             update: {name: "personUpdate", gql: `
-                mutation personUpdate ($upi:String!, $name:String!, $password:String!, $status:Usertype!, $details:Json!)
+                mutation personUpdate ($upi:String!, $name:String, $password:String, $status:Usertype, $details:Json)
                 {
                     personUpdate (upi:$upi, name:$name, password:$password, status:$status, details:$details) {
                         upi
@@ -504,14 +552,180 @@
                         upi
                     }
                 }`
+            },
+            induct: {name: "personInduct", gql: `
+                mutation personInduct ($upi:String!, $itemName:String!)
+                {
+                    personInduct (upi:$upi, itemName:$itemName) {
+                        upi
+                    }
+                }`
+            },
+            unInduct: {name: "personUninduct", gql: `
+                mutation personUninduct ($upi:String!, $itemName:String!)
+                {
+                    personUninduct (upi:$upi, itemName:$itemName) {
+                        upi
+                    }
+                }`
+            },
+            adjustTokens: {name: "personAdjusttokens", gql: `
+                mutation personAdjusttokens ($upi:String!, $tokens:Int!)
+                {
+                    personAdjusttokens (upi:$upi, tokens:$tokens) {
+                        upi
+                    }
+                }`
             }
         }
-    };
-    //--------------------------------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
+        public set(data: PersonJSON = null) {
+            if (data) {
+                this.upi = data["upi"] ? data["upi"] : "";
+                this.name = data["name"] ? data["name"] : "";
+                this.password = data["password"] ? data["password"] : "";
+                this.status = data["status"] ? data["status"] : Usertype.USER;
+                this.details = new PersonDetails(data["details"]);
+                this.tokens = data["tokens"] ? data["tokens"] : 0;
+                this.bookings = []; data["bookings"] ? data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); }) : [];
+                this.inductions = []; data["inductions"] ? data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); }) : []
+            } else {
+                this.reset();
+            }
+        }
+        public reset() {
+            this.upi = "";
+            this.name = "";
+            this.password = "";
+            this.status = Usertype.USER;
+            this.details = new PersonDetails();
+            this.tokens = 0;
+            this.bookings = [];
+            this.inductions = [];
+        }
+
+        public personGet(graphql: GraphQL, session: Session, upi: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.query(session, {upi: upi}, Person._queries.get)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        public personUpdate(graphql: GraphQL, session: Session, data: PersonJSON): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, data, Person._mutations.update)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        //----------------------------------------------------------------------------------------------
+        // Static class methods
+        //----------------------------------------------------------------------------------------------
+        static personAll(graphql: GraphQL, session: Session = null): Promise<any> {
+            return new Promise((resolve, reject) => {
+                graphql.query(session, {}, Person._queries.all)
+                .then((data) => {
+                    let result: Persons = [];
+                    data.forEach((person: PersonJSON) => {
+                        result.push(new Person(person));
+                    });
+                    resolve(result);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static personAdd(graphql: GraphQL, session: Session, data: PersonJSON): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {
+                    upi: data["upi"] ? data["upi"] : "", 
+                    name: data["name"] ? data["name"] : "", 
+                    password: data["password"] ? data["password"] : "", 
+                    status: data["status"] ? data["status"] : Usertype.USER, 
+                    details: data["details"] ? data["details"] : {}
+                }, Person._mutations.add)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static personDelete(graphql: GraphQL, session: Session, upi: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: upi}, Person._mutations.delete)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static personInduct(graphql: GraphQL, session: Session, upi: string, itemName: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: upi, itemName: itemName}, Person._mutations.induct)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static personUninduct(graphql: GraphQL, session: Session, upi: string, itemName: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: upi, itemName: itemName}, Person._mutations.unInduct)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static personAdjusttokens(graphql: GraphQL, session: Session, upi: string, tokens: number): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: upi, tokens: tokens}, Person._mutations.adjustTokens)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+    };
+    //==================================================================================================
+
+
+
+    //==================================================================================================
     // A booking
-    //--------------------------------------------------------------------------------------------------
+    //==================================================================================================
+    export type BookingJSON = {person: PersonJSON, item: ItemJSON, starttime: Date, endtime: Date, details: BookingDetailsJSON};
     export class Booking {
         __typename : string = "Booking";
         person: Person;
@@ -520,62 +734,50 @@
         endtime: Date;
         details: BookingDetails
 
-        constructor(person: Person = new Person(), item: Item = new Item(), starttime: Date = new Date(), endtime: Date = new Date(), details: BookingDetails = new BookingDetails()) {
-            this.person = person;
-            this.item = item;
-            this.starttime = starttime;
-            this.endtime = endtime;
-            this.details = details;
-        }
+        constructor(data: BookingJSON = null) { this.set(data); }
 
         static _format = {
-            person: {
-                type: "Person",
-                editable: true,
-                input: "object",
-                width: 2
-            },
-            item: {
-                type: "Item",
-                editable: true,
-                input: "object",
-                width: 2
-            },
-            starttime: {
-                type: "Date",
-                editable: true,
-                input: "datetime",
-                width: 2
-            },
-            endtime: {
-                type: "Date",
-                editable: true,
-                input: "datetime",
-                width: 2
-            },
-            details: {
-                type: "BookingDetails",
-                editable: true,
-                input: "object",
-                width: 2
-            }
+            person:      { type: "Person",       editable: true,     input: "object",    width: 2 },
+            item:        { type: "Item",         editable: true,     input: "object",    width: 2 },
+            starttime:   { type: "Date",         editable: true,     input: "datetime",  width: 2 },
+            endtime:     { type: "Date",         editable: true,     input: "datetime",  width: 2 },
+            details:     { type: "BookingDetails",editable: true,    input: "object",    width: 2 }
         }
 
-        static _keys = ["person", "item", "starttime", "endtime", "details"];
+        public set(data: BookingJSON = null) {
+            if (data) {
+                this.person = new Person(data["person"]);
+                this.item = new Item(data["item"]);
+                this.starttime = data["starttime"] ? new Date(data["starttime"]) : new Date();
+                this.endtime = data["endtime"] ? new Date(data["endtime"]) : new Date();
+                this.details = new BookingDetails(data["details"]);
+            } else {
+                this.reset();
+            }
+        }
+        public reset() {
+            this.person = new Person();
+            this.item = new Item();
+            this.starttime = new Date();
+            this.endtime = new Date();
+            this.details = new BookingDetails();
+        }
     };
-    //--------------------------------------------------------------------------------------------------
-
-    export type BookingTypes = Person | Item | Booking | PersonDetails | ItemDetails | Session | Usertype | String | Number | Boolean | Usertype;
+    //==================================================================================================
 
 
+
+    //==================================================================================================
+    // Helper functions
+    //==================================================================================================
     export function getKeys(theType: string): string[] {
         switch (theType) {
-            case "Person": return Person._keys;
-            case "Item": return Item._keys;
-            case "Booking": return Booking._keys;
-            case "PersonDetails": return PersonDetails._keys;
-            case "ItemDetails": return ItemDetails._keys;
-            case "Session": return Session._keys;
+            case "Person": return Object.keys(Person._format);
+            case "Item": return Object.keys(Item._format);
+            case "Booking": return Object.keys(Booking._format);
+            case "PersonDetails": return Object.keys(PersonDetails._format);
+            case "ItemDetails": return Object.keys(ItemDetails._format);
+            case "Session": return Object.keys(Session._format);
             default: return [];
         }
     }
@@ -591,6 +793,9 @@
             default: return {};
         }
     }
+    //==================================================================================================
+
+
 
     //--------------------------------------------------------------------------------------------------
     // The Querys and mutations
