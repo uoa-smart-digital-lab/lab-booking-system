@@ -139,8 +139,8 @@
         //----------------------------------------------------------------------------------------------
         public set(data: SessionJSON = null) {
             if (data) {
-                this.sessionid = data["sessionid"] ? data["sessionid"] : "";
-                this.person = new Person(data["person"]);
+                this.sessionid = data["sessionid"] ? data["sessionid"] : this.sessionid;
+                this.person = data["person"] ? new Person(data["person"]) : this.person;
             } else {
                 this.reset();
             }
@@ -207,7 +207,7 @@
         // Public methods
         //----------------------------------------------------------------------------------------------
         public set (data: ItemDetailsJSON = null) {
-            if (data) this.name = data["name"] ? data["name"] : "";
+            if (data) this.name = data["name"] ? data["name"] : this.name;
             else this.reset();
         }
         public reset() {
@@ -248,8 +248,8 @@
         //----------------------------------------------------------------------------------------------
         public set (data: PersonDetailsJSON = null) {
             if (data) {
-                this.phone = data["phone"] ? data["phone"] : "";
-                this.email = data["email"] ? data["email"] : "";
+                this.phone = data["phone"] ? data["phone"] : this.phone;
+                this.email = data["email"] ? data["email"] : this.email;
             } else {
                 this.reset();
             }
@@ -292,7 +292,7 @@
         // Public methods
         //----------------------------------------------------------------------------------------------
         public set (data: BookingDetailsJSON = null) {
-            if (data) this.details = data["details"] ? data["details"] : "";
+            if (data) this.details = data["details"] ? data["details"] : this.details;
             else this.reset();
         }
         public reset () {
@@ -351,8 +351,8 @@
                 {
                     itemAll {
                         url name image details cost bookable access
-                        bookings { person { name upi } starttime endtime details }
-                        inductions { upi }
+                        bookings { person { name upi } item { name } starttime endtime details }
+                        inductions { name upi }
                     }
                 }`
             },
@@ -361,8 +361,8 @@
                 {
                     itemGet (name: $name) {
                         url name image details cost bookable access
-                        bookings { person { name upi } starttime endtime details }
-                        inductions { upi }
+                        bookings { person { name upi } item { name } starttime endtime details }
+                        inductions { name upi }
                     }
                 }`
             }
@@ -373,7 +373,7 @@
                 mutation itemAdd ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemAdd (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
-                        name
+                        name image url details cost bookable access
                     }
                 }`
             },
@@ -381,7 +381,7 @@
                 mutation itemUpdate ($name:String!, $image:String!, $url:String!, $details:Json!, $cost:Float!, $bookable:Boolean!, $access:Itemtype!)
                 {
                     itemUpdate (name:$name, image:$image, url:$url, details:$details, cost:$cost, bookable:$bookable, access:$access) {
-                        name
+                        name image url details cost bookable access
                     }
                 }`
             },
@@ -400,15 +400,15 @@
         //----------------------------------------------------------------------------------------------
         public set(data: ItemJSON = null) {
             if (data) {
-                this.name = data["name"];
-                this.image = data["image"];
-                this.url = data["url"];
-                this.details = new ItemDetails(data["details"]);
-                this.cost = data["cost"];
-                this.bookable = data["bookable"];
-                this.access = data["access"];
-                this.bookings = []; data["bookings"] ? data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); }) : [];
-                this.inductions = []; data["inductions"] ? data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); }) : []
+                this.name = data["name"] ? data["name"] : this.name;
+                this.image = data["image"] ? data["image"] : this.image;
+                this.url = data["url"] ? data["url"] : this.url;
+                this.details = data["details"] ? new ItemDetails(data["details"]) : this.details;
+                this.cost = data["cost"] ? data["cost"] : this.cost;
+                this.bookable = data["bookable"] ? data["bookable"] : this.bookable;
+                this.access = data["access"] ? data["access"] : this.access;
+                if (data["bookings"]) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
+                if (data["inductions"]) { this.inductions=[]; data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); })};
             } else {
                 this.reset();
             }
@@ -438,6 +438,32 @@
             });
         }
 
+        public itemUpdate(graphql: GraphQL, session: Session, data: ItemJSON): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, data, Item._mutations.update)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        public itemDelete(graphql: GraphQL, session: Session, name: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {name: name}, Item._mutations.delete)
+                .then((data) => {
+                    this.reset();
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
         //----------------------------------------------------------------------------------------------
         // Static class methods
         //----------------------------------------------------------------------------------------------
@@ -456,10 +482,7 @@
                     reject(error);
                 })
             });
-
-            return graphql.query(session, {}, Item._queries.all);
         }
-
     };
     //==================================================================================================
 
@@ -474,14 +497,14 @@
         // Definition
         //----------------------------------------------------------------------------------------------
         __typename : string = "Person";
-        upi: string;
-        name: string;
-        password: string;
-        status: Usertype;
-        details: PersonDetails;
-        tokens: number;
-        bookings: Bookings | null;
-        inductions: Persons | null;
+        upi: string = "";
+        name: string = "";
+        password: string = "";
+        status: Usertype = 0;
+        details: PersonDetails = null;
+        tokens: number = 0;
+        bookings: Bookings | null = null;
+        inductions: Persons | null = null;
 
         //----------------------------------------------------------------------------------------------
         // Constructor
@@ -557,7 +580,7 @@
                 mutation personInduct ($upi:String!, $itemName:String!)
                 {
                     personInduct (upi:$upi, itemName:$itemName) {
-                        upi
+                        inductions { user { name upi } item { name } }
                     }
                 }`
             },
@@ -565,7 +588,7 @@
                 mutation personUninduct ($upi:String!, $itemName:String!)
                 {
                     personUninduct (upi:$upi, itemName:$itemName) {
-                        upi
+                        inductions { user { name upi } item { name } }
                     }
                 }`
             },
@@ -573,7 +596,7 @@
                 mutation personAdjusttokens ($upi:String!, $tokens:Int!)
                 {
                     personAdjusttokens (upi:$upi, tokens:$tokens) {
-                        upi
+                        tokens
                     }
                 }`
             }
@@ -584,14 +607,14 @@
         //----------------------------------------------------------------------------------------------
         public set(data: PersonJSON = null) {
             if (data) {
-                this.upi = data["upi"] ? data["upi"] : "";
-                this.name = data["name"] ? data["name"] : "";
-                this.password = data["password"] ? data["password"] : "";
-                this.status = data["status"] ? data["status"] : Usertype.USER;
-                this.details = new PersonDetails(data["details"]);
-                this.tokens = data["tokens"] ? data["tokens"] : 0;
-                this.bookings = []; data["bookings"] ? data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); }) : [];
-                this.inductions = []; data["inductions"] ? data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); }) : []
+                this.upi = data["upi"] ? data["upi"] : this.upi;
+                this.name = data["name"] ? data["name"] : this.name;
+                this.password = data["password"] ? data["password"] : this.password;
+                this.status = data["status"] ? data["status"] : this.status;
+                this.details = data["details"] ? new PersonDetails(data["details"]) : this.details;
+                this.tokens = data["tokens"] ? data["tokens"] : this.tokens;
+                if (data["bookings"]) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
+                if (data["inductions"]) { this.inductions=[]; data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); })};
             } else {
                 this.reset();
             }
@@ -623,6 +646,58 @@
         public personUpdate(graphql: GraphQL, session: Session, data: PersonJSON): Promise<void> {
             return new Promise((resolve, reject) => {
                 graphql.mutation(session, data, Person._mutations.update)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        public personDelete(graphql: GraphQL, session: Session): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: this.upi}, Person._mutations.delete)
+                .then((data) => {
+                    this.reset();
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        public personInduct(graphql: GraphQL, session: Session, itemName: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: this.upi, itemName: itemName}, Person._mutations.induct)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        public personUninduct(graphql: GraphQL, session: Session, itemName: string): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: this.upi, itemName: itemName}, Person._mutations.unInduct)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        public personAdjusttokens(graphql: GraphQL, session: Session, tokens: number): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {upi: this.upi, tokens: tokens}, Person._mutations.adjustTokens)
                 .then((data) => {
                     this.set(data);
                     resolve(data);
@@ -669,54 +744,6 @@
                 })
             });
         }
-
-        static personDelete(graphql: GraphQL, session: Session, upi: string): Promise<void> {
-            return new Promise((resolve, reject) => {
-                graphql.mutation(session, {upi: upi}, Person._mutations.delete)
-                .then((data) => {
-                    resolve(data);
-                })
-                .catch((error) => {
-                    reject(error);
-                })
-            });
-        }
-
-        static personInduct(graphql: GraphQL, session: Session, upi: string, itemName: string): Promise<void> {
-            return new Promise((resolve, reject) => {
-                graphql.mutation(session, {upi: upi, itemName: itemName}, Person._mutations.induct)
-                .then((data) => {
-                    resolve(data);
-                })
-                .catch((error) => {
-                    reject(error);
-                })
-            });
-        }
-
-        static personUninduct(graphql: GraphQL, session: Session, upi: string, itemName: string): Promise<void> {
-            return new Promise((resolve, reject) => {
-                graphql.mutation(session, {upi: upi, itemName: itemName}, Person._mutations.unInduct)
-                .then((data) => {
-                    resolve(data);
-                })
-                .catch((error) => {
-                    reject(error);
-                })
-            });
-        }
-
-        static personAdjusttokens(graphql: GraphQL, session: Session, upi: string, tokens: number): Promise<void> {
-            return new Promise((resolve, reject) => {
-                graphql.mutation(session, {upi: upi, tokens: tokens}, Person._mutations.adjustTokens)
-                .then((data) => {
-                    resolve(data);
-                })
-                .catch((error) => {
-                    reject(error);
-                })
-            });
-        }
     };
     //==================================================================================================
 
@@ -743,6 +770,41 @@
             endtime:     { type: "Date",         editable: true,     input: "datetime",  width: 2 },
             details:     { type: "BookingDetails",editable: true,    input: "object",    width: 2 }
         }
+        
+        static _mutations = {
+            book: {name: "itemBook", gql: `
+                    mutation itemBook ($name:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
+                    {
+                        itemBook (name:$name, upi:$upi, details:$details, starttime:$starttime, endtime:$endtime) {
+                            person { name upi }
+                            item { name image url details cost bookable access }
+                            starttime 
+                            endtime 
+                            details
+                        }
+                    }`
+                },
+            unbook: {name: "itemUnbook", gql: `
+                mutation itemUnbook ($name:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!)
+                {
+                    itemUnbook (name:$name, upi:$upi, starttime:$starttime, endtime:$endtime) {
+                        starttime 
+                        endtime 
+                        details
+                    }
+                }`
+            },
+            itemChangebooking: {name: "itemChangebooking", gql: `
+                mutation itemChangebooking ($name:String!, $upi:String!, $starttime:DateTime!, $endtime:DateTime!, $newstarttime:DateTime!, $newendtime:DateTime!)
+                {
+                    itemChangebooking (name:$name, upi:$upi, starttime:$starttime, endtime:$endtime, newstarttime:$newstarttime, newendtime:$newendtime) {
+                        starttime 
+                        endtime 
+                        details
+                    }
+                }`
+            }
+        }
 
         public set(data: BookingJSON = null) {
             if (data) {
@@ -761,6 +823,43 @@
             this.starttime = new Date();
             this.endtime = new Date();
             this.details = new BookingDetails();
+        }
+
+        public itemChangebooking(graphql: GraphQL, session: Session, starttime: Date, endtime: Date, newstarttime: Date, newendtime: Date): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {name: this.item.name, upi: this.person.upi, starttime: starttime, endtime: endtime, newstarttime: newstarttime, newendtime: newendtime}, Booking._mutations.itemChangebooking)
+                .then((data) => {
+                    this.set(data);
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static itemBook(graphql: GraphQL, session: Session, name: string, upi: string, details: BookingDetails, starttime: Date, endtime: Date): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {name: name, upi: upi, details: details, starttime: starttime, endtime: endtime}, Booking._mutations.book)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
+        }
+
+        static itemUnbook(graphql: GraphQL, session: Session, name: string, upi: string, starttime: Date, endtime: Date): Promise<void> {
+            return new Promise((resolve, reject) => {
+                graphql.mutation(session, {name: name, upi: upi, starttime: starttime, endtime: endtime}, Booking._mutations.unbook)
+                .then((data) => {
+                    resolve(data);
+                })
+                .catch((error) => {
+                    reject(error);
+                })
+            });
         }
     };
     //==================================================================================================
