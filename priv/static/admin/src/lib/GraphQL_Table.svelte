@@ -8,12 +8,14 @@
 <script lang="ts">
     import { Table, Table_Col, Table_Row, Table_Body, Table_Foot, Table_Head, Input, Dropdown, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
     import { getKeys, getFormat } from "./Graphql.svelte";
-    import type {BookingTypes} from "./Graphql.svelte";
 
     export let definition: string = "";
-    export let data: BookingTypes[] = [];
+    export let data: any[] = [];
 
     const format = getFormat(definition);
+    const keys = getKeys(definition);
+
+    console.log(keys, format);
 </script>
 
 

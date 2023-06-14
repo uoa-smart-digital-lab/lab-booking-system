@@ -14,7 +14,9 @@
         //----------------------------------------------------------------------------------------------
         // Definition
         //----------------------------------------------------------------------------------------------
-        uri: string = '/graphql';   // default uri
+        private uri: string = '/graphql';   // default uri
+        public loading: boolean = false;
+        public error: boolean = false;
 
         //----------------------------------------------------------------------------------------------
         // Constructor
@@ -27,6 +29,9 @@
         // Private methods
         //----------------------------------------------------------------------------------------------
         private gql(session: Session = null, variables: {} = {}, gql:{name: string, gql: string} = null): Promise<any> {
+
+            // Start the loading
+            this.loading = true; this.error = false;
 
             // Return a promise that is fulfilled when the fetch completes
             return new Promise((resolve, reject) => {
@@ -44,11 +49,11 @@
                     // Even if the response was OK, this could be an error, so check for errors in the returned data
                     // and either return that by rejecting the promise, or the data by resolving the promise.
                     .then(data => {
-                        if (data.errors && data.errors.length > 0) { reject(data.errors[0].message); }
-                        else { resolve(data.data[gql.name]); }
+                        if (data.errors && data.errors.length > 0) { this.loading = false; this.error = true; reject(data.errors[0].message); }
+                        else { this.loading = false; this.error = false; resolve(data.data[gql.name]); }
                     })
                     // Anything else that might cause an error (eg a 404 error), reject the promise with the error.
-                    .catch(error => { reject(error); })
+                    .catch(error => { this.loading = false; this.error = true; reject(error); })
                 }
             );
         }
@@ -102,7 +107,7 @@
         //----------------------------------------------------------------------------------------------
         // Constructor
         //----------------------------------------------------------------------------------------------
-        constructor(data: SessionJSON = null) { this.set(data); }
+        constructor(data: SessionJSON = null) { this.reset(); this.set(data); }
 
         //----------------------------------------------------------------------------------------------
         // Table layout
@@ -120,7 +125,7 @@
                 mutation login ($upi:String!, $password:String!)
                 {
                     login (upi:$upi, password:$password) {
-                        sessionid person { upi name status }
+                        sessionid person { upi name status details tokens bookings { item { name } } inductions { name }}
                     }
                 }`
             },
@@ -146,8 +151,8 @@
             }
         }
         public reset() {
-            this.sessionid = "";
-            this.person = new Person();
+            this.sessionid = undefined;
+            this.person = undefined;
         }
 
         public login(graphql: GraphQL, upi: string, password: string): Promise<void> {
@@ -194,7 +199,7 @@
         //----------------------------------------------------------------------------------------------
         // Constructor
         //----------------------------------------------------------------------------------------------
-        constructor(data: ItemDetailsJSON = null) { this.set(data); }
+        constructor(data: ItemDetailsJSON = null) { this.reset(); this.set(data); }
 
         //----------------------------------------------------------------------------------------------
         // Table layout
@@ -211,7 +216,7 @@
             else this.reset();
         }
         public reset() {
-            this.name = "";
+            this.name = undefined;
         }
     };
     //==================================================================================================
@@ -221,7 +226,7 @@
     //==================================================================================================
     // A Person can have some extra details, in this case a phone number and email address
     //==================================================================================================
-    type PersonDetailsJSON = {phone: string, email: string};
+    export type PersonDetailsJSON = {phone: string, email: string};
     export class PersonDetails {
         //----------------------------------------------------------------------------------------------
         // Definition
@@ -233,7 +238,7 @@
         //----------------------------------------------------------------------------------------------
         // Constructor
         //----------------------------------------------------------------------------------------------
-        constructor(data: PersonDetailsJSON = null) { this.set(data); }
+        constructor(data: PersonDetailsJSON = null) { this.reset(); this.set(data); }
 
         //----------------------------------------------------------------------------------------------
         // Table layout
@@ -255,8 +260,8 @@
             }
         }
         public reset () {
-            this.phone = "";
-            this.email = "";
+            this.phone = undefined;
+            this.email = undefined;
         }
     };
     //==================================================================================================
@@ -277,9 +282,7 @@
         //----------------------------------------------------------------------------------------------
         // Constructor
         //----------------------------------------------------------------------------------------------
-        constructor(data: BookingDetailsJSON = null) {
-            this.set(data);
-        }
+        constructor(data: BookingDetailsJSON = null) { this.reset(); this.set(data); }
 
         //----------------------------------------------------------------------------------------------
         // Table layout
@@ -296,7 +299,7 @@
             else this.reset();
         }
         public reset () {
-            this.details = "";
+            this.details = undefined;
         }
     };
     //==================================================================================================
@@ -325,7 +328,7 @@
         //----------------------------------------------------------------------------------------------
         // Constructor
         //----------------------------------------------------------------------------------------------
-        constructor(data: ItemJSON = null) { this.set(data); }
+        constructor(data: ItemJSON = null) { this.reset(); this.set(data); }
 
         //----------------------------------------------------------------------------------------------
         // Table layout
@@ -414,15 +417,15 @@
             }
         }
         public reset() {
-            this.name = "";
-            this.image = "";
-            this.url = "";
-            this.details = new ItemDetails();
-            this.cost = 0;
-            this.bookable = false;
-            this.access = Itemtype.FREE;
-            this.bookings = [];
-            this.inductions = [];
+            this.name = undefined;
+            this.image = undefined;
+            this.url = undefined;
+            this.details = undefined;
+            this.cost = undefined;
+            this.bookable = undefined;
+            this.access = undefined;
+            this.bookings = undefined;
+            this.inductions = undefined;
         }
 
         public itemGet(graphql: GraphQL, session: Session, name: string): Promise<void> {
@@ -469,7 +472,7 @@
         //----------------------------------------------------------------------------------------------
         static itemAll(graphql: GraphQL, session: Session = null): Promise<any> {
             return new Promise((resolve, reject) => {
-                graphql.query(session, {name: name}, Item._queries.get)
+                graphql.query(session, {name: name}, Item._queries.all)
                 .then((data) => {
                     let result: Items = [];
                     console.log(data);
@@ -491,7 +494,7 @@
     //==================================================================================================
     // A person
     //==================================================================================================
-    type PersonJSON = {upi: string, name: string, password: string, status: number, details: PersonDetailsJSON, tokens: number, bookings: BookingJSON[], inductions: PersonJSON[]};
+    export type PersonJSON = {upi: string, name: string, password: string, status: number, details: PersonDetailsJSON, tokens: number, bookings: BookingJSON[], inductions: ItemJSON[]};
     export class Person {
         //----------------------------------------------------------------------------------------------
         // Definition
@@ -504,12 +507,12 @@
         details: PersonDetails = null;
         tokens: number = 0;
         bookings: Bookings | null = null;
-        inductions: Persons | null = null;
+        inductions: Items | null = null;
 
         //----------------------------------------------------------------------------------------------
         // Constructor
         //----------------------------------------------------------------------------------------------
-        constructor(data: PersonJSON = null) { this.set(data); }
+        constructor(data: PersonJSON = null) { this.reset(); this.set(data); }
 
         //----------------------------------------------------------------------------------------------
         // Table layout
@@ -522,7 +525,7 @@
             details:    { type: "PersonDetails",editable: true,     input: "object",    width: 2 },
             tokens:     { type: "number",       editable: true,     input: "number",    width: 1 },
             bookings:   { type: "Bookings",     editable: false,    input: "array",     width: 2 },
-            inductions: { type: "Persons",      editable: false,    input: "array",     width: 2 }
+            inductions: { type: "Items",        editable: false,    input: "array",     width: 2 }
         }
 
         //----------------------------------------------------------------------------------------------
@@ -534,8 +537,8 @@
                 {
                     personAll {
                         upi name password status details tokens
-                        bookings { person { name upi } starttime endtime details }
-                        inductions { upi }
+                        bookings { person { name upi } item { name } starttime endtime details }
+                        inductions { name }
                     }
                 }`
             },
@@ -544,12 +547,13 @@
                 {
                     personGet (upi: $upi) {
                         upi name password status details tokens
-                        bookings { person { name upi } starttime endtime details }
-                        inductions { upi }
+                        bookings { person { name upi } item { name } starttime endtime details }
+                        inductions { name }
                     }
                 }`
             }
         };
+        static format() { return this._format; }
 
         static _mutations = {
             add: {name: "personAdd", gql: `
@@ -614,20 +618,20 @@
                 this.details = data["details"] ? new PersonDetails(data["details"]) : this.details;
                 this.tokens = data["tokens"] ? data["tokens"] : this.tokens;
                 if (data["bookings"]) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
-                if (data["inductions"]) { this.inductions=[]; data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); })};
+                if (data["inductions"]) { this.inductions=[]; data["inductions"].forEach((induction: ItemJSON) => { this.inductions.push(new Item(induction)); })};
             } else {
                 this.reset();
             }
         }
         public reset() {
-            this.upi = "";
-            this.name = "";
-            this.password = "";
-            this.status = Usertype.USER;
-            this.details = new PersonDetails();
-            this.tokens = 0;
-            this.bookings = [];
-            this.inductions = [];
+            this.upi = undefined;
+            this.name = undefined;
+            this.password = undefined;
+            this.status = undefined;
+            this.details = undefined;
+            this.tokens = undefined;
+            this.bookings = undefined;
+            this.inductions = undefined;
         }
 
         public personGet(graphql: GraphQL, session: Session, upi: string): Promise<void> {
@@ -754,6 +758,9 @@
     //==================================================================================================
     export type BookingJSON = {person: PersonJSON, item: ItemJSON, starttime: Date, endtime: Date, details: BookingDetailsJSON};
     export class Booking {
+        //----------------------------------------------------------------------------------------------
+        // Definition
+        //----------------------------------------------------------------------------------------------
         __typename : string = "Booking";
         person: Person;
         item: Item;
@@ -761,8 +768,14 @@
         endtime: Date;
         details: BookingDetails
 
-        constructor(data: BookingJSON = null) { this.set(data); }
+        //----------------------------------------------------------------------------------------------
+        // Constructor
+        //----------------------------------------------------------------------------------------------
+        constructor(data: BookingJSON = null) { this.reset(); this.set(data); }
 
+        //----------------------------------------------------------------------------------------------
+        // Table layout
+        //----------------------------------------------------------------------------------------------
         static _format = {
             person:      { type: "Person",       editable: true,     input: "object",    width: 2 },
             item:        { type: "Item",         editable: true,     input: "object",    width: 2 },
@@ -771,6 +784,9 @@
             details:     { type: "BookingDetails",editable: true,    input: "object",    width: 2 }
         }
         
+        //----------------------------------------------------------------------------------------------
+        // GraphQL definitions
+        //----------------------------------------------------------------------------------------------
         static _mutations = {
             book: {name: "itemBook", gql: `
                     mutation itemBook ($name:String!, $upi:String!, $details:Json!, $starttime:DateTime!, $endtime:DateTime!)
@@ -806,6 +822,9 @@
             }
         }
 
+        //----------------------------------------------------------------------------------------------
+        // Public methods
+        //----------------------------------------------------------------------------------------------
         public set(data: BookingJSON = null) {
             if (data) {
                 this.person = new Person(data["person"]);
@@ -818,11 +837,11 @@
             }
         }
         public reset() {
-            this.person = new Person();
-            this.item = new Item();
-            this.starttime = new Date();
-            this.endtime = new Date();
-            this.details = new BookingDetails();
+            this.person = undefined;
+            this.item = undefined;
+            this.starttime = undefined;
+            this.endtime = undefined;
+            this.details = undefined;
         }
 
         public itemChangebooking(graphql: GraphQL, session: Session, starttime: Date, endtime: Date, newstarttime: Date, newendtime: Date): Promise<void> {
@@ -838,6 +857,9 @@
             });
         }
 
+        //----------------------------------------------------------------------------------------------
+        // Static class methods
+        //----------------------------------------------------------------------------------------------
         static itemBook(graphql: GraphQL, session: Session, name: string, upi: string, details: BookingDetails, starttime: Date, endtime: Date): Promise<void> {
             return new Promise((resolve, reject) => {
                 graphql.mutation(session, {name: name, upi: upi, details: details, starttime: starttime, endtime: endtime}, Booking._mutations.book)
@@ -870,8 +892,9 @@
     // Helper functions
     //==================================================================================================
     export function getKeys(theType: string): string[] {
+        console.log(theType);
         switch (theType) {
-            case "Person": return Object.keys(Person._format);
+            case "Person": {console.log(Person.format()); console.log(Object.keys(Person.format())); return Object.keys(Person.format());}
             case "Item": return Object.keys(Item._format);
             case "Booking": return Object.keys(Booking._format);
             case "PersonDetails": return Object.keys(PersonDetails._format);
