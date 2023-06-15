@@ -112,7 +112,7 @@
         //----------------------------------------------------------------------------------------------
         // Table layout
         //----------------------------------------------------------------------------------------------
-        static _format: {
+        static _format = {
             sessionid:  { type: "string",       editable: true,     input: "text",      width: 2 },
             person:     { type: "Person",       editable: true,     input: "object",    width: 2 }
         }
@@ -144,8 +144,8 @@
         //----------------------------------------------------------------------------------------------
         public set(data: SessionJSON = null) {
             if (data) {
-                this.sessionid = data["sessionid"] ? data["sessionid"] : this.sessionid;
-                this.person = data["person"] ? new Person(data["person"]) : this.person;
+                this.sessionid = data["sessionid"] !== undefined ? data["sessionid"] : this.sessionid;
+                this.person = data["person"] !== undefined ? new Person(data["person"]) : this.person;
             } else {
                 this.reset();
             }
@@ -204,7 +204,7 @@
         //----------------------------------------------------------------------------------------------
         // Table layout
         //----------------------------------------------------------------------------------------------
-        static _format: {
+        static _format = {
             name:       { type: "string",       editable: true,     input: "text",      width: 2 }
         }
 
@@ -212,7 +212,7 @@
         // Public methods
         //----------------------------------------------------------------------------------------------
         public set (data: ItemDetailsJSON = null) {
-            if (data) this.name = data["name"] ? data["name"] : this.name;
+            if (data) this.name = data["name"] !== undefined ? data["name"] : this.name;
             else this.reset();
         }
         public reset() {
@@ -243,7 +243,7 @@
         //----------------------------------------------------------------------------------------------
         // Table layout
         //----------------------------------------------------------------------------------------------
-        static _format: {
+        static _format = {
             phone:      { type: "string",       editable: true,     input: "text",      width: 2 },
             email:      { type: "string",       editable: true,     input: "text",      width: 2 }
         }
@@ -253,8 +253,8 @@
         //----------------------------------------------------------------------------------------------
         public set (data: PersonDetailsJSON = null) {
             if (data) {
-                this.phone = data["phone"] ? data["phone"] : this.phone;
-                this.email = data["email"] ? data["email"] : this.email;
+                this.phone = data["phone"] !== undefined ? data["phone"] : this.phone;
+                this.email = data["email"] !== undefined ? data["email"] : this.email;
             } else {
                 this.reset();
             }
@@ -287,7 +287,7 @@
         //----------------------------------------------------------------------------------------------
         // Table layout
         //----------------------------------------------------------------------------------------------
-        static _format: {
+        static _format = {
             details:    { type: "string",       editable: true,     input: "text",      width: 2 }
         }
 
@@ -295,7 +295,7 @@
         // Public methods
         //----------------------------------------------------------------------------------------------
         public set (data: BookingDetailsJSON = null) {
-            if (data) this.details = data["details"] ? data["details"] : this.details;
+            if (data) this.details = data["details"] !== undefined ? data["details"] : this.details;
             else this.reset();
         }
         public reset () {
@@ -333,8 +333,8 @@
         //----------------------------------------------------------------------------------------------
         // Table layout
         //----------------------------------------------------------------------------------------------
-        static _format: {
-            name:       { type: "string",       editable: true,     input: "text",      width: 2 },
+        static _format = {
+            name:       { type: "string",       editable: true,     input: "text",      width: 2,       capitalise: true },
             image:      { type: "string",       editable: true,     input: "image",     width: 2 },
             url:        { type: "string",       editable: true,     input: "url",       width: 2 },
             details:    { type: "ItemDetails",  editable: true,     input: "object",    width: 2 },
@@ -403,15 +403,15 @@
         //----------------------------------------------------------------------------------------------
         public set(data: ItemJSON = null) {
             if (data) {
-                this.name = data["name"] ? data["name"] : this.name;
-                this.image = data["image"] ? data["image"] : this.image;
-                this.url = data["url"] ? data["url"] : this.url;
-                this.details = data["details"] ? new ItemDetails(data["details"]) : this.details;
-                this.cost = data["cost"] ? data["cost"] : this.cost;
-                this.bookable = data["bookable"] ? data["bookable"] : this.bookable;
-                this.access = data["access"] ? data["access"] : this.access;
-                if (data["bookings"]) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
-                if (data["inductions"]) { this.inductions=[]; data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); })};
+                this.name = data["name"] !== undefined ? data["name"] : this.name;
+                this.image = data["image"] !== undefined ? data["image"] : this.image;
+                this.url = data["url"] !== undefined ? data["url"] : this.url;
+                this.details = data["details"] !== undefined ? new ItemDetails(data["details"]) : this.details;
+                this.cost = data["cost"] !== undefined ? data["cost"] : this.cost;
+                this.bookable = data["bookable"] !== undefined ? data["bookable"] : this.bookable;
+                this.access = data["access"] !== undefined ? data["access"] : this.access;
+                if (data["bookings"] !== undefined) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
+                if (data["inductions"] !== undefined) { this.inductions=[]; data["inductions"].forEach((induction: PersonJSON) => { this.inductions.push(new Person(induction)); })};
             } else {
                 this.reset();
             }
@@ -517,16 +517,16 @@
         //----------------------------------------------------------------------------------------------
         // Table layout
         //----------------------------------------------------------------------------------------------
-        static _format: {
+        static _format = {
             upi:        { type: "string",       editable: true,     input: "text",      width: 2 },
             name:       { type: "string",       editable: true,     input: "text",      width: 2 },
             password:   { type: "string",       editable: true,     input: "password",  width: 2 },
             status:     { type: "Usertype",     editable: true,     input: "dropdown",  width: 2 },
             details:    { type: "PersonDetails",editable: true,     input: "object",    width: 2 },
             tokens:     { type: "number",       editable: true,     input: "number",    width: 1 },
-            bookings:   { type: "Bookings",     editable: false,    input: "array",     width: 2 },
-            inductions: { type: "Items",        editable: false,    input: "array",     width: 2 }
-        }
+            bookings:   { type: "Bookings",     editable: true,     input: "array",     width: 2 },
+            inductions: { type: "Items",        editable: true,     input: "array",     width: 2 }
+        };
 
         //----------------------------------------------------------------------------------------------
         // GraphQL definitions
@@ -553,7 +553,6 @@
                 }`
             }
         };
-        static format() { return this._format; }
 
         static _mutations = {
             add: {name: "personAdd", gql: `
@@ -611,14 +610,14 @@
         //----------------------------------------------------------------------------------------------
         public set(data: PersonJSON = null) {
             if (data) {
-                this.upi = data["upi"] ? data["upi"] : this.upi;
-                this.name = data["name"] ? data["name"] : this.name;
-                this.password = data["password"] ? data["password"] : this.password;
-                this.status = data["status"] ? data["status"] : this.status;
-                this.details = data["details"] ? new PersonDetails(data["details"]) : this.details;
-                this.tokens = data["tokens"] ? data["tokens"] : this.tokens;
-                if (data["bookings"]) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
-                if (data["inductions"]) { this.inductions=[]; data["inductions"].forEach((induction: ItemJSON) => { this.inductions.push(new Item(induction)); })};
+                this.upi = data["upi"] !== undefined ? data["upi"] : this.upi;
+                this.name = data["name"] !== undefined ? data["name"] : this.name;
+                this.password = data["password"] !== undefined ? data["password"] : this.password;
+                this.status = data["status"] !== undefined ? data["status"] : this.status;
+                this.details = data["details"] !== undefined ? new PersonDetails(data["details"]) : this.details;
+                this.tokens = data["tokens"] !== undefined ? data["tokens"] : this.tokens;
+                if (data["bookings"] !== undefined) { this.bookings=[]; data["bookings"].forEach((booking: BookingJSON) => { this.bookings.push(new Booking(booking)); })};
+                if (data["inductions"] !== undefined) { this.inductions=[]; data["inductions"].forEach((induction: ItemJSON) => { this.inductions.push(new Item(induction)); })};
             } else {
                 this.reset();
             }
@@ -829,8 +828,8 @@
             if (data) {
                 this.person = new Person(data["person"]);
                 this.item = new Item(data["item"]);
-                this.starttime = data["starttime"] ? new Date(data["starttime"]) : new Date();
-                this.endtime = data["endtime"] ? new Date(data["endtime"]) : new Date();
+                this.starttime = data["starttime"] !== undefined ? new Date(data["starttime"]) : new Date();
+                this.endtime = data["endtime"] !== undefined ? new Date(data["endtime"]) : new Date();
                 this.details = new BookingDetails(data["details"]);
             } else {
                 this.reset();
@@ -894,7 +893,7 @@
     export function getKeys(theType: string): string[] {
         console.log(theType);
         switch (theType) {
-            case "Person": {console.log(Person.format()); console.log(Object.keys(Person.format())); return Object.keys(Person.format());}
+            case "Person": return Object.keys(Person._format);
             case "Item": return Object.keys(Item._format);
             case "Booking": return Object.keys(Booking._format);
             case "PersonDetails": return Object.keys(PersonDetails._format);
@@ -914,6 +913,18 @@
             case "Session": return Session._format;
             default: return {};
         }
+    }
+
+    export function totalWidth(_format:{}) {
+        let result = 0;
+        Object.keys(_format).forEach((key) => {
+            result += _format[key]["width"];
+        });
+        return result;
+    }
+
+    export function proportionalWidth(_format:{}, totalWidth: number, key: string) {
+        return _format[key]["width"] / totalWidth * 100;
     }
     //==================================================================================================
 

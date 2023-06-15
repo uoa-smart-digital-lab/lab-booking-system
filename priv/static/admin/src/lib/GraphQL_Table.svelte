@@ -6,24 +6,25 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { Table, Table_Col, Table_Row, Table_Body, Table_Foot, Table_Head, Input, Dropdown, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
-    import { getKeys, getFormat } from "./Graphql.svelte";
+    import { Table, Table_Col, Table_Row, Table_Body, Table_Foot, Table_Head, Checkbox, Image, Input, Dropdown, Link, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
+    import { getKeys, getFormat, totalWidth, proportionalWidth } from "./Graphql.svelte";
 
     export let definition: string = "";
     export let data: any[] = [];
 
     const format = getFormat(definition);
     const keys = getKeys(definition);
+    const width = totalWidth(format);
 
-    console.log(keys, format);
+    console.log(keys, format, width);
 </script>
 
 
-<Table ui stackable compact>
+<Table ui stackable compact celled>
     <Table_Head>
         <Table_Row>
-            {#each getKeys(definition) as title, i}
-                <Table_Col head center aligned>
+            {#each keys as title, i}
+                <Table_Col head center aligned style={"width:" + proportionalWidth(format, width, title) + "%"}>
                     {title}
                 </Table_Col>
             {/each}
@@ -33,14 +34,22 @@
     <Table_Body>
         {#each data as row, i}
             <Table_Row>
-                {#each getKeys(definition) as col, i}
+                {#each keys as col, i}
                     <Table_Col center aligned>
-                        {#if format[col].type === "string" || format[col].type === "number" || format[col].type === "boolean" || format[col].type === "Date"}
+                        {#if format[col].input === "text" || format[col].input === "number"}
+                            {format[col].capitalise ? row[col].toUpperCase() : row[col]}
+                        {:else if format[col].input === "checkbox"}
+                            <Checkbox checked={row[col]}/>
+                        {:else if format[col].input === "date"}
                             {row[col]}
-                        {:else if format[col].type === "array"}
+                        {:else if format[col].input === "image"}
+                            <Link href={row[col]}><Image ui avatar src={row[col]}/>{row[col]}</Link>
+                        {:else if format[col].input === "url"}
+                            <Link href={row[col]}>{row[col]}</Link>
+                        {:else if format[col].input === "array"}
                             {row[col]}
-                        {:else if format[col].type === "object"}
-                            <Dropdown ui fluid selection selected={data[col].status.toString()} on:change={(item) => {data[col].status=Number(item.detail.value)}}>
+                        {:else if format[col].input === "dropdown"}
+                            <!-- <Dropdown ui fluid selection selected={data[col].status.toString()} on:change={(item) => {data[col].status=Number(item.detail.value)}}>
                                 <Input hidden bind:value={data[col].status}/>
                                 <Icon dropdown/>
                                 <Text default>Select Status</Text>
@@ -49,7 +58,8 @@
                                     <Item value="1">staff</Item>
                                     <Item value="2">admin</Item>
                                 </Menu>
-                            </Dropdown>
+                            </Dropdown> -->
+                            {"dropdown"}
                         {/if}
                     </Table_Col>
                 {/each}
