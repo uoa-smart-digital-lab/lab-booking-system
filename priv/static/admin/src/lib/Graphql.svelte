@@ -83,16 +83,6 @@
 
 
     //==================================================================================================
-    // Type arrays
-    //==================================================================================================
-    export type Items = Array<Item>;
-    export type Bookings = Array<Booking>;
-    export type Persons = Array<Person>;
-    //==================================================================================================
-
-
-
-    //==================================================================================================
     // A session is returned when a user logs in
     //==================================================================================================
     export type SessionJSON = {sessionid: string, person: PersonJSON};
@@ -322,8 +312,8 @@
         cost: number;
         bookable: boolean;
         access: Itemtype;
-        bookings: Bookings | null;
-        inductions: Persons | null;
+        bookings: Array<Booking> | null;
+        inductions: Array<Person> | null;
 
         //----------------------------------------------------------------------------------------------
         // Constructor
@@ -341,8 +331,8 @@
             cost:       { type: "number",       editable: true,     input: "number",    width: 1 },
             bookable:   { type: "boolean",      editable: true,     input: "checkbox",  width: 1 },
             access:     { type: "Itemtype",     editable: true,     input: "dropdown",  width: 2 },
-            bookings:   { type: "Bookings",     editable: false,    input: "array",     width: 2 },
-            inductions: { type: "Persons",      editable: false,    input: "array",     width: 2 }
+            bookings:   { type: "Booking",      editable: false,    input: "array",     width: 2,       labelise: "person.upi" },
+            inductions: { type: "Person",       editable: false,    input: "array",     width: 2,       labelise: "upi" }
         }
 
         //----------------------------------------------------------------------------------------------
@@ -474,7 +464,7 @@
             return new Promise((resolve, reject) => {
                 graphql.query(session, {name: name}, Item._queries.all)
                 .then((data) => {
-                    let result: Items = [];
+                    let result: Array<Item> = [];
                     console.log(data);
                     data.forEach((item: ItemJSON) => {
                         result.push(new Item(item));
@@ -506,8 +496,8 @@
         status: Usertype = 0;
         details: PersonDetails = null;
         tokens: number = 0;
-        bookings: Bookings | null = null;
-        inductions: Items | null = null;
+        bookings: Array<Booking> | null = null;
+        inductions: Array<Item> | null = null;
 
         //----------------------------------------------------------------------------------------------
         // Constructor
@@ -524,8 +514,8 @@
             status:     { type: "Usertype",     editable: true,     input: "dropdown",  width: 2 },
             details:    { type: "PersonDetails",editable: true,     input: "object",    width: 2 },
             tokens:     { type: "number",       editable: true,     input: "number",    width: 1 },
-            bookings:   { type: "Bookings",     editable: true,     input: "array",     width: 2 },
-            inductions: { type: "Items",        editable: true,     input: "array",     width: 2 }
+            bookings:   { type: "Booking",      editable: false,    input: "array",     width: 2,       labelise: "item.name" },
+            inductions: { type: "Item",         editable: false,    input: "array",     width: 2,       labelise: "name" }
         };
 
         //----------------------------------------------------------------------------------------------
@@ -718,7 +708,7 @@
             return new Promise((resolve, reject) => {
                 graphql.query(session, {}, Person._queries.all)
                 .then((data) => {
-                    let result: Persons = [];
+                    let result: Array<Person> = [];
                     data.forEach((person: PersonJSON) => {
                         result.push(new Person(person));
                     });
@@ -924,7 +914,7 @@
     }
 
     export function proportionalWidth(_format:{}, totalWidth: number, key: string) {
-        return _format[key]["width"] / totalWidth * 100;
+        return _format[key]["width"] / totalWidth * 96; // 4% for the buttons
     }
     //==================================================================================================
 

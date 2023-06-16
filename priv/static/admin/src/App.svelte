@@ -1,16 +1,12 @@
 <script lang="ts">
     import Table_Persons from "./lib/Table_Persons.svelte";
     import GraphQL_Table from "./lib/GraphQL_Table.svelte";
-    import { PersonDetails, GraphQL, Person} from "./lib/Graphql.svelte";
-    import type { Persons, Items } from "./lib/Graphql.svelte";
-    import { Usertype, Session, Item } from "./lib/Graphql.svelte";
+    import { PersonDetails, GraphQL, Person, Item, Session } from "./lib/Graphql.svelte";
 
     // let details: PersonDetails = new PersonDetails("123456789", "here@there");
 
-    let persons: Persons = [];
-    let theItems: Items = [];
-    // persons.push(new Person("rdav031", "Roy Davies", "", Usertype.ADMIN, details, 0, null, null));
-    // persons.push(new Person("fdag1234", "Fred Dagg", "", Usertype.USER, details, 0, null, null));
+    let thePeople: Array<Person> = [];
+    let theItems: Array<Item> = [];
 
     let connection = new GraphQL("/api");
     let loading = true;
@@ -24,12 +20,10 @@
 
         Item.itemAll(connection, session)
         .then((items) => {
-            console.log(items);
             theItems = items;
             Person.personAll(connection, session)
             .then((people) => {
-                console.log(people);
-                persons = people;
+                thePeople = people;
                 loading = false;
             })
         })
@@ -54,7 +48,8 @@
     {:else if loading}
         loading ...
     {:else}
-        <GraphQL_Table definition="Item" data={theItems}/>
+    <GraphQL_Table definition="Person" data={thePeople}/>
+    <GraphQL_Table definition="Item" data={theItems}/>
     {/if}
 </main>
 
