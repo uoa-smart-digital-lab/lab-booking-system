@@ -8,6 +8,7 @@
     // let details: PersonDetails = new PersonDetails("123456789", "here@there");
 
     let persons: Persons = [];
+    let theItems: Items = [];
     // persons.push(new Person("rdav031", "Roy Davies", "", Usertype.ADMIN, details, 0, null, null));
     // persons.push(new Person("fdag1234", "Fred Dagg", "", Usertype.USER, details, 0, null, null));
 
@@ -24,9 +25,11 @@
         Item.itemAll(connection, session)
         .then((items) => {
             console.log(items);
+            theItems = items;
             Person.personAll(connection, session)
             .then((people) => {
                 console.log(people);
+                persons = people;
                 loading = false;
             })
         })
@@ -51,7 +54,7 @@
     {:else if loading}
         loading ...
     {:else}
-        <GraphQL_Table definition="Person" data={persons}/>
+        <GraphQL_Table definition="Item" data={theItems}/>
     {/if}
 </main>
 
