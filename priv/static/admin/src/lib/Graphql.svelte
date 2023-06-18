@@ -331,8 +331,8 @@
             cost:       { type: "number",       editable: true,     input: "number",    width: 1 },
             bookable:   { type: "boolean",      editable: true,     input: "checkbox",  width: 1 },
             access:     { type: "Itemtype",     editable: true,     input: "dropdown",  width: 2 },
-            bookings:   { type: "Booking",      editable: false,    input: "array",     width: 2,       labelise: "person.upi" },
-            inductions: { type: "Person",       editable: false,    input: "array",     width: 2,       labelise: "upi" }
+            bookings:   { type: "Booking",      editable: true,     input: "array",     width: 2,       labelise: "person.upi" },
+            inductions: { type: "Person",       editable: true,     input: "array",     width: 2,       labelise: "upi" }
         }
 
         //----------------------------------------------------------------------------------------------
@@ -915,6 +915,14 @@
 
     export function proportionalWidth(_format:{}, totalWidth: number, key: string) {
         return _format[key]["width"] / totalWidth * 96; // 4% for the buttons
+    }
+
+    export function typeDropdown(_type:string = "") {
+        switch (_type) {
+            case "Usertype": return [{"USER": "student"}, {"POWERUSER": "lecturer"}, {"ADMIN": "admin"}];
+            case "Itemtype": return [{"FREE": "free"}, {"INDUCTION": "induction"}, {"SUPERVISED":"supervised"}];
+            default: return [];
+        }
     }
     //==================================================================================================
 

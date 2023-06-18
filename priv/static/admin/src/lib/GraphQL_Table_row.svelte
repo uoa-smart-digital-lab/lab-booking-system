@@ -6,8 +6,9 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { reload, Table_Col, Checkbox, Image, Label, Popup, Link } from "svelte-fomantic-ui";
+    import { reload, Table_Col, Checkbox, Image, Label, Popup, Link, Button, Icon, Dropdown, Input, Text, Menu, Item } from "svelte-fomantic-ui";
     import { onMount } from "svelte";
+    import { typeDropdown } from "./Graphql.svelte";
     import GraphQL_Table from "./GraphQL_Table.svelte";
 
     export let col: string = undefined;
@@ -15,10 +16,8 @@
     export let format: any = {};
     export let horizontal = false;
 
-    console.log({col:col, row:row, format: format, Horiz: horizontal});
-
     onMount(() => {
-        reload();
+        // reload();
     });
 
     function extract (data:any[], keystring:string) {
@@ -41,38 +40,46 @@
         {#if (format[col].input === "text" || format[col].input === "number") && row[col] !== undefined}
             {format[col].capitalise ? row[col].toUpperCase() : row[col]}
         {:else if format[col].input === "checkbox" && row[col] !== undefined}
-            <Checkbox checked={row[col]}/>
+            <Checkbox ui checked={row[col]} read-only/>
         {:else if format[col].input === "datetime" && row[col] !== undefined}
             <Label ui green>{row[col].toLocaleString('en-US', { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' })}</Label>
         {:else if format[col].input === "image" && row[col] !== undefined}
-            <Link href={row[col]}><Image ui avatar src={row[col]}/>{row[col]}</Link>
+            <Link href={row[col]} popup={{hoverable:true}}><Image ui avatar src={row[col]}/>{row[col]}</Link>
+            <Popup ui>
+                <Image ui medium src={row[col]}/>
+            </Popup>
         {:else if format[col].input === "url" && row[col] !== undefined}
-            <Link href={row[col]}>{row[col]}</Link>
+            <Link href={row[col]} target="_blank">{row[col]}</Link>
         {:else if format[col].input === "object" && row[col] !== undefined}
             <GraphQL_Table horizontal definition={format[col].type} data={[row[col]]}/>
         {:else if format[col].input === "array" && row[col] !== undefined}
-            {#if format[col].hasOwnProperty("labelise")}
-                {#each row[col] as item, i}
-                    <Label ui blue popup={{hoverable: true}}>{extract(item, format[col].labelise)}</Label>
-                    <Popup ui>
-                        <GraphQL_Table definition={format[col].type} data={[item]}/>
-                    </Popup>
-                {/each}
+            {#if row[col].length === 0}
+                <Button ui green icon compact tertiary>
+                    <Icon plus/>
+                </Button>
             {:else}
-                <GraphQL_Table definition={format[col].type} data={[row[col]]}/>
+                {#if format[col].hasOwnProperty("labelise")}
+                    {#each row[col] as item, i}
+                        <Label ui blue popup={{hoverable: true}}>{extract(item, format[col].labelise)}</Label>
+                        <Popup ui>
+                            <GraphQL_Table definition={format[col].type} data={[item]}/>
+                        </Popup>
+                    {/each}
+                {:else}
+                    <GraphQL_Table definition={format[col].type} data={[row[col]]}/>
+                {/if}
             {/if}
         {:else if format[col].input === "dropdown" && row[col] !== undefined}
-            <!-- <Dropdown ui fluid selection selected={data[col].status.toString()} on:change={(item) => {data[col].status=Number(item.detail.value)}}>
-                <Input hidden bind:value={data[col].status}/>
+            <Dropdown ui fluid selection> <!--  selected={row[col].status.toString()} on:change={(item) => {row[col].status=Number(item.detail.value)}}> -->
+                <Input hidden/>
                 <Icon dropdown/>
-                <Text default>Select Status</Text>
+                <Text default>select</Text>
                 <Menu fluid>
-                    <Item value="0">student</Item>
-                    <Item value="1">staff</Item>
-                    <Item value="2">admin</Item>
+                    {#each typeDropdown[format[col].type] as item, i}
+                        <Item value={Object.keys(item)[0]}>{item[Object.keys(item)[0]]}</Item>
+                    {/each}
                 </Menu>
-            </Dropdown> -->
-            {"dropdown"}
+            </Dropdown>
         {:else}
             ---
         {/if}

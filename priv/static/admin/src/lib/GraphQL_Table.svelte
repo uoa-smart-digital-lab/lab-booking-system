@@ -10,7 +10,6 @@
     import { getKeys, getFormat, totalWidth, proportionalWidth } from "./Graphql.svelte";
     import { onMount } from "svelte";
     import GraphQL_Table_row from "./GraphQL_Table_row.svelte";
-    import GraphQlTableRow from "./GraphQL_Table_row.svelte";
 
     export let definition: string = "";
     export let data: any[] = [];
@@ -42,7 +41,7 @@
                     {#each keys as col, i}
                         {#if row[col] !== undefined}
                             <Table_Row>
-                                <GraphQlTableRow {col} {row} {format} {horizontal}/>
+                                <GraphQL_Table_row {col} {row} {format} {horizontal}/>
                             </Table_Row>
                         {/if}
                     {/each}
@@ -54,7 +53,7 @@
             <Table_Head>
                 <Table_Row>
                     <Table_Col center aligned style="width: 2%">
-                        <Button ui green icon>
+                        <Button ui green icon compact tertiary>
                             <Icon plus/>
                         </Button>
                     </Table_Col>
@@ -72,15 +71,15 @@
                 {#each data as row, i}
                     <Table_Row>
                         <Table_Col center aligned>
-                            <Button ui blue icon>
+                            <Button ui blue icon compact tertiary>
                                 <Icon edit/>
                             </Button>
                         </Table_Col>
                         {#each keys as col, i}
-                            <GraphQlTableRow {col} {row} {format} {horizontal}/>
+                            <GraphQL_Table_row {col} {row} {format} {horizontal}/>
                         {/each}
                         <Table_Col center aligned>
-                            <Button ui red icon>
+                            <Button ui red icon compact tertiary>
                                 <Icon trash/>
                             </Button>
                         </Table_Col>
