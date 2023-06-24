@@ -465,7 +465,6 @@
                 graphql.query(session, {name: name}, Item._queries.all)
                 .then((data) => {
                     let result: Array<Item> = [];
-                    console.log(data);
                     data.forEach((item: ItemJSON) => {
                         result.push(new Item(item));
                     });
@@ -514,8 +513,8 @@
             status:     { type: "Usertype",     editable: true,     input: "dropdown",  width: 2 },
             details:    { type: "PersonDetails",editable: true,     input: "object",    width: 2 },
             tokens:     { type: "number",       editable: true,     input: "number",    width: 1 },
-            bookings:   { type: "Booking",      editable: false,    input: "array",     width: 2,       labelise: "item.name" },
-            inductions: { type: "Item",         editable: false,    input: "array",     width: 2,       labelise: "name" }
+            bookings:   { type: "Booking",      editable: true,     input: "array",     width: 2,       labelise: "item.name" },
+            inductions: { type: "Item",         editable: true,     input: "array",     width: 2,       labelise: "name" }
         };
 
         //----------------------------------------------------------------------------------------------
@@ -881,7 +880,6 @@
     // Helper functions
     //==================================================================================================
     export function getKeys(theType: string): string[] {
-        console.log(theType);
         switch (theType) {
             case "Person": return Object.keys(Person._format);
             case "Item": return Object.keys(Item._format);
@@ -914,13 +912,13 @@
     }
 
     export function proportionalWidth(_format:{}, totalWidth: number, key: string) {
-        return _format[key]["width"] / totalWidth * 96; // 4% for the buttons
+        return _format[key]["width"] / totalWidth * 96; // 4% for the edit and delete buttons
     }
 
-    export function typeDropdown(_type:string = "") {
-        switch (_type) {
+    export function typeDropdown(theType:string = "") {
+        switch (theType) {
             case "Usertype": return [{"USER": "student"}, {"POWERUSER": "lecturer"}, {"ADMIN": "admin"}];
-            case "Itemtype": return [{"FREE": "free"}, {"INDUCTION": "induction"}, {"SUPERVISED":"supervised"}];
+            case "Itemtype": return [{"FREE": "free"}, {"INDUCTION": "induction"}, {"SUPERVISED": "supervised"}];
             default: return [];
         }
     }
