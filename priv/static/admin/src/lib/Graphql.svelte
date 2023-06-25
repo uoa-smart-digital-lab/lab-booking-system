@@ -949,6 +949,7 @@
     //         }
     //     } `;
 
+    export const LOGIN = "";
 
     // export const LOGIN = gql`
     //     mutation login ($upi:String!, $password:String!)

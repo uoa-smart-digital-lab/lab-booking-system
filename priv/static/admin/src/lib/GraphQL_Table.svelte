@@ -6,24 +6,23 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { reload, behavior, Table, Table_Col, Table_Row, Table_Body, Modal, Segment, Table_Foot, Table_Head, Checkbox, Image, Label, Popup, Calendar, Input, Dropdown, Link, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
+    import { behavior, Table, Table_Col, Table_Row, Table_Body, Modal, Header, Content, Actions, Segment, Table_Foot, Table_Head, Checkbox, Image, Label, Popup, Calendar, Input, Dropdown, Link, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
     import { getKeys, getFormat, totalWidth, proportionalWidth } from "./Graphql.svelte";
-    import { onMount } from "svelte";
     import GraphQL_Table_row from "./GraphQL_Table_row.svelte";
     import GraphQL_Table_row_edit from "./GraphQL_Table_row_edit.svelte";
 
     export let definition: string = "";
     export let data: any[] = [];
     export let horizontal = false;
+    export let id: string = "Table";
+
     let editable_content = {};
+
 
     const format = getFormat(definition);
     const keys = getKeys(definition);
     const width = totalWidth(format);
 
-    onMount(() => {
-        reload();
-    });
     function extract (data:any[], keystring:string) {
         let result = data;
         let keys = keystring.split('.');
@@ -35,15 +34,23 @@
 
     function doEdit(content: {}) {
         editable_content = content;
-        console.log(editable_content);
-        behavior({type: "modal", id: "edit", commands: ["show"], settings: {title: "Edit " + editable_content["__typename"]}});
+        // console.log(editable_content);
+        // editModal = true;
+        // update("edit_modal");
+        behavior({type: "modal", id: id+"edit_modal", commands: ["show"]});
     }
+
 </script>
 
-<Modal ui id="edit">
-    <GraphQL_Table_row_edit content={editable_content}/>
-</Modal>
+<!-- <Modal ui id="edit">
+    <Header/>
+    <Content scrolling>
+        <GraphQL_Table_row_edit content={edit_content}/>
+    </Content>
+    <Actions/>
+</Modal> -->
 
+<GraphQL_Table_row_edit id={id+"edit_modal"} row={editable_content} {format} {keys}/>
 
 {#if data}
     {#if horizontal}

@@ -1,7 +1,10 @@
 <script lang="ts">
-    import Table_Persons from "./lib/Table_Persons.svelte";
+    import {reload} from "svelte-fomantic-ui";
     import GraphQL_Table from "./lib/GraphQL_Table.svelte";
-    import { PersonDetails, GraphQL, Person, Item, Session } from "./lib/Graphql.svelte";
+    import { GraphQL, Person, Item, Session } from "./lib/Graphql.svelte";
+    import Login from "./lib/Login.svelte";
+    import { afterUpdate } from "svelte";
+
 
     // let details: PersonDetails = new PersonDetails("123456789", "here@there");
 
@@ -11,6 +14,8 @@
     let connection = new GraphQL("/api");
     let loading = true;
     let error = false;
+
+    afterUpdate(() => { reload(); });
 
     let session: Session = new Session();
     session.login(connection, "rdav031", "12345")
@@ -38,18 +43,28 @@
         // Login failed, handle error
     });
 
-
+    function login (event : any) {
+        // switch (event.detail.message)
+        // {
+        //     case 'close' : LoginC.step(LoginEvents.CLOSE_DIALOG); break;
+        //     case 'success' : LoginC.step(LoginEvents.LOG_IN, event.detail.data); break;
+        //     default: break;
+        // }
+    }
 
 </script>
 
 <main>
+
+    <!-- <Login id="LoginDialog" on:login={login}/> -->
+
     {#if error}
         error ...
     {:else if loading}
         loading ...
     {:else}
-    <GraphQL_Table definition="Person" data={thePeople}/>
-    <GraphQL_Table definition="Item" data={theItems}/>
+        <GraphQL_Table definition="Person" id="people" data={thePeople}/>
+        <GraphQL_Table definition="Item" id="items" data={theItems}/>
     {/if}
 </main>
 

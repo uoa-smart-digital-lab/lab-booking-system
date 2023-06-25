@@ -6,8 +6,7 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { reload, Table_Col, Checkbox, Image, Label, Popup, Link, Button, Icon, Select, Option, Container, Grid, Column, Dropdown, Input, Text, Menu, Item } from "svelte-fomantic-ui";
-    import { onMount } from "svelte";
+    import { Table_Col, Checkbox, Image, Label, Popup, Link, Button, Icon, Select, Option } from "svelte-fomantic-ui";
     import { typeDropdown } from "./Graphql.svelte";
     import GraphQL_Table from "./GraphQL_Table.svelte";
 
@@ -15,10 +14,6 @@
     export let row: any = {};
     export let format: any = {};
     export let horizontal = false;
-
-    onMount(() => {
-        // reload();
-    });
 
     function extract (data:any[], keystring:string) {
         let result = data;
