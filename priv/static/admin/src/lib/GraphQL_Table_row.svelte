@@ -15,14 +15,7 @@
     export let format: any = {};
     export let horizontal = false;
 
-    function extract (data:any[], keystring:string) {
-        let result = data;
-        let keys = keystring.split('.');
-        for (let i = 0; i < keys.length; i++) {
-            if (result !== undefined) result = result[keys[i]];
-        }
-        return result;
-    }
+    function extract(data:any[], keystring:string) { return keystring.split('.').reduce((result, key) => result !== undefined ? result[key] : undefined, data); }
 </script>
 
 {#if col && col !== ""}

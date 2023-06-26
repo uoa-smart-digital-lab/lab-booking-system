@@ -3,7 +3,7 @@
     import GraphQL_Table from "./lib/GraphQL_Table.svelte";
     import { GraphQL, Person, Item, Session } from "./lib/Graphql.svelte";
     import Login from "./lib/Login.svelte";
-    import { afterUpdate } from "svelte";
+    import { afterUpdate, onMount } from "svelte";
 
 
     // let details: PersonDetails = new PersonDetails("123456789", "here@there");

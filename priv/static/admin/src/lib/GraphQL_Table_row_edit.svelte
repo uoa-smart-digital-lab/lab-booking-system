@@ -6,8 +6,8 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import {behavior, Text, Modal, Actions, Button, Content, Message, Header, Form, Checkbox, Link, Popup, Image, Icon, Select, Option, Field, Input, Label, Table, Table_Body, Table_Row, Table_Col} from "svelte-fomantic-ui";
-	import { createEventDispatcher } from 'svelte';
+    import {behavior, reload, Text, Modal, Actions, Button, Content, Message, Header, Form, Checkbox, Link, Popup, Image, Icon, Select, Option, Field, Input, Label, Table, Table_Body, Table_Row, Table_Col} from "svelte-fomantic-ui";
+	import { afterUpdate, createEventDispatcher } from 'svelte';
     import { typeDropdown } from "./Graphql.svelte";
     import GraphQL_Table from "./GraphQL_Table.svelte";
 
@@ -15,7 +15,8 @@
     export let row = {};
     export let format = {};
     export let keys = [];
-    export let id: string="EditDialog";
+    export let id: string="EditDialog"+Math.random().toString(36).substring(2, 6);
+;
 
     // -------------------------------------------------------------------------------------------------
     // Variables
@@ -57,6 +58,8 @@
     }
 
     function extract(data:any[], keystring:string) { return keystring.split('.').reduce((result, key) => result !== undefined ? result[key] : undefined, data); }
+
+    afterUpdate(() => { reload(id); });
 
 </script>
 

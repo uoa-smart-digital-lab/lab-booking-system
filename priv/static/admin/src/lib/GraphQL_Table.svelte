@@ -6,7 +6,7 @@
   Contact: roy.c.davies@ieee.org
 ------------------------------------------------------------------------------------------------------->
 <script lang="ts">
-    import { behavior, Table, Table_Col, Table_Row, Table_Body, Modal, Header, Content, Actions, Segment, Table_Foot, Table_Head, Checkbox, Image, Label, Popup, Calendar, Input, Dropdown, Link, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
+    import { behavior, reload, Table, Table_Col, Table_Row, Table_Body, Modal, Header, Content, Actions, Segment, Table_Foot, Table_Head, Checkbox, Image, Label, Popup, Calendar, Input, Dropdown, Link, Menu, Item, Button, Icon, Text, Buttons } from "svelte-fomantic-ui";
     import { getKeys, getFormat, totalWidth, proportionalWidth } from "./Graphql.svelte";
     import GraphQL_Table_row from "./GraphQL_Table_row.svelte";
     import GraphQL_Table_row_edit from "./GraphQL_Table_row_edit.svelte";
@@ -55,7 +55,7 @@
 {#if data}
     {#if horizontal}
         <div style="overflow-x: auto; max-width: 100%;">
-            <Table ui unstackable very compact celled definition style="min-width: 100%;">
+            <Table {id} ui unstackable very compact celled definition style="min-width: 100%;">
                 <Table_Body>
                     {#each data as row, i}
                         {#each keys as col, i}
